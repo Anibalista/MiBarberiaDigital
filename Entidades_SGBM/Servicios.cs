@@ -1,0 +1,45 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Entidades_SGBM
+{
+    public class Servicios
+    {
+        [Key]
+        public int IdServicio { get; set; }
+
+        [MaxLength(150)]
+        public string NombreServicio { get; set; }
+
+        [MaxLength(200)]
+        public string? Descripcion { get; set; }
+
+        [Column(TypeName = "decimal(12,2)")]
+        public decimal PrecioVenta { get; set; }
+
+        [Column(TypeName = "decimal(12,2)")]
+        public decimal Costos {  get; set; }
+
+        [Column(TypeName = "decimal(12,2)")]
+        public decimal Margen { get; set; }
+
+        [Column(TypeName = "decimal(12,2)")]
+        public decimal Comision { get; set; }
+
+        public int DuracionMinutos { get; set; }
+
+        public int Puntaje { get; set; }
+
+        [ForeignKey("Categorias")]
+        public int IdCategoria { get; set; }
+
+        public Categorias? Categorias { get; set; }
+
+
+    }
+}
