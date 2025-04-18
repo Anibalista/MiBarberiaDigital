@@ -12,9 +12,16 @@ namespace Front_SGBM
 {
     public partial class FrmEditClientes : Form
     {
+        public EnumModoForm modo = EnumModoForm.Alta;
+
         public FrmEditClientes()
         {
             InitializeComponent();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

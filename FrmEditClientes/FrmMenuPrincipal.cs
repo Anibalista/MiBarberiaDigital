@@ -109,19 +109,28 @@ namespace Front_SGBM
         //Accesos
         private void abrirEditClientes(object sender, EventArgs e, EnumModoForm modo)
         {
-            Form abierto = Application.OpenForms["FrmEditClientes"] as Form;
+            FrmEditClientes abierto = Application.OpenForms.OfType<FrmEditClientes>().FirstOrDefault();
 
-            if (abierto != null)
+            if (abierto == null)
             {
-                abierto.Close();
+                abierto = new FrmEditClientes();
+                abierto.MdiParent = this;
+                abierto.modo = modo;
+                abierto.Show();
+            } else
+            {
+                abierto.Focus();
             }
+
+            
+
 
         }
 
         //Opciones
         private void nuevoClienteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            abrirEditClientes(sender, e, EnumModoForm.Alta);
 
         }
     }
