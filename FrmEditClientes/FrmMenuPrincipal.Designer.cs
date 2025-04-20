@@ -54,7 +54,7 @@
             selectAllToolStripMenuItem = new ToolStripMenuItem();
             viewMenu = new ToolStripMenuItem();
             toolBarToolStripMenuItem = new ToolStripMenuItem();
-            statusBarToolStripMenuItem = new ToolStripMenuItem();
+            checkStatusBarMenuItem = new ToolStripMenuItem();
             toolsMenu = new ToolStripMenuItem();
             optionsToolStripMenuItem = new ToolStripMenuItem();
             windowsMenu = new ToolStripMenuItem();
@@ -64,12 +64,10 @@
             tileHorizontalToolStripMenuItem = new ToolStripMenuItem();
             closeAllToolStripMenuItem = new ToolStripMenuItem();
             arrangeIconsToolStripMenuItem = new ToolStripMenuItem();
-            helpMenu = new ToolStripMenuItem();
-            contentsToolStripMenuItem = new ToolStripMenuItem();
-            indexToolStripMenuItem = new ToolStripMenuItem();
-            searchToolStripMenuItem = new ToolStripMenuItem();
-            toolStripSeparator8 = new ToolStripSeparator();
-            aboutToolStripMenuItem = new ToolStripMenuItem();
+            administracionToolStripMenuItem = new ToolStripMenuItem();
+            clientesToolStripMenuItem = new ToolStripMenuItem();
+            nuevoClienteToolStripMenuItem = new ToolStripMenuItem();
+            buscarClientesToolStripMenuItem = new ToolStripMenuItem();
             toolStrip = new ToolStrip();
             newToolStripButton = new ToolStripButton();
             openToolStripButton = new ToolStripButton();
@@ -82,10 +80,6 @@
             statusStrip = new StatusStrip();
             toolStripStatusLabel = new ToolStripStatusLabel();
             toolTip = new ToolTip(components);
-            administracionToolStripMenuItem = new ToolStripMenuItem();
-            clientesToolStripMenuItem = new ToolStripMenuItem();
-            nuevoClienteToolStripMenuItem = new ToolStripMenuItem();
-            buscarClientesToolStripMenuItem = new ToolStripMenuItem();
             menuStrip.SuspendLayout();
             toolStrip.SuspendLayout();
             statusStrip.SuspendLayout();
@@ -93,7 +87,7 @@
             // 
             // menuStrip
             // 
-            menuStrip.Items.AddRange(new ToolStripItem[] { fileMenu, editMenu, viewMenu, toolsMenu, windowsMenu, helpMenu, administracionToolStripMenuItem });
+            menuStrip.Items.AddRange(new ToolStripItem[] { fileMenu, editMenu, viewMenu, toolsMenu, windowsMenu, administracionToolStripMenuItem });
             menuStrip.Location = new Point(0, 0);
             menuStrip.MdiWindowListItem = windowsMenu;
             menuStrip.Name = "menuStrip";
@@ -265,7 +259,7 @@
             // 
             // viewMenu
             // 
-            viewMenu.DropDownItems.AddRange(new ToolStripItem[] { toolBarToolStripMenuItem, statusBarToolStripMenuItem });
+            viewMenu.DropDownItems.AddRange(new ToolStripItem[] { toolBarToolStripMenuItem, checkStatusBarMenuItem });
             viewMenu.Name = "viewMenu";
             viewMenu.Size = new Size(35, 20);
             viewMenu.Text = "&Ver";
@@ -280,15 +274,15 @@
             toolBarToolStripMenuItem.Text = "&Barra de herramientas";
             toolBarToolStripMenuItem.Click += ToolBarToolStripMenuItem_Click;
             // 
-            // statusBarToolStripMenuItem
+            // checkStatusBarMenuItem
             // 
-            statusBarToolStripMenuItem.Checked = true;
-            statusBarToolStripMenuItem.CheckOnClick = true;
-            statusBarToolStripMenuItem.CheckState = CheckState.Checked;
-            statusBarToolStripMenuItem.Name = "statusBarToolStripMenuItem";
-            statusBarToolStripMenuItem.Size = new Size(189, 22);
-            statusBarToolStripMenuItem.Text = "&Barra de estado";
-            statusBarToolStripMenuItem.Click += StatusBarToolStripMenuItem_Click;
+            checkStatusBarMenuItem.Checked = true;
+            checkStatusBarMenuItem.CheckOnClick = true;
+            checkStatusBarMenuItem.CheckState = CheckState.Checked;
+            checkStatusBarMenuItem.Name = "checkStatusBarMenuItem";
+            checkStatusBarMenuItem.Size = new Size(189, 22);
+            checkStatusBarMenuItem.Text = "&Barra de estado";
+            checkStatusBarMenuItem.Click += StatusBarToolStripMenuItem_Click;
             // 
             // toolsMenu
             // 
@@ -300,7 +294,7 @@
             // optionsToolStripMenuItem
             // 
             optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            optionsToolStripMenuItem.Size = new Size(180, 22);
+            optionsToolStripMenuItem.Size = new Size(124, 22);
             optionsToolStripMenuItem.Text = "&Opciones";
             // 
             // windowsMenu
@@ -313,85 +307,71 @@
             // newWindowToolStripMenuItem
             // 
             newWindowToolStripMenuItem.Name = "newWindowToolStripMenuItem";
-            newWindowToolStripMenuItem.Size = new Size(180, 22);
+            newWindowToolStripMenuItem.Size = new Size(175, 22);
             newWindowToolStripMenuItem.Text = "&Nueva ventana";
             newWindowToolStripMenuItem.Click += ShowNewForm;
             // 
             // cascadeToolStripMenuItem
             // 
             cascadeToolStripMenuItem.Name = "cascadeToolStripMenuItem";
-            cascadeToolStripMenuItem.Size = new Size(180, 22);
+            cascadeToolStripMenuItem.Size = new Size(175, 22);
             cascadeToolStripMenuItem.Text = "&Cascada";
             cascadeToolStripMenuItem.Click += CascadeToolStripMenuItem_Click;
             // 
             // tileVerticalToolStripMenuItem
             // 
             tileVerticalToolStripMenuItem.Name = "tileVerticalToolStripMenuItem";
-            tileVerticalToolStripMenuItem.Size = new Size(180, 22);
+            tileVerticalToolStripMenuItem.Size = new Size(175, 22);
             tileVerticalToolStripMenuItem.Text = "Mosaico &vertical";
             tileVerticalToolStripMenuItem.Click += TileVerticalToolStripMenuItem_Click;
             // 
             // tileHorizontalToolStripMenuItem
             // 
             tileHorizontalToolStripMenuItem.Name = "tileHorizontalToolStripMenuItem";
-            tileHorizontalToolStripMenuItem.Size = new Size(180, 22);
+            tileHorizontalToolStripMenuItem.Size = new Size(175, 22);
             tileHorizontalToolStripMenuItem.Text = "Mosaico &horizontal";
             tileHorizontalToolStripMenuItem.Click += TileHorizontalToolStripMenuItem_Click;
             // 
             // closeAllToolStripMenuItem
             // 
             closeAllToolStripMenuItem.Name = "closeAllToolStripMenuItem";
-            closeAllToolStripMenuItem.Size = new Size(180, 22);
+            closeAllToolStripMenuItem.Size = new Size(175, 22);
             closeAllToolStripMenuItem.Text = "C&errar todo";
             closeAllToolStripMenuItem.Click += CloseAllToolStripMenuItem_Click;
             // 
             // arrangeIconsToolStripMenuItem
             // 
             arrangeIconsToolStripMenuItem.Name = "arrangeIconsToolStripMenuItem";
-            arrangeIconsToolStripMenuItem.Size = new Size(180, 22);
+            arrangeIconsToolStripMenuItem.Size = new Size(175, 22);
             arrangeIconsToolStripMenuItem.Text = "&Organizar iconos";
             arrangeIconsToolStripMenuItem.Click += ArrangeIconsToolStripMenuItem_Click;
             // 
-            // helpMenu
+            // administracionToolStripMenuItem
             // 
-            helpMenu.DropDownItems.AddRange(new ToolStripItem[] { contentsToolStripMenuItem, indexToolStripMenuItem, searchToolStripMenuItem, toolStripSeparator8, aboutToolStripMenuItem });
-            helpMenu.Name = "helpMenu";
-            helpMenu.Size = new Size(53, 20);
-            helpMenu.Text = "Ay&uda";
+            administracionToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { clientesToolStripMenuItem });
+            administracionToolStripMenuItem.Name = "administracionToolStripMenuItem";
+            administracionToolStripMenuItem.Size = new Size(100, 20);
+            administracionToolStripMenuItem.Text = "Administracion";
             // 
-            // contentsToolStripMenuItem
+            // clientesToolStripMenuItem
             // 
-            contentsToolStripMenuItem.Name = "contentsToolStripMenuItem";
-            contentsToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.F1;
-            contentsToolStripMenuItem.Size = new Size(180, 22);
-            contentsToolStripMenuItem.Text = "&Contenido";
+            clientesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { nuevoClienteToolStripMenuItem, buscarClientesToolStripMenuItem });
+            clientesToolStripMenuItem.Name = "clientesToolStripMenuItem";
+            clientesToolStripMenuItem.Size = new Size(116, 22);
+            clientesToolStripMenuItem.Text = "Clientes";
             // 
-            // indexToolStripMenuItem
+            // nuevoClienteToolStripMenuItem
             // 
-            indexToolStripMenuItem.Image = (Image)resources.GetObject("indexToolStripMenuItem.Image");
-            indexToolStripMenuItem.ImageTransparentColor = Color.Black;
-            indexToolStripMenuItem.Name = "indexToolStripMenuItem";
-            indexToolStripMenuItem.Size = new Size(180, 22);
-            indexToolStripMenuItem.Text = "&Índice";
+            nuevoClienteToolStripMenuItem.Name = "nuevoClienteToolStripMenuItem";
+            nuevoClienteToolStripMenuItem.Size = new Size(154, 22);
+            nuevoClienteToolStripMenuItem.Text = "Nuevo Cliente";
+            nuevoClienteToolStripMenuItem.Click += nuevoClienteToolStripMenuItem_Click;
             // 
-            // searchToolStripMenuItem
+            // buscarClientesToolStripMenuItem
             // 
-            searchToolStripMenuItem.Image = (Image)resources.GetObject("searchToolStripMenuItem.Image");
-            searchToolStripMenuItem.ImageTransparentColor = Color.Black;
-            searchToolStripMenuItem.Name = "searchToolStripMenuItem";
-            searchToolStripMenuItem.Size = new Size(180, 22);
-            searchToolStripMenuItem.Text = "&Buscar";
-            // 
-            // toolStripSeparator8
-            // 
-            toolStripSeparator8.Name = "toolStripSeparator8";
-            toolStripSeparator8.Size = new Size(177, 6);
-            // 
-            // aboutToolStripMenuItem
-            // 
-            aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            aboutToolStripMenuItem.Size = new Size(180, 22);
-            aboutToolStripMenuItem.Text = "&Acerca de... ...";
+            buscarClientesToolStripMenuItem.Name = "buscarClientesToolStripMenuItem";
+            buscarClientesToolStripMenuItem.Size = new Size(154, 22);
+            buscarClientesToolStripMenuItem.Text = "Buscar Clientes";
             // 
             // toolStrip
             // 
@@ -401,7 +381,6 @@
             toolStrip.Size = new Size(737, 25);
             toolStrip.TabIndex = 1;
             toolStrip.Text = "ToolStrip";
-            toolStrip.Visible = false;
             // 
             // newToolStripButton
             // 
@@ -485,33 +464,6 @@
             toolStripStatusLabel.Size = new Size(42, 17);
             toolStripStatusLabel.Text = "Estado";
             // 
-            // administracionToolStripMenuItem
-            // 
-            administracionToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { clientesToolStripMenuItem });
-            administracionToolStripMenuItem.Name = "administracionToolStripMenuItem";
-            administracionToolStripMenuItem.Size = new Size(100, 20);
-            administracionToolStripMenuItem.Text = "Administracion";
-            // 
-            // clientesToolStripMenuItem
-            // 
-            clientesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { nuevoClienteToolStripMenuItem, buscarClientesToolStripMenuItem });
-            clientesToolStripMenuItem.Name = "clientesToolStripMenuItem";
-            clientesToolStripMenuItem.Size = new Size(180, 22);
-            clientesToolStripMenuItem.Text = "Clientes";
-            // 
-            // nuevoClienteToolStripMenuItem
-            // 
-            nuevoClienteToolStripMenuItem.Name = "nuevoClienteToolStripMenuItem";
-            nuevoClienteToolStripMenuItem.Size = new Size(180, 22);
-            nuevoClienteToolStripMenuItem.Text = "Nuevo Cliente";
-            nuevoClienteToolStripMenuItem.Click += nuevoClienteToolStripMenuItem_Click;
-            // 
-            // buscarClientesToolStripMenuItem
-            // 
-            buscarClientesToolStripMenuItem.Name = "buscarClientesToolStripMenuItem";
-            buscarClientesToolStripMenuItem.Size = new Size(180, 22);
-            buscarClientesToolStripMenuItem.Text = "Buscar Clientes";
-            // 
             // FrmMenuPrincipal
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -548,9 +500,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
         private System.Windows.Forms.ToolStripMenuItem printSetupToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
-        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem tileHorizontalToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fileMenu;
         private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
@@ -569,7 +519,7 @@
         private System.Windows.Forms.ToolStripMenuItem selectAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem viewMenu;
         private System.Windows.Forms.ToolStripMenuItem toolBarToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem statusBarToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem checkStatusBarMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolsMenu;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem windowsMenu;
@@ -578,10 +528,6 @@
         private System.Windows.Forms.ToolStripMenuItem tileVerticalToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem arrangeIconsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem helpMenu;
-        private System.Windows.Forms.ToolStripMenuItem contentsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem indexToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem searchToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton newToolStripButton;
         private System.Windows.Forms.ToolStripButton openToolStripButton;
         private System.Windows.Forms.ToolStripButton saveToolStripButton;

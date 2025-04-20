@@ -23,6 +23,9 @@ namespace Entidades_SGBM
         public string? Instagram { get; set; }
 
         [MaxLength(150)]
+        public string? Email { get; set; }
+
+        [MaxLength(150)]
         public string? Facebook { get; set; }
 
         [ForeignKey("Personas")]

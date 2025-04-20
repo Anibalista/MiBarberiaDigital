@@ -74,7 +74,7 @@ namespace Front_SGBM
 
         private void StatusBarToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            statusStrip.Visible = statusBarToolStripMenuItem.Checked;
+            statusStrip.Visible = checkStatusBarMenuItem.Checked;
         }
 
         private void CascadeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -109,7 +109,7 @@ namespace Front_SGBM
         //Accesos
         private void abrirEditClientes(object sender, EventArgs e, EnumModoForm modo)
         {
-            FrmEditClientes abierto = Application.OpenForms.OfType<FrmEditClientes>().FirstOrDefault();
+            FrmEditClientes? abierto = Application.OpenForms.OfType<FrmEditClientes>().FirstOrDefault();
 
             if (abierto == null)
             {
@@ -122,16 +122,12 @@ namespace Front_SGBM
                 abierto.Focus();
             }
 
-            
-
-
         }
 
         //Opciones
         private void nuevoClienteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             abrirEditClientes(sender, e, EnumModoForm.Alta);
-
         }
     }
 }
