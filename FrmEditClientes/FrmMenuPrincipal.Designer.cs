@@ -92,7 +92,7 @@
             menuStrip.MdiWindowListItem = windowsMenu;
             menuStrip.Name = "menuStrip";
             menuStrip.Padding = new Padding(7, 2, 0, 2);
-            menuStrip.Size = new Size(737, 24);
+            menuStrip.Size = new Size(913, 24);
             menuStrip.TabIndex = 0;
             menuStrip.Text = "MenuStrip";
             // 
@@ -378,7 +378,7 @@
             toolStrip.Items.AddRange(new ToolStripItem[] { newToolStripButton, openToolStripButton, saveToolStripButton, toolStripSeparator1, printToolStripButton, printPreviewToolStripButton, toolStripSeparator2, helpToolStripButton });
             toolStrip.Location = new Point(0, 24);
             toolStrip.Name = "toolStrip";
-            toolStrip.Size = new Size(737, 25);
+            toolStrip.Size = new Size(913, 25);
             toolStrip.TabIndex = 1;
             toolStrip.Text = "ToolStrip";
             // 
@@ -451,10 +451,10 @@
             // statusStrip
             // 
             statusStrip.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel });
-            statusStrip.Location = new Point(0, 501);
+            statusStrip.Location = new Point(0, 565);
             statusStrip.Name = "statusStrip";
             statusStrip.Padding = new Padding(1, 0, 16, 0);
-            statusStrip.Size = new Size(737, 22);
+            statusStrip.Size = new Size(913, 22);
             statusStrip.TabIndex = 2;
             statusStrip.Text = "StatusStrip";
             // 
@@ -468,7 +468,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(737, 523);
+            ClientSize = new Size(913, 587);
             Controls.Add(statusStrip);
             Controls.Add(toolStrip);
             Controls.Add(menuStrip);
@@ -476,7 +476,10 @@
             MainMenuStrip = menuStrip;
             Margin = new Padding(4, 3, 4, 3);
             Name = "FrmMenuPrincipal";
+            ShowIcon = false;
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "FrmMenuPrincipal";
+            WindowState = FormWindowState.Maximized;
             menuStrip.ResumeLayout(false);
             menuStrip.PerformLayout();
             toolStrip.ResumeLayout(false);

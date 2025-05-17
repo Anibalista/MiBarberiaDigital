@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            groupBox2 = new GroupBox();
+            groupBox1 = new GroupBox();
             label1 = new Label();
             txtEmail = new TextBox();
             label13 = new Label();
@@ -46,41 +46,41 @@
             txtAreaWhat = new TextBox();
             label9 = new Label();
             flowLayoutPanel1 = new FlowLayoutPanel();
-            panelBotones = new Panel();
             btnCancelar = new Button();
             btnGuardar = new Button();
             btnMenos = new Button();
             btnMas = new Button();
-            groupBox2.SuspendLayout();
+            groupBoxBotones = new GroupBox();
+            groupBox1.SuspendLayout();
             flowLayoutPanel1.SuspendLayout();
-            panelBotones.SuspendLayout();
+            groupBoxBotones.SuspendLayout();
             SuspendLayout();
             // 
-            // groupBox2
+            // groupBox1
             // 
-            groupBox2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            groupBox2.Controls.Add(label1);
-            groupBox2.Controls.Add(txtEmail);
-            groupBox2.Controls.Add(label13);
-            groupBox2.Controls.Add(label12);
-            groupBox2.Controls.Add(txtNumFijo);
-            groupBox2.Controls.Add(label10);
-            groupBox2.Controls.Add(txtAreaFijo);
-            groupBox2.Controls.Add(label11);
-            groupBox2.Controls.Add(txtNumWhat);
-            groupBox2.Controls.Add(label6);
-            groupBox2.Controls.Add(label7);
-            groupBox2.Controls.Add(txtFace);
-            groupBox2.Controls.Add(label8);
-            groupBox2.Controls.Add(txtInsta);
-            groupBox2.Controls.Add(txtAreaWhat);
-            groupBox2.Controls.Add(label9);
-            groupBox2.Location = new Point(3, 3);
-            groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(703, 132);
-            groupBox2.TabIndex = 4;
-            groupBox2.TabStop = false;
-            groupBox2.Text = "Contacto Nro 1";
+            groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            groupBox1.Controls.Add(label1);
+            groupBox1.Controls.Add(txtEmail);
+            groupBox1.Controls.Add(label13);
+            groupBox1.Controls.Add(label12);
+            groupBox1.Controls.Add(txtNumFijo);
+            groupBox1.Controls.Add(label10);
+            groupBox1.Controls.Add(txtAreaFijo);
+            groupBox1.Controls.Add(label11);
+            groupBox1.Controls.Add(txtNumWhat);
+            groupBox1.Controls.Add(label6);
+            groupBox1.Controls.Add(label7);
+            groupBox1.Controls.Add(txtFace);
+            groupBox1.Controls.Add(label8);
+            groupBox1.Controls.Add(txtInsta);
+            groupBox1.Controls.Add(txtAreaWhat);
+            groupBox1.Controls.Add(label9);
+            groupBox1.Location = new Point(3, 3);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Size = new Size(703, 132);
+            groupBox1.TabIndex = 4;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "Contacto Nro 1";
             // 
             // label1
             // 
@@ -98,7 +98,7 @@
             txtEmail.Location = new Point(439, 96);
             txtEmail.Name = "txtEmail";
             txtEmail.Size = new Size(251, 23);
-            txtEmail.TabIndex = 15;
+            txtEmail.TabIndex = 7;
             txtEmail.Validating += txtEmail_Validating;
             // 
             // label13
@@ -124,7 +124,7 @@
             txtNumFijo.Location = new Point(222, 96);
             txtNumFijo.Name = "txtNumFijo";
             txtNumFijo.Size = new Size(108, 23);
-            txtNumFijo.TabIndex = 12;
+            txtNumFijo.TabIndex = 4;
             txtNumFijo.KeyPress += numeric_KeyPress;
             // 
             // label10
@@ -141,24 +141,24 @@
             txtAreaFijo.Location = new Point(87, 96);
             txtAreaFijo.Name = "txtAreaFijo";
             txtAreaFijo.Size = new Size(50, 23);
-            txtAreaFijo.TabIndex = 10;
+            txtAreaFijo.TabIndex = 3;
             txtAreaFijo.KeyPress += numeric_KeyPress;
             // 
             // label11
             // 
             label11.AutoSize = true;
-            label11.Location = new Point(15, 99);
+            label11.Location = new Point(30, 99);
             label11.Name = "label11";
-            label11.Size = new Size(66, 15);
+            label11.Size = new Size(51, 15);
             label11.TabIndex = 9;
-            label11.Text = "C. Area:    0";
+            label11.Text = "C. Area: ";
             // 
             // txtNumWhat
             // 
             txtNumWhat.Location = new Point(222, 34);
             txtNumWhat.Name = "txtNumWhat";
             txtNumWhat.Size = new Size(108, 23);
-            txtNumWhat.TabIndex = 8;
+            txtNumWhat.TabIndex = 2;
             txtNumWhat.KeyPress += numeric_KeyPress;
             // 
             // label6
@@ -186,7 +186,7 @@
             txtFace.Location = new Point(439, 65);
             txtFace.Name = "txtFace";
             txtFace.Size = new Size(251, 23);
-            txtFace.TabIndex = 5;
+            txtFace.TabIndex = 6;
             // 
             // label8
             // 
@@ -204,7 +204,7 @@
             txtInsta.Location = new Point(441, 34);
             txtInsta.Name = "txtInsta";
             txtInsta.Size = new Size(249, 23);
-            txtInsta.TabIndex = 3;
+            txtInsta.TabIndex = 5;
             // 
             // txtAreaWhat
             // 
@@ -217,40 +217,28 @@
             // label9
             // 
             label9.AutoSize = true;
-            label9.Location = new Point(10, 37);
+            label9.Location = new Point(30, 37);
             label9.Name = "label9";
-            label9.Size = new Size(71, 15);
+            label9.Size = new Size(51, 15);
             label9.TabIndex = 0;
-            label9.Text = "C. Area: +54";
+            label9.Text = "C. Area: ";
             // 
             // flowLayoutPanel1
             // 
-            flowLayoutPanel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            flowLayoutPanel1.Controls.Add(groupBox2);
-            flowLayoutPanel1.Location = new Point(1, 3);
+            flowLayoutPanel1.Controls.Add(groupBox1);
+            flowLayoutPanel1.Dock = DockStyle.Fill;
+            flowLayoutPanel1.Location = new Point(0, 0);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(714, 140);
+            flowLayoutPanel1.Size = new Size(717, 136);
             flowLayoutPanel1.TabIndex = 5;
-            // 
-            // panelBotones
-            // 
-            panelBotones.Controls.Add(btnCancelar);
-            panelBotones.Controls.Add(btnGuardar);
-            panelBotones.Controls.Add(btnMenos);
-            panelBotones.Controls.Add(btnMas);
-            panelBotones.Dock = DockStyle.Bottom;
-            panelBotones.Location = new Point(0, 144);
-            panelBotones.Name = "panelBotones";
-            panelBotones.Size = new Size(717, 54);
-            panelBotones.TabIndex = 6;
             // 
             // btnCancelar
             // 
             btnCancelar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold);
-            btnCancelar.Location = new Point(499, 15);
+            btnCancelar.Location = new Point(513, 36);
             btnCancelar.Name = "btnCancelar";
             btnCancelar.Size = new Size(82, 27);
-            btnCancelar.TabIndex = 3;
+            btnCancelar.TabIndex = 39;
             btnCancelar.Text = "Cancelar";
             btnCancelar.UseVisualStyleBackColor = true;
             btnCancelar.Click += btnCancelar_Click;
@@ -258,10 +246,10 @@
             // btnGuardar
             // 
             btnGuardar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold);
-            btnGuardar.Location = new Point(203, 15);
+            btnGuardar.Location = new Point(199, 36);
             btnGuardar.Name = "btnGuardar";
             btnGuardar.Size = new Size(82, 27);
-            btnGuardar.TabIndex = 2;
+            btnGuardar.TabIndex = 38;
             btnGuardar.Text = "Guardar";
             btnGuardar.UseVisualStyleBackColor = true;
             btnGuardar.Click += btnGuardar_Click;
@@ -269,10 +257,10 @@
             // btnMenos
             // 
             btnMenos.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold);
-            btnMenos.Location = new Point(72, 15);
+            btnMenos.Location = new Point(106, 36);
             btnMenos.Name = "btnMenos";
             btnMenos.Size = new Size(30, 27);
-            btnMenos.TabIndex = 1;
+            btnMenos.TabIndex = 37;
             btnMenos.Text = "-";
             btnMenos.UseVisualStyleBackColor = true;
             btnMenos.Click += btnMenos_Click;
@@ -280,34 +268,47 @@
             // btnMas
             // 
             btnMas.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold);
-            btnMas.Location = new Point(20, 15);
+            btnMas.Location = new Point(39, 36);
             btnMas.Name = "btnMas";
             btnMas.Size = new Size(30, 27);
-            btnMas.TabIndex = 0;
+            btnMas.TabIndex = 36;
             btnMas.Text = "+";
             btnMas.UseVisualStyleBackColor = true;
             btnMas.Click += btnMas_Click;
+            // 
+            // groupBoxBotones
+            // 
+            groupBoxBotones.Controls.Add(btnMas);
+            groupBoxBotones.Controls.Add(btnMenos);
+            groupBoxBotones.Controls.Add(btnGuardar);
+            groupBoxBotones.Controls.Add(btnCancelar);
+            groupBoxBotones.Dock = DockStyle.Bottom;
+            groupBoxBotones.Location = new Point(0, 136);
+            groupBoxBotones.Name = "groupBoxBotones";
+            groupBoxBotones.Size = new Size(717, 93);
+            groupBoxBotones.TabIndex = 5;
+            groupBoxBotones.TabStop = false;
             // 
             // FrmContactos
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(717, 198);
-            Controls.Add(panelBotones);
+            ClientSize = new Size(717, 229);
             Controls.Add(flowLayoutPanel1);
+            Controls.Add(groupBoxBotones);
             Name = "FrmContactos";
             Text = "FrmContactos";
             Load += FrmContactos_Load;
-            groupBox2.ResumeLayout(false);
-            groupBox2.PerformLayout();
+            groupBox1.ResumeLayout(false);
+            groupBox1.PerformLayout();
             flowLayoutPanel1.ResumeLayout(false);
-            panelBotones.ResumeLayout(false);
+            groupBoxBotones.ResumeLayout(false);
             ResumeLayout(false);
         }
 
         #endregion
 
-        private GroupBox groupBox2;
+        private GroupBox groupBox1;
         private Label label13;
         private Label label12;
         private TextBox txtNumFijo;
@@ -325,10 +326,10 @@
         private Label label1;
         private TextBox txtEmail;
         private FlowLayoutPanel flowLayoutPanel1;
-        private Panel panelBotones;
         private Button btnMenos;
         private Button btnMas;
         private Button btnCancelar;
         private Button btnGuardar;
+        private GroupBox groupBoxBotones;
     }
 }
