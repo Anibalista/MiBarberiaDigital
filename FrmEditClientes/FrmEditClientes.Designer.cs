@@ -55,8 +55,10 @@
             linkContactos = new LinkLabel();
             groupBox3 = new GroupBox();
             cbProvincia = new ComboBox();
+            bindingProvincias = new BindingSource(components);
             label15 = new Label();
             cbLocalidad = new ComboBox();
+            bindingLocalidades = new BindingSource(components);
             txtPiso = new TextBox();
             label14 = new Label();
             txtDepto = new TextBox();
@@ -75,6 +77,8 @@
             ((System.ComponentModel.ISupportInitialize)dataGridContactos).BeginInit();
             ((System.ComponentModel.ISupportInitialize)bindingContactos).BeginInit();
             groupBox3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)bindingProvincias).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)bindingLocalidades).BeginInit();
             SuspendLayout();
             // 
             // panelTitulo
@@ -175,6 +179,7 @@
             // txtApellido
             // 
             txtApellido.Location = new Point(510, 70);
+            txtApellido.MaxLength = 149;
             txtApellido.Name = "txtApellido";
             txtApellido.Size = new Size(251, 23);
             txtApellido.TabIndex = 5;
@@ -191,6 +196,7 @@
             // txtNombre
             // 
             txtNombre.Location = new Point(103, 70);
+            txtNombre.MaxLength = 149;
             txtNombre.Name = "txtNombre";
             txtNombre.Size = new Size(243, 23);
             txtNombre.TabIndex = 3;
@@ -208,6 +214,7 @@
             // txtDni
             // 
             txtDni.Location = new Point(103, 29);
+            txtDni.MaxLength = 14;
             txtDni.Name = "txtDni";
             txtDni.Size = new Size(116, 23);
             txtDni.TabIndex = 1;
@@ -344,11 +351,19 @@
             // 
             // cbProvincia
             // 
+            cbProvincia.DataSource = bindingProvincias;
+            cbProvincia.DisplayMember = "Provincia";
             cbProvincia.FormattingEnabled = true;
             cbProvincia.Location = new Point(103, 108);
             cbProvincia.Name = "cbProvincia";
             cbProvincia.Size = new Size(243, 23);
             cbProvincia.TabIndex = 17;
+            cbProvincia.ValueMember = "IdProvincia";
+            cbProvincia.SelectedIndexChanged += cbProvincia_SelectedIndexChanged;
+            // 
+            // bindingProvincias
+            // 
+            bindingProvincias.DataSource = typeof(Entidades_SGBM.Provincias);
             // 
             // label15
             // 
@@ -361,15 +376,23 @@
             // 
             // cbLocalidad
             // 
+            cbLocalidad.DataSource = bindingLocalidades;
+            cbLocalidad.DisplayMember = "Localidad";
             cbLocalidad.FormattingEnabled = true;
             cbLocalidad.Location = new Point(510, 70);
             cbLocalidad.Name = "cbLocalidad";
             cbLocalidad.Size = new Size(251, 23);
             cbLocalidad.TabIndex = 15;
+            cbLocalidad.ValueMember = "IdLocalidad";
+            // 
+            // bindingLocalidades
+            // 
+            bindingLocalidades.DataSource = typeof(Entidades_SGBM.Localidades);
             // 
             // txtPiso
             // 
             txtPiso.Location = new Point(725, 27);
+            txtPiso.MaxLength = 9;
             txtPiso.Name = "txtPiso";
             txtPiso.Size = new Size(36, 23);
             txtPiso.TabIndex = 14;
@@ -386,6 +409,7 @@
             // txtDepto
             // 
             txtDepto.Location = new Point(645, 27);
+            txtDepto.MaxLength = 9;
             txtDepto.Name = "txtDepto";
             txtDepto.Size = new Size(31, 23);
             txtDepto.TabIndex = 12;
@@ -402,6 +426,7 @@
             // txtNro
             // 
             txtNro.Location = new Point(510, 27);
+            txtNro.MaxLength = 9;
             txtNro.Name = "txtNro";
             txtNro.Size = new Size(65, 23);
             txtNro.TabIndex = 10;
@@ -436,6 +461,7 @@
             // txtBarrio
             // 
             txtBarrio.Location = new Point(103, 70);
+            txtBarrio.MaxLength = 149;
             txtBarrio.Name = "txtBarrio";
             txtBarrio.Size = new Size(243, 23);
             txtBarrio.TabIndex = 3;
@@ -443,6 +469,7 @@
             // txtCalle
             // 
             txtCalle.Location = new Point(103, 27);
+            txtCalle.MaxLength = 149;
             txtCalle.Name = "txtCalle";
             txtCalle.Size = new Size(243, 23);
             txtCalle.TabIndex = 1;
@@ -468,6 +495,7 @@
             Controls.Add(panelTitulo);
             Name = "FrmEditClientes";
             Text = "FrmEditClientes";
+            Load += FrmEditClientes_Load;
             panelTitulo.ResumeLayout(false);
             panelTitulo.PerformLayout();
             panelBotones.ResumeLayout(false);
@@ -479,6 +507,8 @@
             ((System.ComponentModel.ISupportInitialize)bindingContactos).EndInit();
             groupBox3.ResumeLayout(false);
             groupBox3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)bindingProvincias).EndInit();
+            ((System.ComponentModel.ISupportInitialize)bindingLocalidades).EndInit();
             ResumeLayout(false);
         }
 
@@ -523,5 +553,7 @@
         private DataGridViewTextBoxColumn facebookDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn emailDataGridViewTextBoxColumn;
         private BindingSource bindingContactos;
+        private BindingSource bindingProvincias;
+        private BindingSource bindingLocalidades;
     }
 }

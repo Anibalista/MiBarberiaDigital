@@ -21,5 +21,18 @@ namespace Entidades_SGBM
 
         public Personas? Personas { get; set; }
         public Estados? Estados { get; set; }
+
+        [NotMapped]
+        public string? NombreCompleto
+        {
+            get
+            {
+                if (Personas != null)
+                {
+                    return $"{Personas.Apellidos} {Personas.Nombres}";
+                }
+                return null;
+            }
+        }
     }
 }
