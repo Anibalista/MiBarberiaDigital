@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class Transacciones
     {
         [Key]
-        public int IdTransaccion { get; set; }
+        public int? IdTransaccion { get; set; }
 
         public DateTime Hora { get; set; }
 

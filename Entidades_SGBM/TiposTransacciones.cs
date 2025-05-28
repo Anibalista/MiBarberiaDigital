@@ -10,7 +10,7 @@ namespace Entidades_SGBM
     public class TiposTransacciones
     {
         [Key]
-        public int IdTipoTransaccion { get; set; }
+        public int? IdTipoTransaccion { get; set; }
 
         [MaxLength(100)]
         public string Tipo { get; set; }

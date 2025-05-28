@@ -35,6 +35,9 @@
             btnCancelar = new Button();
             btnGuardar = new Button();
             groupBox1 = new GroupBox();
+            cbEstados = new ComboBox();
+            bindingEstados = new BindingSource(components);
+            label6 = new Label();
             label5 = new Label();
             dateTimePicker1 = new DateTimePicker();
             label4 = new Label();
@@ -73,6 +76,7 @@
             panelTitulo.SuspendLayout();
             panelBotones.SuspendLayout();
             groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)bindingEstados).BeginInit();
             groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridContactos).BeginInit();
             ((System.ComponentModel.ISupportInitialize)bindingContactos).BeginInit();
@@ -87,7 +91,7 @@
             panelTitulo.Dock = DockStyle.Top;
             panelTitulo.Location = new Point(0, 0);
             panelTitulo.Name = "panelTitulo";
-            panelTitulo.Size = new Size(802, 42);
+            panelTitulo.Size = new Size(807, 42);
             panelTitulo.TabIndex = 0;
             // 
             // label1
@@ -105,16 +109,16 @@
             panelBotones.Controls.Add(btnCancelar);
             panelBotones.Controls.Add(btnGuardar);
             panelBotones.Dock = DockStyle.Bottom;
-            panelBotones.Location = new Point(0, 491);
+            panelBotones.Location = new Point(0, 550);
             panelBotones.Name = "panelBotones";
-            panelBotones.Size = new Size(802, 72);
+            panelBotones.Size = new Size(807, 72);
             panelBotones.TabIndex = 1;
             // 
             // btnCancelar
             // 
             btnCancelar.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnCancelar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnCancelar.Location = new Point(530, 18);
+            btnCancelar.Location = new Point(535, 18);
             btnCancelar.Name = "btnCancelar";
             btnCancelar.Size = new Size(146, 42);
             btnCancelar.TabIndex = 1;
@@ -135,6 +139,8 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(cbEstados);
+            groupBox1.Controls.Add(label6);
             groupBox1.Controls.Add(label5);
             groupBox1.Controls.Add(dateTimePicker1);
             groupBox1.Controls.Add(label4);
@@ -146,15 +152,42 @@
             groupBox1.Controls.Add(label2);
             groupBox1.Location = new Point(0, 41);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(802, 107);
+            groupBox1.Size = new Size(802, 160);
             groupBox1.TabIndex = 2;
             groupBox1.TabStop = false;
             groupBox1.Text = "Datos del Cliente";
             // 
+            // cbEstados
+            // 
+            cbEstados.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            cbEstados.DataSource = bindingEstados;
+            cbEstados.DisplayMember = "Estado";
+            cbEstados.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbEstados.FormattingEnabled = true;
+            cbEstados.Location = new Point(564, 70);
+            cbEstados.Name = "cbEstados";
+            cbEstados.Size = new Size(226, 23);
+            cbEstados.TabIndex = 10;
+            cbEstados.ValueMember = "IdEstado";
+            // 
+            // bindingEstados
+            // 
+            bindingEstados.DataSource = typeof(Entidades_SGBM.Estados);
+            // 
+            // label6
+            // 
+            label6.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            label6.AutoSize = true;
+            label6.Location = new Point(510, 73);
+            label6.Name = "label6";
+            label6.Size = new Size(42, 15);
+            label6.TabIndex = 9;
+            label6.Text = "Estado";
+            // 
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(423, 32);
+            label5.Location = new Point(477, 32);
             label5.Name = "label5";
             label5.Size = new Size(81, 15);
             label5.TabIndex = 8;
@@ -162,15 +195,19 @@
             // 
             // dateTimePicker1
             // 
-            dateTimePicker1.Location = new Point(510, 29);
+            dateTimePicker1.Format = DateTimePickerFormat.Short;
+            dateTimePicker1.Location = new Point(564, 28);
+            dateTimePicker1.MaxDate = new DateTime(2199, 12, 31, 0, 0, 0, 0);
+            dateTimePicker1.MinDate = new DateTime(1910, 1, 1, 0, 0, 0, 0);
             dateTimePicker1.Name = "dateTimePicker1";
-            dateTimePicker1.Size = new Size(251, 23);
+            dateTimePicker1.Size = new Size(226, 23);
             dateTimePicker1.TabIndex = 7;
+            dateTimePicker1.Value = new DateTime(2007, 1, 1, 0, 0, 0, 0);
             // 
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(448, 73);
+            label4.Location = new Point(41, 115);
             label4.Name = "label4";
             label4.Size = new Size(56, 15);
             label4.TabIndex = 6;
@@ -178,10 +215,10 @@
             // 
             // txtApellido
             // 
-            txtApellido.Location = new Point(510, 70);
+            txtApellido.Location = new Point(103, 112);
             txtApellido.MaxLength = 149;
             txtApellido.Name = "txtApellido";
-            txtApellido.Size = new Size(251, 23);
+            txtApellido.Size = new Size(243, 23);
             txtApellido.TabIndex = 5;
             // 
             // label3
@@ -203,7 +240,7 @@
             // 
             // btnBuscar
             // 
-            btnBuscar.Location = new Point(271, 29);
+            btnBuscar.Location = new Point(271, 28);
             btnBuscar.Name = "btnBuscar";
             btnBuscar.Size = new Size(75, 23);
             btnBuscar.TabIndex = 2;
@@ -234,7 +271,7 @@
             // 
             groupBox2.Controls.Add(dataGridContactos);
             groupBox2.Controls.Add(linkContactos);
-            groupBox2.Location = new Point(0, 154);
+            groupBox2.Location = new Point(0, 207);
             groupBox2.Name = "groupBox2";
             groupBox2.Size = new Size(802, 182);
             groupBox2.TabIndex = 3;
@@ -342,7 +379,7 @@
             groupBox3.Controls.Add(txtBarrio);
             groupBox3.Controls.Add(txtCalle);
             groupBox3.Controls.Add(label21);
-            groupBox3.Location = new Point(0, 336);
+            groupBox3.Location = new Point(0, 395);
             groupBox3.Name = "groupBox3";
             groupBox3.Size = new Size(802, 149);
             groupBox3.TabIndex = 4;
@@ -487,7 +524,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(802, 563);
+            ClientSize = new Size(807, 622);
             Controls.Add(groupBox3);
             Controls.Add(groupBox2);
             Controls.Add(groupBox1);
@@ -501,6 +538,7 @@
             panelBotones.ResumeLayout(false);
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)bindingEstados).EndInit();
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridContactos).EndInit();
@@ -555,5 +593,8 @@
         private BindingSource bindingContactos;
         private BindingSource bindingProvincias;
         private BindingSource bindingLocalidades;
+        private ComboBox cbEstados;
+        private Label label6;
+        private BindingSource bindingEstados;
     }
 }

@@ -16,6 +16,8 @@ namespace Front_SGBM
     {
         public EnumModoForm modo = EnumModoForm.Alta;
         public List<Contactos>? _contactos = null;
+        public List<Contactos>? _contactosNuevos = null;
+
         private int contadorReplicas = 1;
 
         //Valores de Carga
@@ -38,6 +40,12 @@ namespace Front_SGBM
             if (modo == EnumModoForm.Modificacion)
             {
                 cargarContactos(sender, e);
+            }
+            if (modo == EnumModoForm.Alta)
+            {
+                _contactos = new List<Contactos>();
+                Contactos c = new Contactos();
+                _contactos.Add(c);
             }
             
         }
@@ -148,7 +156,10 @@ namespace Front_SGBM
             {
                 return;
             }
-            _contactos = new List<Contactos>();
+            if (_contactos == null)
+                _contactos = new List<Contactos>();
+            _contactosNuevos = new();
+
             int? contador = null;
             foreach(Control groupBox in flowLayoutPanel1.Controls)
             {
@@ -229,7 +240,12 @@ namespace Front_SGBM
                         }
                         if (!vacio)
                         {
-                            _contactos.Add(contacto);
+                            _contactosNuevos.Add(contacto);
+                            if (_contactos.Count > 0)
+                            {
+                                int pos = contador ?? 0;
+                                _contactosNuevos[pos].IdContacto = _contactos[pos].IdContacto;
+                            }
                         }
                     }
                     if (contador == null)
@@ -242,7 +258,7 @@ namespace Front_SGBM
             FrmEditClientes frmEditClientes = Application.OpenForms.OfType<FrmEditClientes>().FirstOrDefault();
             if (frmEditClientes != null)
             {
-                frmEditClientes.traerContactos(_contactos);
+                frmEditClientes.traerContactos(_contactosNuevos);
             }
             this.Close();
 
@@ -262,7 +278,15 @@ namespace Front_SGBM
                 }
             }
             this.Height -= groupBox1.Height + 10;
+            if (_contactos != null)
+            {
+                if (_contactos.Count == contadorReplicas)
+                {
+                    _contactos.RemoveAt(contadorReplicas - 1);
+                }
+            }
             contadorReplicas--;
+            
         }
 
         private void btnMas_Click(object sender, EventArgs e)
@@ -351,6 +375,15 @@ namespace Front_SGBM
                     nuevoGroupBox.Controls.Add(nuevo);
                 }
                 flowLayoutPanel1.Controls.Add(nuevoGroupBox);
+                Contactos c = new Contactos();
+                if (_contactos == null)
+                {
+                    _contactos = new();
+                }
+                if (_contactos.Count == contadorReplicas)
+                {
+                    _contactos.Add(c);
+                }
                 contadorReplicas++;
                 vaciarValores();
             }

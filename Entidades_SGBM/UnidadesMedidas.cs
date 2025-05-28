@@ -10,7 +10,7 @@ namespace Entidades_SGBM
     public class UnidadesMedidas
     {
         [Key]
-        public int IdUnidadMedida { get; set; }
+        public int? IdUnidadMedida { get; set; }
 
         [MaxLength(50)]
         public string Unidad { get; set; }

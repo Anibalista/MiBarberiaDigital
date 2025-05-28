@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class FondosMembresias
     {
         [Key]
-        public int IdFondoMembresia { get; set; }
+        public int? IdFondoMembresia { get; set; }
 
         public DateTime? PeriodoDesde { get; set; }
         public DateTime PeriodoHasta { get; set; }

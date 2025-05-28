@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class Cajas
     {
         [Key]
-        public int IdCaja { get; set; }
+        public int? IdCaja { get; set; }
 
         [Column(TypeName = "bit")]
         public bool Abierta { get; set; }

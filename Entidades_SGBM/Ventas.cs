@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class Ventas
     {
         [Key]
-        public int IdVenta { get; set; }
+        public int? IdVenta { get; set; }
 
         [MaxLength(30)]
         public string NroVenta { get; set; }

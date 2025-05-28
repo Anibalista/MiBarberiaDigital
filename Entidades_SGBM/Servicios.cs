@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class Servicios
     {
         [Key]
-        public int IdServicio { get; set; }
+        public int? IdServicio { get; set; }
 
         [MaxLength(150)]
         public string NombreServicio { get; set; }

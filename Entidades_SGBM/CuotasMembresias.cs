@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class CuotasMembresias
     {
         [Key]
-        public int IdCuota { get; set; }
+        public int? IdCuota { get; set; }
 
         [Column(TypeName = "decimal(12,2)")]
         public decimal Total { get; set; }

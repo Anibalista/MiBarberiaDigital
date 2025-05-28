@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class Productos
     {
         [Key]
-        public int IdProducto { get; set; }
+        public int? IdProducto { get; set; }
 
         [MaxLength(100)]
         public string CodProducto { get; set; }

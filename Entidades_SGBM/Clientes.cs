@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class Clientes
     {
         [Key]
-        public int IdCliente { get; set; }
+        public int? IdCliente { get; set; }
 
         [ForeignKey("Personas")]
         public int IdPersona { get; set; }

@@ -45,6 +45,44 @@ namespace Datos_SGBM
             }
 
             return cliente;
-        } 
+        }
+
+
+        //Registro
+        public static int registrarCliente (Clientes? cliente, ref string mensaje)
+        {
+            if (cliente == null)
+            {
+                mensaje = "Los datos de cliente no llegan a la capa de datos";
+                return -1;
+            }
+            if (cliente.Personas == null && cliente.IdPersona < 1)
+            {
+                mensaje = "Los datos de cliente no llegan a la capa de datos";
+                return -1;
+            }
+            contexto = new Contexto();
+            if (contexto == null)
+            {
+                mensaje = "Error de conexión a la BD";
+                return -1;
+            }
+            if (contexto.Personas == null || contexto.Clientes == null)
+            {
+                mensaje = "Error de conexión a los registros de clientes o personas";
+                return -1;
+            }
+            int id = 0;
+            try
+            {
+                contexto.Clientes.Add(cliente);
+                id = contexto.SaveChanges();
+            } catch (Exception ex)
+            {
+                mensaje = "Error: " + ex.Message;
+                return -1;
+            }
+            return id;
+        }
     }
 }

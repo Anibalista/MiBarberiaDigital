@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class DetallesVentas
     {
         [Key]
-        public int IdDetalleVenta { get; set; }
+        public int? IdDetalleVenta { get; set; }
 
         public int Cantidad { get; set; }
 

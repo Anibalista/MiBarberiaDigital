@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class TiposMembresias
     {
         [Key]
-        public int IdTipo { get; set; }
+        public int? IdTipo { get; set; }
 
         [MaxLength(50)]
         public string NombreTipo { get; set; }

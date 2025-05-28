@@ -15,15 +15,21 @@ namespace Front_SGBM
     public partial class FrmEditClientes : Form
     {
         public EnumModoForm modo = EnumModoForm.Alta;
-        public Personas? _persona = null;
-        public Clientes? _cliente = null;
-        private Domicilios? _domicilio = null;
+        //Listas para comboBox
         public List<Contactos>? _contactos = null;
         private List<Provincias>? _provincias = null;
         private List<Localidades>? _localidades = null;
+        private List<Estados>? _estados = null;
+
+        //Objetos importantes
+        public Personas? _persona = null;
+        public Clientes? _cliente = null;
+        private Domicilios? _domicilio = null;
         private Provincias? _provincia = null;
         private Localidades? _localidad = null;
+        private Estados? _estado = null;
         public bool cerrando = false;
+        public bool venta = false;
 
         //Valores de campos
         private string _dni = string.Empty;
@@ -44,7 +50,7 @@ namespace Front_SGBM
         {
             cargarProvincias();
             cargarLocalidades();
-            
+            fechaInicial();
         }
 
         //Comprobaciones
@@ -101,7 +107,7 @@ namespace Front_SGBM
             return true;
         }
 
-        private void cargarNacimiento()
+        private void comprobarNacimiento()
         {
             try
             {
@@ -148,7 +154,7 @@ namespace Front_SGBM
         private bool localidadIngresada(ref string mensaje)
         {
             _localidad = null;
-            if (provinciaIngresada())
+            if (!provinciaIngresada())
             {
                 mensaje = "Para ingresar un domicilio escriba o seleccione una localidad y provincia";
                 return false;
@@ -166,15 +172,16 @@ namespace Front_SGBM
                 if (_localidades != null && _localidades.Count > 0)
                 {
                     _localidad = _localidades.Where(l => l.Localidad == localidad).FirstOrDefault();
-                } else
+                }
+                if (_localidad == null)
                 {
                     _localidad = new();
                     _localidad.Localidad = localidad;
                     
                 }
-                if (_provincia.IdProvincia != null && _provincia.IdProvincia > 0)
+                if (_provincia.IdProvincia != null)
                 {
-                    _localidad.IdProvincia = _provincia.IdProvincia;
+                    _localidad.IdProvincia = (int)_provincia.IdProvincia;
                 }
                 else
                 {
@@ -210,8 +217,23 @@ namespace Front_SGBM
             } catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                return false;
             }
             return _provincia != null;
+        }
+
+        private bool comprobarCliente(ref string mensaje)
+        {
+            if (buscarCliente(ref mensaje))
+            {
+                return false;
+            }
+            if (!comprobarNombres(ref mensaje))
+            {
+                return false;
+            }
+            comprobarNacimiento();
+            return true;
         }
 
         //Métodos
@@ -220,6 +242,12 @@ namespace Front_SGBM
             bindingContactos.Clear();
             bindingContactos.DataSource = _contactos;
             dataGridContactos.Refresh();
+        }
+
+        private void fechaInicial()
+        {
+            dateTimePicker1.MaxDate = DateTime.Now;
+            dateTimePicker1.Value = DateTime.Today;
         }
 
         private void cargarProvincias()
@@ -244,6 +272,10 @@ namespace Front_SGBM
                 return;
             }
             _provincia = null;
+            if (_provincias == null)
+            {
+                return;
+            }
             try
             {
                 _provincia = _provincias.Where(p => p.Provincia == provincia).FirstOrDefault();
@@ -257,6 +289,47 @@ namespace Front_SGBM
                 _localidades = DomiciliosNegocio.getLocalidadesPorProvincia(_provincia);
             }
             bindingLocalidades.DataSource = _localidades;
+        }
+
+        private void cargarEstados()
+        {
+            _estado = null;
+            _estados = null;
+            bindingEstados.Clear();
+            string mensaje = "";
+            _estados = EstadosNegocio.getEstadosPorIndole("Clientes", ref mensaje);
+            if (!String.IsNullOrWhiteSpace(mensaje) || _estados == null)
+            {
+                cbEstados.Enabled = false;
+                Console.WriteLine(mensaje);
+                return;
+            }
+            bindingEstados.DataSource = _estados;
+            if (modo == EnumModoForm.Alta || _cliente == null)
+            {
+                _estado = _estados.FirstOrDefault(e => e.Estado.Equals("Activo"));
+                if (_estado == null)
+                {
+                    _estado = new();
+                    _estado.Indole = "Clientes";
+                    _estado.Estado = "Activo";
+                }
+                bindingEstados.DataSource = _estado;
+            } else
+            {
+                _estado = _estados.FirstOrDefault(e => e.IdEstado == _cliente.IdEstado);
+                
+            }
+            try
+            {
+                cbEstados.SelectedItem = _estado;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                cbEstados.Enabled = false;
+                return;
+            }
         }
 
         public bool traerContactos(List<Contactos>? contactos)
@@ -294,9 +367,9 @@ namespace Front_SGBM
             _domicilio.Depto = _depto;
             if (_localidad != null)
             {
-                if (_localidad.IdLocalidad != null && _localidad.IdLocalidad > 0)
+                if (_localidad.IdLocalidad != null)
                 {
-                    _domicilio.IdLocalidad = _localidad.IdLocalidad;
+                    _domicilio.IdLocalidad = (int)_localidad.IdLocalidad;
                 } else
                 {
                     _domicilio.Localidades = _localidad;
@@ -305,7 +378,68 @@ namespace Front_SGBM
             return true;
         }
 
-        
+        private void armarObjetoCliente()
+        {
+            if (modo == EnumModoForm.Alta || _cliente == null)
+            {
+                _cliente = new();
+                _persona = new();
+            }
+            if (_persona == null)
+            {
+                _persona = new();
+            }
+            _persona.Dni = _dni;
+            _persona.Nombres = _nombres;
+            _persona.Apellidos = _apellidos;
+            _persona.FechaNac = _nacimiento;
+            _persona.Domicilios = _domicilio;
+            _cliente.Personas = _persona;
+        }
+
+        private void limpiarValores()
+        {
+            _cliente = null;
+            _persona = null;
+            _estado = null;
+            _domicilio = null;
+            _contactos = new();
+            limpiarCampos();
+        }
+
+        private void limpiarCampos()
+        {
+            refrescarGrilla();
+            txtDni.Text = string.Empty;
+            txtNombre.Text = string.Empty;
+            txtApellido.Text = string.Empty;
+            txtCalle.Text = string.Empty;
+            txtNro.Text = string.Empty;
+            txtPiso.Text = string.Empty;
+            txtDepto.Text = string.Empty;
+            txtBarrio.Text = string.Empty;
+            dateTimePicker1.Value = DateTime.Now;
+        }
+
+        private bool registrarCliente(ref string mensaje)
+        {
+            if (!comprobarCliente(ref mensaje))
+            {
+                return false;
+            }
+            if (!ingresarDomicilio(ref mensaje))
+            {
+                return false;
+            }
+            armarObjetoCliente();
+            if (!ClientesNegocio.registrarCliente(_cliente, _contactos, ref mensaje))
+            {
+                return false;
+            }
+            
+            return true;
+
+        }
 
         //Botones
         private void btnCancelar_Click(object sender, EventArgs e)
@@ -316,7 +450,34 @@ namespace Front_SGBM
 
         private void btnGuardar_Click(object sender, EventArgs e)
         {
+            string mensaje = "";
+            bool existe = buscarCliente(ref mensaje);
+            if (!String.IsNullOrWhiteSpace(mensaje))
+            {
+                MessageBox.Show($"Error: {mensaje}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
+            if (modo == EnumModoForm.Alta)
+            {
+                if (existe)
+                {
+                    MessageBox.Show($"Error!!! El Dni ingresado corresponde al cliente:\n{_cliente.NombreCompleto} \nPor favor ingrese al menú de modificación", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                if (!registrarCliente(ref mensaje))
+                {
+                    MessageBox.Show($"Ocurrió un error en el registro\n{mensaje}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                string mensajeExito = "Registro exitoso";
+                if (!String.IsNullOrWhiteSpace(mensaje))
+                {
+                    mensajeExito += $"\nDetalles de la operación{mensaje}";
+                }
+                MessageBox.Show(mensajeExito, "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
         }
 
         private void btnBuscar_Click(object sender, EventArgs e)

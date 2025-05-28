@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class DetallesFacturas
     {
         [Key]
-        public int IdDetalleFactura { get; set; }
+        public int? IdDetalleFactura { get; set; }
 
         [ForeignKey("DetallesVentas")]
         public int IdDetalleVenta { get; set; }

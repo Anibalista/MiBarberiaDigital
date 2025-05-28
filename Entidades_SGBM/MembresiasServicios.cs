@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class MembresiasServicios
     {
         [Key]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [ForeignKey("TiposMembresias")]
         public int IdTipoMembresia { get; set; }

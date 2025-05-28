@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class Domicilios
     {
         [Key]
-        public int IdDomicilio { get; set; }
+        public int? IdDomicilio { get; set; }
 
         [MaxLength(150)]
         public string? Calle { get; set; }

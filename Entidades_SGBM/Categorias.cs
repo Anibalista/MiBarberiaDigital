@@ -10,7 +10,7 @@ namespace Entidades_SGBM
     public class Categorias
     {
         [Key]
-        public int IdCategoria { get; set; }
+        public int? IdCategoria { get; set; }
 
         [MaxLength(150)]
         public string Descripcion { get; set; }

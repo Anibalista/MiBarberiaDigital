@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class Empleados
     {
         [Key]
-        public int IdEmpleado { get; set; }
+        public int? IdEmpleado { get; set; }
 
         [MaxLength(150)]
         public string? TipoEmpleado { get; set; }

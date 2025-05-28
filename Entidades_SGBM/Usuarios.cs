@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class Usuarios
     {
         [Key]
-        public int IdUsuario { get; set; }
+        public int? IdUsuario { get; set; }
 
         [MaxLength(150)]
         public string NombreUsuario { get; set; }

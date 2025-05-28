@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class ServiciosInsumos
     {
         [Key]
-        public int IdServicioInsumo { get; set; }
+        public int? IdServicioInsumo { get; set; }
 
         [Column(TypeName = "decimal(12,2)")]
         public decimal Costo { get; set; }

@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class Contactos
     {
         [Key]
-        public int IdContacto { get; set; }
+        public int? IdContacto { get; set; }
 
         [MaxLength(20)]
         public string? Telefono { get; set; }

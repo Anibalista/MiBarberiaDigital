@@ -10,7 +10,7 @@ namespace Entidades_SGBM
     public class Provincias
     {
         [Key]
-        public int IdProvincia { get; set; }
+        public int? IdProvincia { get; set; }
 
         [MaxLength(150)]
         public string Provincia { get; set; }

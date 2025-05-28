@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class Credenciales
     {
         [Key]
-        public int IdCredencial { get; set; }
+        public int? IdCredencial { get; set; }
 
         [MaxLength(150)]
         public string Accesos { get; set; }

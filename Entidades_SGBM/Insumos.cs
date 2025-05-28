@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class Insumos
     {
         [Key]
-        public int IdInsumo { get; set; }
+        public int? IdInsumo { get; set; }
 
         public int? CantidadUnidades { get; set; }
 

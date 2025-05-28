@@ -10,7 +10,7 @@ namespace Entidades_SGBM
     public class MediosPagos
     {
         [Key]
-        public int IdMedioPago { get; set; }
+        public int? IdMedioPago { get; set; }
 
         [MaxLength(150)]
         public string Medio { get; set; }

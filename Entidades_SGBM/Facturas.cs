@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class Facturas
     {
         [Key]
-        public int IdFactura { get; set; }
+        public int? IdFactura { get; set; }
 
         [MaxLength(10)]
         public string Tipo { get; set; }

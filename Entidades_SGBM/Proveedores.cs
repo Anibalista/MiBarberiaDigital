@@ -10,7 +10,7 @@ namespace Entidades_SGBM
     public class Proveedores
     {
         [Key]
-        public int IdProveedor { get; set; }
+        public int? IdProveedor { get; set; }
 
         [MaxLength(30)]
         public string? Cuit { get; set; }

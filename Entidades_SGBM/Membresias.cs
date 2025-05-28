@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class Membresias
     {
         [Key]
-        public int IdMembresia { get; set; }
+        public int? IdMembresia { get; set; }
 
         public DateTime FechaAlta { get; set; }
 

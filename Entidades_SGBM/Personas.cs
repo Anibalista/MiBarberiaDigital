@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class Personas
     {
         [Key]
-        public int IdPersona { get; set; }
+        public int? IdPersona { get; set; }
 
         [MaxLength(150)]
         public string Dni { get; set; }

@@ -10,7 +10,7 @@ namespace Entidades_SGBM
     public class Niveles
     {
         [Key]
-        public int IdNivel { get; set; }
+        public int? IdNivel { get; set; }
 
         [MaxLength(100)]
         public string Nivel { get; set; }
