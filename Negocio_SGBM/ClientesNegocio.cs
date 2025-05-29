@@ -13,12 +13,21 @@ namespace Negocio_SGBM
         //Consultas
         public static Clientes? getClientePorDni(string? dni, ref string mensaje)
         {
-            int idPersona = PersonasNegocio.getIdPersonaPorDni(dni, ref mensaje);
-            if (idPersona < 1)
+            Personas? persona = null;
+            persona = PersonasNegocio.getPersonaPorDni(dni, ref mensaje);
+            if (persona == null)
             {
                 return null;
             }
-            Clientes? cliente = ClientesDatos.getClientePorIdPersona(idPersona, ref mensaje);
+            if (persona.IdPersona == null)
+            {
+                return null;
+            }
+            Clientes? cliente = ClientesDatos.getClientePorIdPersona((int)persona.IdPersona, ref mensaje);
+            if (cliente != null)
+            {
+                cliente.Personas = persona;
+            }
             return cliente;
         }
 

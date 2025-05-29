@@ -83,7 +83,7 @@ namespace Datos_SGBM
             Domicilios? domicilio = null;
             try
             {
-                domicilio = contexto.Domicilios.Include("Localidades").Where(d => d.IdDomicilio == persona.IdDomicilio).FirstOrDefault();
+                domicilio = contexto.Domicilios.Include("Localidades.Provincias").Where(d => d.IdDomicilio == persona.IdDomicilio).FirstOrDefault();
             } catch (Exception ex)
             {
                 mensaje = ex.Message;

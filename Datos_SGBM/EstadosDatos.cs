@@ -12,6 +12,44 @@ namespace Datos_SGBM
     {
         static Contexto contexto;
 
+        //Control de BD
+        public static bool comprobarContexto(ref string mensaje)
+        {
+            if (contexto == null)
+            {
+                mensaje = "No se conecta a la BD";
+                return false;
+            }
+            if (contexto.Estados == null)
+            {
+                mensaje = "No se conecta a la BD (Estados)";
+                return false;
+            }
+            return true;
+        }
+
+        //Control de null
+        public static bool comprobarEstado(Estados? estado , bool registro, ref string mensaje)
+        {
+            if (estado == null)
+            {
+                mensaje = "No llega la información de estado a la capa datos";
+                return false;
+            }
+            if (String.IsNullOrWhiteSpace(estado.Indole) || String.IsNullOrWhiteSpace(estado.Estado))
+            {
+                mensaje = "No llega la información de estado a la capa datos (valores de estado)";
+                return false;
+            }
+            if (estado.IdEstado == null)
+            {
+                mensaje += !registro ? "No llega la información de estado (ID) a la capa datos" : "";
+                return registro;
+            }
+            return true;
+        }
+
+
         //Consultas
         public static Estados? getEstado(string? indole, string? descripcion, ref string mensaje)
         {
@@ -21,16 +59,11 @@ namespace Datos_SGBM
                 return null;
             }
             contexto = new Contexto();
-            if (contexto == null)
+            if (!comprobarContexto(ref mensaje))
             {
-                mensaje = "No se conecta a la BD";
                 return null;
             }
-            if (contexto.Estados == null)
-            {
-                mensaje = "No se conecta a la BD (Estados)";
-                return null;
-            }
+
             Estados? estado = null;
             try
             {
@@ -51,16 +84,11 @@ namespace Datos_SGBM
                 return null;
             }
             contexto = new Contexto();
-            if (contexto == null)
+            if (!comprobarContexto(ref mensaje))
             {
-                mensaje = "No se conecta a la BD";
                 return null;
             }
-            if (contexto.Estados == null)
-            {
-                mensaje = "No se conecta a la BD (Estados)";
-                return null;
-            }
+
             List<Estados>? estados = null;
             try
             {
@@ -76,6 +104,35 @@ namespace Datos_SGBM
                 return null;
             }
             return estados;
+        }
+
+        //Registros
+        public static int registrarEstado(Estados? estado, ref string mensaje)
+        {
+            if (!comprobarEstado(estado, true, ref mensaje))
+            {
+                return -1;
+            }
+            contexto = new Contexto();
+            if (!comprobarContexto(ref mensaje))
+            {
+                return -1;
+            }
+            try
+            {
+                contexto.Estados.Add(estado);
+                contexto.SaveChanges();
+            } catch (Exception ex)
+            {
+                mensaje = ex.Message;
+                return -1;
+            }
+            if (estado.IdEstado != null)
+            {
+                return (int)estado.IdEstado;
+            }
+            mensaje = "Problemas desconocidos en el registro de estados";
+            return 0;
         }
     }
 }

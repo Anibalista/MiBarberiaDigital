@@ -36,7 +36,7 @@ namespace Datos_SGBM
             Clientes? cliente = null;
             try
             {
-                cliente = contexto.Clientes.Include("Personas").Where(c => c.IdPersona == idPersona).FirstOrDefault();
+                cliente = contexto.Clientes.Where(c => c.IdPersona == idPersona).FirstOrDefault();
             }
             catch (Exception ex)
             {

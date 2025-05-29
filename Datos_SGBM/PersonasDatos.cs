@@ -79,6 +79,10 @@ namespace Datos_SGBM
                 return null;
             }
             mensaje = "";
+            if (persona != null)
+            {
+                persona.Domicilios = DomiciliosDatos.getDomicilioPorPersona(persona, ref  mensaje);
+            }
             return persona;
         }
 

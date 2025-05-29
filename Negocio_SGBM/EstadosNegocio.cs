@@ -24,7 +24,7 @@ namespace Negocio_SGBM
 
         public static List<Estados>? getEstadosPorIndole(string? indole, ref string mensaje)
         {
-            if (!String.IsNullOrWhiteSpace(indole))
+            if (String.IsNullOrWhiteSpace(indole))
             {
                 mensaje = "Problemas con la información de estados en la capa negocio";
                 return null;
@@ -46,15 +46,10 @@ namespace Negocio_SGBM
             int idEstado = 0;
             try
             {
-
+                idEstado = EstadosDatos.registrarEstado(estado, ref mensaje);
             }  catch (Exception ex)
             {
                 mensaje = ex.Message;
-                return -1;
-            }
-            if (idEstado < 0)
-            {
-                mensaje = "Problemas al registrar el estado";
                 return -1;
             }
             return idEstado;

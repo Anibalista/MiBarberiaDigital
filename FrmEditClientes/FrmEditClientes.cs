@@ -48,9 +48,21 @@ namespace Front_SGBM
         }
         private void FrmEditClientes_Load(object sender, EventArgs e)
         {
+            cargarFormulario();
+        }
+
+        private void cargarFormulario()
+        {
+            fechaInicial();
+            if (modo != EnumModoForm.Alta)
+            {
+                cargarCampos();
+                cargarContactos();
+            }
+            cargarEstados();
             cargarProvincias();
             cargarLocalidades();
-            fechaInicial();
+            activarCampos(modo != EnumModoForm.Consulta);
         }
 
         //Comprobaciones
@@ -115,7 +127,7 @@ namespace Front_SGBM
                 DateTime fechaSeleccionada = dateTimePicker1.Value;
 
                 // Verificar si la fecha es menor a la actual
-                if (fechaSeleccionada < DateTime.Now)
+                if (fechaSeleccionada < DateTime.Today.AddDays(-1))
                 {
                     _nacimiento = fechaSeleccionada;
                 }
@@ -222,9 +234,9 @@ namespace Front_SGBM
             return _provincia != null;
         }
 
-        private bool comprobarCliente(ref string mensaje)
+        private bool comprobarCliente(ref string mensaje, bool registro)
         {
-            if (buscarCliente(ref mensaje))
+            if (buscarCliente(ref mensaje) && registro)
             {
                 return false;
             }
@@ -237,6 +249,32 @@ namespace Front_SGBM
         }
 
         //Métodos
+        private void activarCampos(bool activar)
+        {
+            txtDni.Enabled = activar;
+            txtNombre.Enabled = activar;
+            txtApellido.Enabled = activar;
+            dateTimePicker1.Enabled = activar;
+            cbEstados.Enabled = activar;
+            linkContactos.Visible = activar;
+            txtCalle.Enabled = activar;
+            txtNro.Enabled = activar;
+            txtPiso.Enabled = activar;
+            txtDepto.Enabled = activar;
+            txtBarrio.Enabled = activar;
+            if (!activar)
+            {
+                cbLocalidad.Text = "";
+                cbProvincia.Text = "";
+            }
+            cbLocalidad.Enabled = activar;
+            cbProvincia.Enabled = activar;
+            btnBuscar.Visible = activar;
+            btnGuardar.Visible = activar;
+            btnCancelar.Text = activar ? "Cancelar" : "Salir";
+
+        }
+
         private void refrescarGrilla()
         {
             bindingContactos.Clear();
@@ -259,6 +297,16 @@ namespace Front_SGBM
             }
             bindingProvincias.DataSource = _provincias;
             cbProvincia.SelectedIndex = 0;
+            if (_provincia != null)
+            {
+                try
+                {
+                    cbProvincia.SelectedItem = _provincia;
+                } catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
         }
 
         private void cargarLocalidades()
@@ -289,6 +337,17 @@ namespace Front_SGBM
                 _localidades = DomiciliosNegocio.getLocalidadesPorProvincia(_provincia);
             }
             bindingLocalidades.DataSource = _localidades;
+            if (_localidad == null)
+            {
+                return;
+            }
+            try
+            {
+                cbLocalidad.SelectedItem = _localidad;
+            } catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
         private void cargarEstados()
@@ -318,7 +377,6 @@ namespace Front_SGBM
             } else
             {
                 _estado = _estados.FirstOrDefault(e => e.IdEstado == _cliente.IdEstado);
-                
             }
             try
             {
@@ -330,6 +388,32 @@ namespace Front_SGBM
                 cbEstados.Enabled = false;
                 return;
             }
+        }
+
+        private void cargarContactos ()
+        {
+            _contactos = null;
+            refrescarGrilla();
+            if (_cliente == null)
+            {
+                return;
+            }
+            if (_persona == null)
+            {
+                return;
+            }
+            string error = "";
+            _contactos = ContactosNegocio.getContactosPorPersona(_persona, ref error);
+            if (!String.IsNullOrWhiteSpace(error))
+            {
+                Console.WriteLine(error);
+                return;
+            }
+            if (_contactos == null)
+            {
+                return;
+            }
+            refrescarGrilla();
         }
 
         public bool traerContactos(List<Contactos>? contactos)
@@ -418,12 +502,12 @@ namespace Front_SGBM
             txtPiso.Text = string.Empty;
             txtDepto.Text = string.Empty;
             txtBarrio.Text = string.Empty;
-            dateTimePicker1.Value = DateTime.Now;
+            dateTimePicker1.Value = DateTime.Today;
         }
 
         private bool registrarCliente(ref string mensaje)
         {
-            if (!comprobarCliente(ref mensaje))
+            if (!comprobarCliente(ref mensaje, true))
             {
                 return false;
             }
@@ -438,7 +522,52 @@ namespace Front_SGBM
             }
             
             return true;
+        }
 
+        private bool cargarCliente()
+        {
+            if (_cliente == null)
+            {
+                return false;
+            }
+            if (_cliente.Personas == null)
+            {
+                return false;
+            }
+            _persona = _cliente.Personas;
+            _domicilio = _persona.Domicilios;
+            if (_domicilio != null)
+            {
+                _localidad = _domicilio.Localidades;
+                if (_localidad != null)
+                {
+                    _provincia = _localidad.Provincias;
+                }
+            }
+            return true;
+
+        }
+
+        private void cargarCampos()
+        {
+            if (!cargarCliente())
+            {
+                return;
+            }
+            txtDni.Text = _persona.Dni;
+            txtNombre.Text = _persona.Nombres;
+            txtApellido.Text = _persona.Apellidos;
+            _nacimiento = _persona.FechaNac;
+            dateTimePicker1.Value = _nacimiento ?? DateTime.Today;
+            if (_domicilio == null)
+            {
+                return;
+            }
+            txtCalle.Text = _domicilio.Calle ?? "";
+            txtNro.Text = _domicilio.Altura ?? "";
+            txtPiso.Text = _domicilio.Piso ?? "";
+            txtDepto.Text = _domicilio.Depto ?? "";
+            txtBarrio.Text = _domicilio.Barrio ?? "";
         }
 
         //Botones
@@ -457,13 +586,27 @@ namespace Front_SGBM
                 MessageBox.Show($"Error: {mensaje}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-
+            
             if (modo == EnumModoForm.Alta)
             {
                 if (existe)
                 {
-                    MessageBox.Show($"Error!!! El Dni ingresado corresponde al cliente:\n{_cliente.NombreCompleto} \nPor favor ingrese al menú de modificación", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    DialogResult res = MessageBox.Show($"Error!!! El Dni ingresado corresponde al cliente:\n{_cliente.NombreCompleto} \n¿Quiere modificar al cliente con ese Dni?", "Error", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                    if (res == DialogResult.No)
+                        return;
+                    else
+                    {
+                        DialogResult confirmacion = MessageBox.Show("¿Está Seguro?", "Verificación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                        if (confirmacion == DialogResult.No)
+                            return;
+                        else
+                        {
+                            modo = EnumModoForm.Modificacion;
+                            limpiarCampos();
+                            cargarFormulario();
+                            return;
+                        }
+                    }
                 }
                 if (!registrarCliente(ref mensaje))
                 {
@@ -477,6 +620,9 @@ namespace Front_SGBM
                 }
                 MessageBox.Show(mensajeExito, "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
+            } else
+            {
+
             }
         }
 
@@ -514,8 +660,22 @@ namespace Front_SGBM
                 }
                 else
                 {
-                    MessageBox.Show(mensaje, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    btnGuardar.Enabled = false;
+                    DialogResult res = MessageBox.Show($"Error!!! El Dni ingresado corresponde al cliente:\n{_cliente.NombreCompleto} \n¿Quiere modificar al cliente con ese Dni?", "Error", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                    if (res == DialogResult.No)
+                        return;
+                    else
+                    {
+                        DialogResult confirmacion = MessageBox.Show("¿Está Seguro?", "Verificación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                        if (confirmacion == DialogResult.No)
+                            return;
+                        else
+                        {
+                            modo = EnumModoForm.Modificacion;
+                            limpiarCampos();
+                            cargarFormulario();
+                            return;
+                        }
+                    }
                 }
                 return;
             }
