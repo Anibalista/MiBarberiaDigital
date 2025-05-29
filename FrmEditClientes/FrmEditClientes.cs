@@ -646,7 +646,13 @@ namespace Front_SGBM
                     btnGuardar.Enabled = true;
                 } else
                 {
-                    MessageBox.Show(mensaje, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    DialogResult res = MessageBox.Show($"{mensaje}\n¿Desea registrar un cliente nuevo?", "Error", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                    if (res == DialogResult.Yes)
+                    {
+                        modo = EnumModoForm.Alta;
+                        cargarFormulario();
+                        return;
+                    }
                     btnGuardar.Enabled = false;
                 }
                 return;
