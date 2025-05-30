@@ -236,15 +236,30 @@ namespace Front_SGBM
 
         private bool comprobarCliente(ref string mensaje, bool registro)
         {
-            if (buscarCliente(ref mensaje) && registro)
+            if (buscarCliente(ref mensaje))
             {
-                return false;
+                if (registro)
+                    return false;
             }
             if (!comprobarNombres(ref mensaje))
             {
                 return false;
             }
             comprobarNacimiento();
+            try
+            {
+                _estado = (Estados)cbEstados.SelectedItem;
+                if (_estado.IdEstado == null && modo == EnumModoForm.Modificacion)
+                {
+                    mensaje = "Problemas con la recuperación de estados de clietes de la BD";
+                    return false;
+                }
+            } catch (Exception ex)
+            {
+                mensaje = ex.Message;
+                return false;
+            }
+
             return true;
         }
 
@@ -297,10 +312,11 @@ namespace Front_SGBM
             }
             bindingProvincias.DataSource = _provincias;
             cbProvincia.SelectedIndex = 0;
-            if (_provincia != null)
+            if (_localidad != null)
             {
                 try
                 {
+                    _provincia = _provincias.FirstOrDefault(p => p.IdProvincia == _localidad.IdProvincia);
                     cbProvincia.SelectedItem = _provincia;
                 } catch (Exception ex)
                 {
@@ -319,11 +335,11 @@ namespace Front_SGBM
                 bindingLocalidades.DataSource = _localidades;
                 return;
             }
-            _provincia = null;
             if (_provincias == null)
             {
                 return;
             }
+            
             try
             {
                 _provincia = _provincias.Where(p => p.Provincia == provincia).FirstOrDefault();
@@ -479,16 +495,20 @@ namespace Front_SGBM
             _persona.FechaNac = _nacimiento;
             _persona.Domicilios = _domicilio;
             _cliente.Personas = _persona;
+            if (_estado.IdEstado != null)
+            {
+                _cliente.IdEstado = (int)_estado.IdEstado;
+            }
         }
 
-        private void limpiarValores()
+        private void limpiarValores(bool limpiarContactos)
         {
             _cliente = null;
             _persona = null;
             _estado = null;
             _domicilio = null;
-            _contactos = new();
-            limpiarCampos();
+            if (limpiarContactos)
+                _contactos = new();
         }
 
         private void limpiarCampos()
@@ -513,7 +533,7 @@ namespace Front_SGBM
             }
             if (!ingresarDomicilio(ref mensaje))
             {
-                return false;
+                _domicilio = null;
             }
             armarObjetoCliente();
             if (!ClientesNegocio.registrarCliente(_cliente, _contactos, ref mensaje))
@@ -570,6 +590,25 @@ namespace Front_SGBM
             txtBarrio.Text = _domicilio.Barrio ?? "";
         }
 
+        private bool modificarCliente(ref string mensaje)
+        {
+            if (!comprobarCliente(ref mensaje, false))
+            {
+                return false;
+            }
+            if (!ingresarDomicilio(ref mensaje))
+            {
+                _domicilio = null;
+            }
+            armarObjetoCliente();
+            if (!ClientesNegocio.modificarCliente(_cliente, _contactos, ref mensaje))
+            {
+                return false;
+            }
+            return true;
+        }
+
+
         //Botones
         private void btnCancelar_Click(object sender, EventArgs e)
         {
@@ -579,6 +618,7 @@ namespace Front_SGBM
 
         private void btnGuardar_Click(object sender, EventArgs e)
         {
+            limpiarValores(false);
             string mensaje = "";
             bool existe = buscarCliente(ref mensaje);
             if (!String.IsNullOrWhiteSpace(mensaje))
@@ -622,7 +662,27 @@ namespace Front_SGBM
                 return;
             } else
             {
-
+                if (!existe)
+                {
+                    DialogResult res = MessageBox.Show($"{mensaje}\n¿Desea registrar un cliente nuevo?", "Error", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                    if (res == DialogResult.Yes)
+                    {
+                        modo = EnumModoForm.Alta;
+                        cargarFormulario();
+                    }
+                    else
+                    {
+                        btnGuardar.Enabled = false;
+                    }
+                    return;
+                }
+                if (!modificarCliente(ref mensaje))
+                {
+                    MessageBox.Show($"Error: {mensaje}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                MessageBox.Show($"Modificación exitosa, detalles: {mensaje}", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                btnCancelar_Click(sender, e);
             }
         }
 
@@ -652,8 +712,11 @@ namespace Front_SGBM
                         modo = EnumModoForm.Alta;
                         cargarFormulario();
                         return;
+                    } else
+                    {
+                        btnGuardar.Enabled = false;
                     }
-                    btnGuardar.Enabled = false;
+                    
                 }
                 return;
             }

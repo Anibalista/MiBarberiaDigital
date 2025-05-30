@@ -10,6 +10,23 @@ namespace Negocio_SGBM
 {
     public class ClientesNegocio
     {
+        //Comprobaciones
+        public static bool comprobarCliente(Clientes? cliente, ref string mensaje)
+        {
+            if (cliente == null)
+            {
+                mensaje = "Problema al enviar datos de cliente entre capas";
+                return false;
+            }
+            if (cliente.Personas == null)
+            {
+                mensaje = "Problema al enviar datos de cliente entre capas";
+                return false;
+            }
+            return true;
+        }
+
+
         //Consultas
         public static Clientes? getClientePorDni(string? dni, ref string mensaje)
         {
@@ -35,16 +52,11 @@ namespace Negocio_SGBM
         //Registros
         public static bool registrarCliente(Clientes? cliente, List<Contactos>? contactos, ref string mensaje)
         {
-            if (cliente == null)
+            if (!comprobarCliente(cliente, ref mensaje))
             {
-                mensaje = "Problema al enviar datos de cliente entre capas";
                 return false;
             }
-            if (cliente.Personas == null)
-            {
-                mensaje = "Problema al enviar datos de cliente entre capas";
-                return false;
-            }
+
             Personas? persona = PersonasNegocio.getPersonaPorDni(cliente.Personas.Dni, ref mensaje);
             if (persona != null)
             {
@@ -111,6 +123,58 @@ namespace Negocio_SGBM
 
         }
 
-        
+        //Modificaciones
+        public static bool modificarCliente(Clientes? cliente, List<Contactos>? contactos, ref string mensaje)
+        {
+            if (!comprobarCliente(cliente, ref mensaje))
+            {
+                return false;
+            }
+            if (cliente.IdEstado < 1)
+            {
+                mensaje = "El estado del cliente no se ha podido encontrar";
+                return false;
+            }
+
+            Personas? persona = PersonasNegocio.getPersonaPorDni(cliente.Personas.Dni, ref mensaje);
+            if (persona == null)
+            {
+                mensaje = "No se pudo encontrar información de la persona a modificar";
+                return false;
+            }
+            if (persona.IdPersona == null)
+            {
+                mensaje = "Problemas con el id de la persona en la BD";
+                return false;
+            }
+
+            cliente.Personas.IdPersona = persona.IdPersona;
+            
+            if (!PersonasNegocio.modificarPersona(cliente.Personas, ref mensaje))
+            {
+                return false;
+            }
+            cliente.Personas = null;
+            cliente.IdPersona = (int)persona.IdPersona;
+            cliente.Estados = null;
+
+            bool exito = false;
+
+            try
+            {
+                exito = ClientesDatos.modificarCliente(cliente, ref mensaje);
+            }
+            catch (Exception ex)
+            {
+                mensaje = ex.Message;
+                return false;
+            }
+            string mensajeContactos = "";
+            if (!PersonasNegocio.gestionarContactosPorPersona(persona, contactos, ref mensajeContactos))
+            {
+                mensaje += mensajeContactos;
+            }
+            return exito;
+        }
     }
 }
