@@ -39,7 +39,7 @@ namespace Datos_SGBM
                 id = contexto.Personas.Where(p => p.Dni == dni).Select(p => p.IdPersona).FirstOrDefault();
             } catch (Exception ex)
             {
-                mensaje = ex.Message;
+                mensaje = ex.Message + "PersonasDatos";
                 return -2;
             }
             if (id == null)
@@ -75,7 +75,7 @@ namespace Datos_SGBM
             }
             catch (Exception ex)
             {
-                mensaje = ex.Message;
+                mensaje = ex.Message + "PersonasDatos";
                 return null;
             }
             mensaje = "";
@@ -126,7 +126,7 @@ namespace Datos_SGBM
                 exito = contexto.SaveChanges();
             } catch (Exception ex)
             {
-                mensaje = ex.Message;
+                mensaje = ex.Message + "PersonasDatos";
                 return -1;
             }
             if (exito == 0)
@@ -175,7 +175,7 @@ namespace Datos_SGBM
                 p = contexto.Personas.Where(p => p.IdPersona == persona.IdPersona).FirstOrDefault();
             } catch (Exception ex)
             {
-                mensaje = ex.Message;
+                mensaje = ex.Message + "PersonasDatos";
                 return -1;
             }
             if (p == null)
@@ -196,7 +196,7 @@ namespace Datos_SGBM
                 modificado = contexto.SaveChanges();
             } catch (Exception ex)
             {
-                mensaje = ex.Message;
+                mensaje = ex.Message + "PersonasDatos";
                 return -1;
             }
             if (modificado == 0)

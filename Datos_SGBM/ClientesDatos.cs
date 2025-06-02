@@ -83,7 +83,7 @@ namespace Datos_SGBM
             }
             catch (Exception ex)
             {
-                mensaje = ex.Message;
+                mensaje = ex.Message + "ClientesDatos";
                 return null;
             }
 
@@ -110,7 +110,7 @@ namespace Datos_SGBM
                 id = contexto.SaveChanges();
             } catch (Exception ex)
             {
-                mensaje = "Error: " + ex.Message;
+                mensaje = "Error: " + ex.Message + "ClientesDatos";
                 return -1;
             }
             return id;
@@ -134,7 +134,7 @@ namespace Datos_SGBM
                 c = contexto.Clientes.FirstOrDefault(cl => cl.IdCliente == cliente.IdCliente);
             } catch (Exception ex)
             {
-                mensaje = ex.Message;
+                mensaje = ex.Message + "ClientesDatos";
                 return false;
             }
             if (c == null)
@@ -151,7 +151,7 @@ namespace Datos_SGBM
                 exito = contexto.SaveChanges();
             } catch (Exception ex)
             {
-                mensaje = ex.Message;
+                mensaje = ex.Message + "ClientesDatos";
                 return false;
             }
             return exito > 0;

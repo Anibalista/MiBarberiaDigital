@@ -24,5 +24,19 @@ namespace Entidades_SGBM
 
         public Provincias? Provincias { get; set; }
 
+        [NotMapped]
+        public string? localidadCompleta
+        {
+            get
+            {
+                if (Provincias == null)
+                    return Localidad;
+                return $"{Localidad}, {Provincias.Provincia}";
+            } set
+            {
+                _localidadCompleta = value;
+            }
+        }
+        private string? _localidadCompleta;
     }
 }

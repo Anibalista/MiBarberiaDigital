@@ -36,6 +36,24 @@ namespace Negocio_SGBM
             return contactos;
         }
 
+        public static List<Contactos>? getContactosPorNumero(string? fijo, string? whatsapp, ref string mensaje)
+        {
+            if (String.IsNullOrWhiteSpace(fijo))
+            {
+                fijo = null;
+            }
+            if (String.IsNullOrWhiteSpace(whatsapp))
+            {
+                whatsapp = null;
+            }
+            if (fijo == null && whatsapp == null)
+            {
+                return null;
+            }
+            List<Contactos>? contactos = ContactosDatos.getContactosPorNumero(fijo, whatsapp, ref mensaje);
+            return contactos;
+        }
+
         //Registros
         public static bool registrarContacto(Contactos? contacto, ref string mensaje)
         {

@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             groupBox1 = new GroupBox();
+            label2 = new Label();
+            checkExtranjeroWhat = new CheckBox();
             label1 = new Label();
             txtEmail = new TextBox();
             label13 = new Label();
@@ -59,6 +61,8 @@
             // groupBox1
             // 
             groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            groupBox1.Controls.Add(label2);
+            groupBox1.Controls.Add(checkExtranjeroWhat);
             groupBox1.Controls.Add(label1);
             groupBox1.Controls.Add(txtEmail);
             groupBox1.Controls.Add(label13);
@@ -82,6 +86,26 @@
             groupBox1.TabStop = false;
             groupBox1.Text = "Contacto Nro 1";
             // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(301, 24);
+            label2.Name = "label2";
+            label2.Size = new Size(65, 15);
+            label2.TabIndex = 19;
+            label2.Text = "Extranjero?";
+            // 
+            // checkExtranjeroWhat
+            // 
+            checkExtranjeroWhat.AutoSize = true;
+            checkExtranjeroWhat.BackColor = Color.Transparent;
+            checkExtranjeroWhat.CheckAlign = ContentAlignment.BottomCenter;
+            checkExtranjeroWhat.Location = new Point(320, 43);
+            checkExtranjeroWhat.Name = "checkExtranjeroWhat";
+            checkExtranjeroWhat.Size = new Size(15, 14);
+            checkExtranjeroWhat.TabIndex = 4;
+            checkExtranjeroWhat.UseVisualStyleBackColor = false;
+            // 
             // label1
             // 
             label1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
@@ -104,7 +128,7 @@
             // label13
             // 
             label13.AutoSize = true;
-            label13.Location = new Point(106, 78);
+            label13.Location = new Point(76, 79);
             label13.Name = "label13";
             label13.Size = new Size(189, 15);
             label13.TabIndex = 14;
@@ -113,7 +137,7 @@
             // label12
             // 
             label12.AutoSize = true;
-            label12.Location = new Point(106, 11);
+            label12.Location = new Point(76, 15);
             label12.Name = "label12";
             label12.Size = new Size(175, 15);
             label12.TabIndex = 13;
@@ -121,7 +145,7 @@
             // 
             // txtNumFijo
             // 
-            txtNumFijo.Location = new Point(222, 96);
+            txtNumFijo.Location = new Point(186, 97);
             txtNumFijo.Name = "txtNumFijo";
             txtNumFijo.Size = new Size(108, 23);
             txtNumFijo.TabIndex = 4;
@@ -130,7 +154,7 @@
             // label10
             // 
             label10.AutoSize = true;
-            label10.Location = new Point(159, 99);
+            label10.Location = new Point(123, 100);
             label10.Name = "label10";
             label10.Size = new Size(57, 15);
             label10.TabIndex = 11;
@@ -138,7 +162,7 @@
             // 
             // txtAreaFijo
             // 
-            txtAreaFijo.Location = new Point(87, 96);
+            txtAreaFijo.Location = new Point(57, 97);
             txtAreaFijo.Name = "txtAreaFijo";
             txtAreaFijo.Size = new Size(50, 23);
             txtAreaFijo.TabIndex = 3;
@@ -147,7 +171,8 @@
             // label11
             // 
             label11.AutoSize = true;
-            label11.Location = new Point(30, 99);
+            label11.BackColor = Color.Transparent;
+            label11.Location = new Point(5, 100);
             label11.Name = "label11";
             label11.Size = new Size(51, 15);
             label11.TabIndex = 9;
@@ -155,7 +180,7 @@
             // 
             // txtNumWhat
             // 
-            txtNumWhat.Location = new Point(222, 34);
+            txtNumWhat.Location = new Point(186, 38);
             txtNumWhat.Name = "txtNumWhat";
             txtNumWhat.Size = new Size(108, 23);
             txtNumWhat.TabIndex = 2;
@@ -164,7 +189,7 @@
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(152, 37);
+            label6.Location = new Point(116, 41);
             label6.Name = "label6";
             label6.Size = new Size(69, 15);
             label6.TabIndex = 7;
@@ -208,7 +233,7 @@
             // 
             // txtAreaWhat
             // 
-            txtAreaWhat.Location = new Point(87, 34);
+            txtAreaWhat.Location = new Point(57, 38);
             txtAreaWhat.Name = "txtAreaWhat";
             txtAreaWhat.Size = new Size(50, 23);
             txtAreaWhat.TabIndex = 1;
@@ -217,7 +242,8 @@
             // label9
             // 
             label9.AutoSize = true;
-            label9.Location = new Point(30, 37);
+            label9.BackColor = Color.Transparent;
+            label9.Location = new Point(5, 41);
             label9.Name = "label9";
             label9.Size = new Size(51, 15);
             label9.TabIndex = 0;
@@ -331,5 +357,7 @@
         private Button btnCancelar;
         private Button btnGuardar;
         private GroupBox groupBoxBotones;
+        private Label label2;
+        private CheckBox checkExtranjeroWhat;
     }
 }

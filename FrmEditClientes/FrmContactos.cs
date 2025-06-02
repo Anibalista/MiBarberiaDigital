@@ -17,6 +17,7 @@ namespace Front_SGBM
         public EnumModoForm modo = EnumModoForm.Alta;
         public List<Contactos>? _contactos = null;
         public List<Contactos>? _contactosNuevos = null;
+        public string origen = string.Empty;
 
         private int contadorReplicas = 1;
 
@@ -28,6 +29,7 @@ namespace Front_SGBM
         private string email = string.Empty;
         private string instagram = string.Empty;
         private string facebook = string.Empty;
+        private bool extranjeroWhat = false;
 
         public FrmContactos()
         {
@@ -68,6 +70,7 @@ namespace Front_SGBM
             txtInsta.Text = instagram;
             txtFace.Text = facebook;
             txtEmail.Text = email;
+            checkExtranjeroWhat.Checked = extranjeroWhat;
             vaciarValores();
             if (_contactos.Count == 1)
             {
@@ -105,6 +108,7 @@ namespace Front_SGBM
                 }
 
             }
+            extranjeroWhat = contacto.ExtranjeroWhatsapp;
             if (String.IsNullOrWhiteSpace(contacto.Whatsapp))
             {
                 areaWhat = "";
@@ -114,8 +118,15 @@ namespace Front_SGBM
                 string[] partes = contacto.Whatsapp.Split('-');
                 if (partes.Length == 2)
                 {
+                    extranjeroWhat = true;
                     areaWhat = partes[0];
                     whatsapp = partes[1];
+                    if (areaWhat.StartsWith("54"))
+                    {
+                        areaWhat = areaWhat.Remove(0, areaWhat.StartsWith("549") ? 3 : 2);
+                        extranjeroWhat = false;
+                    }
+
                 }
                 else
                 {
@@ -132,6 +143,7 @@ namespace Front_SGBM
             areaWhat = string.Empty;
             area = string.Empty;
             whatsapp = string.Empty;
+            extranjeroWhat = false;
             fijo = string.Empty;
             email = string.Empty;
             instagram = string.Empty;
@@ -141,10 +153,18 @@ namespace Front_SGBM
         //Botones
         private void btnCancelar_Click(object sender, EventArgs e)
         {
-            DialogResult result = MessageBox.Show("¿Desea cancelr la carga de contactos? (no se harán modificaciones)", "Cancelar", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            DialogResult result = MessageBox.Show("¿Desea cancelar la carga de contactos? (no se harán modificaciones)", "Cancelar", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (result == DialogResult.No)
             {
                 return;
+            }
+            if (origen == "Clientes")
+            {
+                FrmEditClientes frmEditClientes = Application.OpenForms.OfType<FrmEditClientes>().FirstOrDefault();
+                if (frmEditClientes != null)
+                {
+                    frmEditClientes.editandoContactos = false;
+                }
             }
             this.Close();
         }
@@ -172,6 +192,13 @@ namespace Front_SGBM
                         bool vacio = true;
                         foreach (Control control in groupBox.Controls)
                         {
+                            if (control is CheckBox checkBox)
+                            {
+                                if (checkBox.Name == "checkExtranjeroWhat" + contador)
+                                {
+                                    extranjeroWhat = checkBox.Checked;
+                                }
+                            }
                             if (control is TextBox textBox)
                             {
                                 if (textBox.Name == "txtAreaWhat"+contador)
@@ -223,9 +250,13 @@ namespace Front_SGBM
                         if (!String.IsNullOrWhiteSpace(whatsapp))
                         {
                             vacio = false;
-                            if (String.IsNullOrWhiteSpace(areaWhat))
+                            if (String.IsNullOrWhiteSpace(areaWhat) && !extranjeroWhat)
                             {
-                                areaWhat = "+543446";
+                                areaWhat = "3446";
+                            }
+                            if (!extranjeroWhat)
+                            {
+                                areaWhat = "549" + areaWhat;
                             }
                             contacto.Whatsapp = $"{areaWhat}-{whatsapp}";
                         }
@@ -238,6 +269,7 @@ namespace Front_SGBM
                             }
                             contacto.Telefono = $"{area}-{fijo}";
                         }
+                        
                         if (!vacio)
                         {
                             _contactosNuevos.Add(contacto);
@@ -255,10 +287,19 @@ namespace Front_SGBM
                     contador++;
                 }
             }
-            FrmEditClientes frmEditClientes = Application.OpenForms.OfType<FrmEditClientes>().FirstOrDefault();
-            if (frmEditClientes != null)
+            bool exito = false;
+            if (origen == "Clientes")
             {
-                frmEditClientes.traerContactos(_contactosNuevos);
+                FrmEditClientes frmEditClientes = Application.OpenForms.OfType<FrmEditClientes>().FirstOrDefault();
+                if (frmEditClientes != null)
+                {
+                    exito = frmEditClientes.traerContactos(_contactosNuevos);
+                }
+            }
+            if (!exito)
+            {
+                MessageBox.Show("Problemas al llevar los contectos de nuevo", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
             this.Close();
 
@@ -270,22 +311,29 @@ namespace Front_SGBM
             {
                 return;
             }
-            foreach(Control groupBox in flowLayoutPanel1.Controls)
+            Control groupBox = flowLayoutPanel1.Controls.Find("groupBox" + contadorReplicas, false).FirstOrDefault();
+            if (groupBox != null)
             {
-                if (groupBox.Name == "groupBox" + contadorReplicas)
-                {
-                    flowLayoutPanel1.Controls.Remove(groupBox);
-                }
+                flowLayoutPanel1.Controls.Remove(groupBox);
             }
             this.Height -= groupBox1.Height + 10;
-            if (_contactos != null)
-            {
-                if (_contactos.Count == contadorReplicas)
-                {
-                    _contactos.RemoveAt(contadorReplicas - 1);
-                }
-            }
+
             contadorReplicas--;
+
+            if (_contactos != null && _contactos.Count > 0)
+            {
+                try
+                {
+                    if (_contactos.Count >= contadorReplicas)
+                    {
+                        _contactos = _contactos.Take(_contactos.Count - 1).ToList(); ;
+                    }
+                } catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                
+            }
             
         }
 
@@ -308,6 +356,16 @@ namespace Front_SGBM
                 foreach (Control control in groupBox1.Controls)
                 {
                     Control nuevo = (Control)Activator.CreateInstance(control.GetType());
+                    if (control is CheckBox)
+                    {
+                        CheckBox chk = (CheckBox)nuevo;
+                        chk.Location = control.Location;
+                        chk.Size = control.Size;
+                        chk.Name = control.Name + contadorReplicas.ToString();
+                        chk.Font = control.Font;
+                        chk.TabIndex = contadorReplicas * 7 + 4;
+                        chk.Checked = extranjeroWhat;
+                    }
                     if (control is TextBox)
                     {
                         TextBox txt = (TextBox)nuevo;
@@ -331,29 +389,29 @@ namespace Front_SGBM
                         {
                             txt.KeyPress += numeric_KeyPress;
                             txt.Text = area;
-                            txt.TabIndex = contadorReplicas * 7 + 3;
+                            txt.TabIndex = contadorReplicas * 7 + 4;
                         }
                         if (control.Name == "txtNumFijo")
                         {
                             txt.KeyPress += numeric_KeyPress;
                             txt.Text = fijo;
-                            txt.TabIndex = contadorReplicas * 7 + 4;
+                            txt.TabIndex = contadorReplicas * 7 + 5;
                         }
                         if (control.Name == "txtEmail")
                         {
                             txt.Validating += txtEmail_Validating;
                             txt.Text = email;
-                            txt.TabIndex = contadorReplicas * 7 + 7;
+                            txt.TabIndex = contadorReplicas * 7 + 8;
                         }
                         if (control.Name == "txtFace")
                         {
                             txt.Text = facebook;
-                            txt.TabIndex = contadorReplicas * 7 + 6;
+                            txt.TabIndex = contadorReplicas * 7 + 7;
                         }
                         if (control.Name == "txtInsta")
                         {
                             txt.Text = instagram;
-                            txt.TabIndex = contadorReplicas * 7 + 5;
+                            txt.TabIndex = contadorReplicas * 7 + 6;
                         }
                         nuevo = txt;
                     } else if (control is Label original)

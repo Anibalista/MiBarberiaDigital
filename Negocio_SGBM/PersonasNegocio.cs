@@ -291,16 +291,12 @@ namespace Negocio_SGBM
                         return false;
                     }
                     persona.Domicilios = null;
+                    persona.IdDomicilio = (int)p.IdDomicilio;
+                    p.IdDomicilio = null;
                 } else
                 {
-                    if (DomiciliosNegocio.eliminarDomicilio((int)p.IdDomicilio, ref mensaje))
-                    {
-                        persona.Domicilios = null;
-                        persona.IdDomicilio = null;
-                    } else
-                    {
-                        return false;
-                    }
+                    persona.Domicilios = null;
+                    persona.IdDomicilio = null;
                 }
             }
             else
@@ -333,6 +329,13 @@ namespace Negocio_SGBM
             if (modificada >= 0)
             {
                 mensaje = "";
+            }
+            if (p.IdDomicilio != null)
+            {
+                if (!DomiciliosNegocio.eliminarDomicilio((int)p.IdDomicilio, ref mensaje))
+                {
+                    return false;
+                }
             }
             return modificada > 0;
         }

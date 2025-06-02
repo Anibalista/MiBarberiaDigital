@@ -67,10 +67,10 @@ namespace Datos_SGBM
             Estados? estado = null;
             try
             {
-                estado = contexto.Estados.FirstOrDefault(e => e.Indole.Equals(indole) && e.Estado.Equals(estado));
+                estado = contexto.Estados.FirstOrDefault(e => e.Indole.Equals(indole) && e.Estado.Equals(descripcion));
             } catch (Exception ex)
             {
-                mensaje = ex.Message;
+                mensaje = ex.Message + "EstadosDatos";
                 return null;
             }
             return estado;
@@ -96,7 +96,7 @@ namespace Datos_SGBM
             }
             catch (Exception ex)
             {
-                mensaje = ex.Message;
+                mensaje = ex.Message + "EstadosDatos";
                 return null;
             }
             if (estados == null || estados.Count < 1)
@@ -124,7 +124,7 @@ namespace Datos_SGBM
                 contexto.SaveChanges();
             } catch (Exception ex)
             {
-                mensaje = ex.Message;
+                mensaje = ex.Message + "EstadosDatos";
                 return -1;
             }
             if (estado.IdEstado != null)

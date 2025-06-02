@@ -26,6 +26,51 @@ namespace Negocio_SGBM
             return true;
         }
 
+        public static bool importarCliente(Clientes? cliente, Contactos? contacto,  ref string mensaje)
+        {
+            if (!comprobarCliente(cliente, ref mensaje))
+            {
+                return false;
+            }
+            Personas? persona = PersonasNegocio.getPersonaPorDni(cliente.Personas.Dni, ref mensaje);
+            if (persona == null)
+            {
+                cliente.IdPersona = PersonasNegocio.registrarPersona(cliente.Personas, ref mensaje);
+            } else
+            {
+                cliente.IdPersona = (int)persona.IdPersona;
+                cliente.Personas.IdPersona = persona.IdPersona;
+                if (!PersonasNegocio.modificarPersona(cliente.Personas, ref mensaje))
+                {
+                    return false;
+                }
+            }
+            if (cliente.IdPersona < 1)
+            {
+                return false;
+            }
+            Clientes? cl = null;
+            cl = getClientePorDni(cliente.Personas.Dni, ref mensaje);
+            cliente.Personas = null;
+            if (cl == null)
+            {
+                if (!registrarClienteBasico(cliente, ref mensaje))
+                {
+                    return false;
+                }
+            }
+            if (contacto != null)
+            {
+                contacto.IdPersona = cliente.IdPersona;
+                if (!ContactosNegocio.registrarContacto(contacto, ref mensaje))
+                {
+                    mensaje += "\nNo se pudo registrar contactos para el dni " + cliente.Personas.Dni;
+                }
+            }
+            return true;
+
+        }
+
 
         //Consultas
         public static Clientes? getClientePorDni(string? dni, ref string mensaje)
@@ -121,6 +166,49 @@ namespace Negocio_SGBM
             }
             return idCliente > 0;
 
+        }
+
+        public static bool registrarClienteBasico(Clientes? cliente, ref string mensaje)
+        {
+            if (cliente == null)
+            {
+                return false;
+            }
+            if (cliente.IdPersona < 1)
+            {
+                return false;
+            }
+            Estados? estado = EstadosNegocio.getEstado("Clientes", "Activo", ref mensaje);
+            if (estado == null)
+            {
+                estado = new();
+                estado.Indole = "Clientes";
+                estado.Estado = "Activo";
+
+            }
+            if (estado.IdEstado == null)
+            {
+                cliente.IdEstado = EstadosNegocio.registrarEstado(estado, ref mensaje);
+            }
+            if (cliente.IdEstado < 1)
+            {
+                return false;
+            }
+            cliente.Estados = null;
+            cliente.Personas = null;
+
+            int idCliente = 0;
+
+            try
+            {
+                idCliente = ClientesDatos.registrarCliente(cliente, ref mensaje);
+            }
+            catch (Exception ex)
+            {
+                mensaje = ex.Message;
+                return false;
+            }
+            return idCliente > 0;
         }
 
         //Modificaciones

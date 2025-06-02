@@ -6,23 +6,93 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Datos_SGBM
 {
     public class DomiciliosDatos
     {
         static Contexto contexto;
+        //Comprobaciones
+        public static bool comprobarContexto(ref string mensaje)
+        {
+            if (contexto == null)
+            {
+                mensaje = "Problemas al conectar a la BD";
+                return false;
+            }
+            if (contexto.Domicilios == null)
+            {
+                mensaje = "Problemas al conectar a la BD (domicilios)";
+                return false;
+            }
+            if (contexto.Localidades == null || contexto.Provincias == null)
+            {
+                mensaje = "Problemas al conectar a la BD (Localidades o Provincias)";
+                return false;
+            }
+            return true;
+        }
+
+        public static bool comprobarDomicilio(Domicilios? domicilio, bool registrando, ref string mensaje)
+        {
+            if (domicilio == null)
+            {
+                mensaje = "No llegan los datos de domicilio a la capa datos";
+                return false;
+            }
+            if (!registrando)
+            {
+                if (domicilio.IdDomicilio == null)
+                {
+                    mensaje = "No llegan los datos de domicilio (Id) a la capa datos";
+                    return false;
+                }
+            }
+            bool exito = true;
+            if (domicilio.IdLocalidad < 1)
+            {
+
+                exito = registrando && domicilio.Localidades != null;
+                mensaje = exito ? "" : "Problemas con la localidad del domicilio";
+            }
+            return exito;
+        }
+
+        public static bool comprobarLocalidad(Localidades? localidad, bool registrando, ref string mensaje)
+        {
+            if (localidad == null)
+            {
+                mensaje = "No llega información de la localidad a la capa datos";
+                return false;
+            }
+            if (!registrando)
+            {
+                if (localidad.IdLocalidad == null)
+                {
+                    mensaje = "No llegan los datos de localidad (Id) a la capa datos";
+                    return false;
+                }
+            }
+            bool exito = true;
+            if (localidad.IdProvincia < 1)
+            {
+                exito = registrando && localidad.Provincias != null;
+                mensaje = exito ? "" : "No llega información de la provincia a la capa datos";
+            }
+            return exito;
+
+        }
+
         //Provincias-----------------------------------
         //Consultas
         public static List<Provincias>? getProvincias()
         {
             contexto = new Contexto();
-            if (contexto == null)
+            string error = string.Empty;
+            if (!comprobarContexto(ref error))
             {
-                return null;
-            }
-            if (contexto.Provincias == null)
-            {
+                Console.WriteLine(error);
                 return null;
             }
             List<Provincias>? provincias = contexto.Provincias.ToList();
@@ -42,17 +112,91 @@ namespace Datos_SGBM
                 return null;
             }
             contexto = new Contexto();
-            if (contexto == null)
+            string error = string.Empty;
+            if (!comprobarContexto(ref error))
             {
-                return null;
-            }
-            if (contexto.Localidades == null)
-            {
+                Console.WriteLine(error);
                 return null;
             }
             List<Localidades>? localidades = contexto.Localidades.Where(l => l.IdProvincia == provincia.IdProvincia).ToList();
             return localidades;
 
+        }
+
+        public static List<Localidades>? getLocalidades(ref string mensaje)
+        {
+            contexto = new Contexto();
+            if (!comprobarContexto(ref mensaje))
+            {
+                return null;
+            }
+            List<Localidades>? localidades = null;
+            try
+            {
+                localidades = contexto.Localidades.Include("Provincias").OrderBy(l => l.Localidad).ToList();
+            } catch (Exception ex)
+            {
+                mensaje = ex.Message;
+                return null;
+            }
+            return localidades;
+        }
+
+        public static Localidades? getLocalidadPorNombre(string? nombre, ref string mensaje)
+        {
+            if (string.IsNullOrEmpty(nombre))
+            {
+                mensaje = "No viaja el nombre de la localidad a consultar (capa datos)";
+                return null;
+            }
+            contexto = new Contexto();
+            if (!comprobarContexto(ref mensaje))
+            {
+                return null;
+            }
+            Localidades? localidad = null;
+            try
+            {
+                localidad = contexto.Localidades.FirstOrDefault(l => l.Localidad == nombre);
+            } catch (Exception ex)
+            {
+                mensaje = ex.Message + " (getLocalidadPorNombre)";
+                return null;
+            }
+            return localidad;
+        }
+
+        //Registros
+        public static int registrarLocalidad(Localidades? localidad, ref string mensaje)
+        {
+            if (!comprobarLocalidad(localidad, true, ref mensaje))
+            {
+                return -1;
+            }
+            contexto = new Contexto();
+            if (!comprobarContexto(ref mensaje))
+            {
+                return -1;
+            }
+            int id = 0;
+            if (localidad.IdProvincia > 0)
+            {
+                localidad.Provincias = null;
+            }
+            try
+            {
+                contexto.Localidades.Add(localidad);
+                contexto.SaveChanges();
+            } catch (Exception ex)
+            {
+                mensaje = ex.Message + " (registrarLocalidad)";
+                return -1;
+            }
+            if (localidad.IdLocalidad != null)
+            {
+                id = (int)localidad.IdLocalidad;
+            }
+            return id;
         }
 
         //Domicilios------------------------------------
@@ -66,18 +210,11 @@ namespace Datos_SGBM
             }
             if (persona.IdDomicilio == null)
             {
-                mensaje = "No llegan los datos de la persona a la capa datos";
                 return null;
             }
             contexto = new Contexto();
-            if (contexto == null)
+            if (!comprobarContexto(ref mensaje))
             {
-                mensaje = "Problemas al conectar a la BD";
-                return null;
-            }
-            if (contexto.Provincias == null || contexto.Localidades == null)
-            {
-                mensaje = "Problemas al conectar a la BD (Localidad, Provincia)";
                 return null;
             }
             Domicilios? domicilio = null;
@@ -86,7 +223,7 @@ namespace Datos_SGBM
                 domicilio = contexto.Domicilios.Include("Localidades.Provincias").Where(d => d.IdDomicilio == persona.IdDomicilio).FirstOrDefault();
             } catch (Exception ex)
             {
-                mensaje = ex.Message;
+                mensaje = ex.Message + " DomiciliosDatos(getDomicilioPorPersona)";
                 return null;
             }
             return domicilio;
@@ -96,27 +233,16 @@ namespace Datos_SGBM
         //Registros
         public static int registrarDomicilio(Domicilios? domicilio, ref string mensaje)
         {
-            if (domicilio == null)
+            if (!comprobarDomicilio(domicilio, true, ref mensaje))
             {
-                mensaje = "No llegan los datos de domicilio a la capa datos";
+                return -1;
+            }
+            contexto = new Contexto();
+            if (!comprobarContexto(ref mensaje))
+            {
                 return -1;
             }
             domicilio.IdDomicilio = null;
-            contexto = new Contexto();
-            if (contexto == null)
-            {
-                mensaje = "Problemas al conectar a la BD";
-                return -1;
-            }
-            if (contexto.Domicilios == null)
-            {
-                mensaje = "Problemas al conectar a la BD (domicilios)";
-                return -1;
-            }
-            if (domicilio.IdLocalidad > 0)
-            {
-                domicilio.Localidades = null;
-            }
             int exito = 0;
             try
             {
@@ -124,7 +250,7 @@ namespace Datos_SGBM
                 exito = contexto.SaveChanges();
             } catch (Exception ex)
             {
-                mensaje = ex.Message;
+                mensaje = ex.Message + " DomiciliosDatos(registrarDomicilio)";
                 return -1;
             }
             if (domicilio.IdDomicilio != null)
@@ -137,25 +263,13 @@ namespace Datos_SGBM
         //Modificaciones
         public static int modificarDomicilio(Domicilios? domicilio, ref string mensaje)
         {
-            if (domicilio == null)
+            if (!comprobarDomicilio(domicilio, false, ref mensaje))
             {
-                mensaje = "No llegan los datos de domicilio a la capa datos";
-                return -1;
-            }
-            if (domicilio.IdDomicilio < 1)
-            {
-                mensaje = "No llegan los datos de domicilio a la capa datos";
                 return -1;
             }
             contexto = new Contexto();
-            if (contexto == null)
+            if (!comprobarContexto(ref mensaje))
             {
-                mensaje = "Problemas al conectar a la BD";
-                return -1;
-            }
-            if (contexto.Domicilios == null)
-            {
-                mensaje = "Problemas al conectar a la BD (domicilios)";
                 return -1;
             }
             Domicilios? d = null;
@@ -164,7 +278,7 @@ namespace Datos_SGBM
                 d = contexto.Domicilios.Where(d => d.IdDomicilio == domicilio.IdDomicilio).FirstOrDefault();
             } catch(Exception ex)
             {
-                mensaje = ex.Message;
+                mensaje = ex.Message + " DomiciliosDatos(modificarDomicilio - Buscar)";
                 return -1;
             }
             if (d  == null)
@@ -185,7 +299,7 @@ namespace Datos_SGBM
                 modificado = contexto.SaveChanges();
             } catch(Exception ex)
             {
-                mensaje = ex.Message;
+                mensaje = ex.Message + "DomiciliosDatos(modificarDomicilio - Guardar)";
                 return -1;
             }
             if (modificado == 0 || d.IdDomicilio == null)
@@ -204,14 +318,8 @@ namespace Datos_SGBM
                 return false;
             }
             contexto = new Contexto();
-            if (contexto == null)
+            if (!comprobarContexto(ref mensaje))
             {
-                mensaje = "Problemas al conectar a la BD";
-                return false;
-            }
-            if (contexto.Domicilios == null)
-            {
-                mensaje = "Problemas al conectar a la BD (domicilios)";
                 return false;
             }
             Domicilios? domicilio = null;
@@ -220,7 +328,7 @@ namespace Datos_SGBM
                 domicilio = contexto.Domicilios.Where(d => d.IdDomicilio == id).FirstOrDefault();
             } catch(Exception ex)
             {
-                mensaje = ex.Message;
+                mensaje = ex.Message + "DomiciliosDatos(eliminarDomicilioPorId - Buscar)";
                 return false;
             }
             if (domicilio == null)
@@ -235,7 +343,7 @@ namespace Datos_SGBM
                 eliminado = contexto.SaveChanges();
             } catch(Exception ex)
             {
-                mensaje = ex.Message;
+                mensaje = ex.Message + "DomiciliosDatos(eliminarDomicilioPorId - Guardar)";
                 return false;
             }
 

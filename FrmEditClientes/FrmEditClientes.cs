@@ -30,6 +30,7 @@ namespace Front_SGBM
         private Estados? _estado = null;
         public bool cerrando = false;
         public bool venta = false;
+        public bool editandoContactos = false;
 
         //Valores de campos
         private string _dni = string.Empty;
@@ -53,16 +54,20 @@ namespace Front_SGBM
 
         private void cargarFormulario()
         {
+            string titulo = "Registro";
             fechaInicial();
             if (modo != EnumModoForm.Alta)
             {
                 cargarCampos();
                 cargarContactos();
+                titulo = modo == EnumModoForm.Modificacion ? "Modificación" : "Detalles";
             }
             cargarEstados();
             cargarProvincias();
             cargarLocalidades();
             activarCampos(modo != EnumModoForm.Consulta);
+
+            labelTitulo.Text = $"{titulo} de Cliente";
         }
 
         //Comprobaciones
@@ -189,7 +194,7 @@ namespace Front_SGBM
                 {
                     _localidad = new();
                     _localidad.Localidad = localidad;
-                    
+
                 }
                 if (_provincia.IdProvincia != null)
                 {
@@ -202,7 +207,8 @@ namespace Front_SGBM
                     _localidad.Provincias = _provincia;
                 }
 
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 mens = ex.Message;
             }
@@ -226,7 +232,8 @@ namespace Front_SGBM
             try
             {
                 _provincia = bindingProvincias.Current as Provincias;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 return false;
@@ -254,7 +261,8 @@ namespace Front_SGBM
                     mensaje = "Problemas con la recuperación de estados de clietes de la BD";
                     return false;
                 }
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 mensaje = ex.Message;
                 return false;
@@ -292,9 +300,17 @@ namespace Front_SGBM
 
         private void refrescarGrilla()
         {
-            bindingContactos.Clear();
-            bindingContactos.DataSource = _contactos;
-            dataGridContactos.Refresh();
+            try
+            {
+                bindingContactos.Clear();
+                bindingContactos.DataSource = _contactos;
+                dataGridContactos.Refresh();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
         }
 
         private void fechaInicial()
@@ -318,7 +334,8 @@ namespace Front_SGBM
                 {
                     _provincia = _provincias.FirstOrDefault(p => p.IdProvincia == _localidad.IdProvincia);
                     cbProvincia.SelectedItem = _provincia;
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
@@ -339,7 +356,7 @@ namespace Front_SGBM
             {
                 return;
             }
-            
+
             try
             {
                 _provincia = _provincias.Where(p => p.Provincia == provincia).FirstOrDefault();
@@ -360,7 +377,8 @@ namespace Front_SGBM
             try
             {
                 cbLocalidad.SelectedItem = _localidad;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
@@ -390,7 +408,8 @@ namespace Front_SGBM
                     _estado.Estado = "Activo";
                 }
                 bindingEstados.DataSource = _estado;
-            } else
+            }
+            else
             {
                 _estado = _estados.FirstOrDefault(e => e.IdEstado == _cliente.IdEstado);
             }
@@ -406,7 +425,7 @@ namespace Front_SGBM
             }
         }
 
-        private void cargarContactos ()
+        private void cargarContactos()
         {
             _contactos = null;
             refrescarGrilla();
@@ -454,12 +473,12 @@ namespace Front_SGBM
             {
                 return false;
             }
-
+            
             if (modo == EnumModoForm.Alta || _domicilio == null)
             {
                 _domicilio = new();
             }
-            
+
             _domicilio.Calle = _calle;
             _domicilio.Altura = _altura;
             _domicilio.Piso = _piso;
@@ -470,7 +489,8 @@ namespace Front_SGBM
                 if (_localidad.IdLocalidad != null)
                 {
                     _domicilio.IdLocalidad = (int)_localidad.IdLocalidad;
-                } else
+                }
+                else
                 {
                     _domicilio.Localidades = _localidad;
                 }
@@ -540,7 +560,7 @@ namespace Front_SGBM
             {
                 return false;
             }
-            
+
             return true;
         }
 
@@ -626,7 +646,7 @@ namespace Front_SGBM
                 MessageBox.Show($"Error: {mensaje}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            
+
             if (modo == EnumModoForm.Alta)
             {
                 if (existe)
@@ -660,7 +680,8 @@ namespace Front_SGBM
                 }
                 MessageBox.Show(mensajeExito, "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
-            } else
+            }
+            else
             {
                 if (!existe)
                 {
@@ -704,7 +725,8 @@ namespace Front_SGBM
                 {
                     MessageBox.Show(mensaje, "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     btnGuardar.Enabled = true;
-                } else
+                }
+                else
                 {
                     DialogResult res = MessageBox.Show($"{mensaje}\n¿Desea registrar un cliente nuevo?", "Error", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
                     if (res == DialogResult.Yes)
@@ -712,11 +734,12 @@ namespace Front_SGBM
                         modo = EnumModoForm.Alta;
                         cargarFormulario();
                         return;
-                    } else
+                    }
+                    else
                     {
                         btnGuardar.Enabled = false;
                     }
-                    
+
                 }
                 return;
             }
@@ -753,6 +776,7 @@ namespace Front_SGBM
         private void linkContactos_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             EnumModoForm modoCont = EnumModoForm.Alta;
+            editandoContactos = true;
             if (modoContactos())
             {
                 modoCont = EnumModoForm.Modificacion;
@@ -765,17 +789,8 @@ namespace Front_SGBM
                 return;
             }
 
-            FrmContactos? abierto = Application.OpenForms.OfType<FrmContactos>().FirstOrDefault();
-            if (abierto != null)
-            {
-                abierto.Close();
-            }
-
-            FrmContactos formulario = new FrmContactos();
-            formulario.modo = modoCont;
-            formulario._contactos = _contactos;
-            formulario.MdiParent = principal;
-            formulario.Show();
+            principal.abrirContactos(sender, e, modoCont, "Clientes", _contactos);
+            return;
         }
         private void cbProvincia_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -784,7 +799,7 @@ namespace Front_SGBM
                 return;
             }
             cargarLocalidades();
-            
+
         }
 
         //Filtros

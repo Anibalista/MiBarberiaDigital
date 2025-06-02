@@ -30,7 +30,7 @@
         {
             components = new System.ComponentModel.Container();
             panelTitulo = new Panel();
-            label1 = new Label();
+            labelTitulo = new Label();
             panelBotones = new Panel();
             btnCancelar = new Button();
             btnGuardar = new Button();
@@ -87,22 +87,22 @@
             // 
             // panelTitulo
             // 
-            panelTitulo.Controls.Add(label1);
+            panelTitulo.Controls.Add(labelTitulo);
             panelTitulo.Dock = DockStyle.Top;
             panelTitulo.Location = new Point(0, 0);
             panelTitulo.Name = "panelTitulo";
             panelTitulo.Size = new Size(807, 42);
             panelTitulo.TabIndex = 0;
             // 
-            // label1
+            // labelTitulo
             // 
-            label1.AutoSize = true;
-            label1.Font = new Font("Roboto Condensed", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label1.Location = new Point(304, 9);
-            label1.Name = "label1";
-            label1.Size = new Size(206, 29);
-            label1.TabIndex = 0;
-            label1.Text = "Registro de Clientes";
+            labelTitulo.AutoSize = true;
+            labelTitulo.Font = new Font("Roboto Condensed", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            labelTitulo.Location = new Point(271, 9);
+            labelTitulo.Name = "labelTitulo";
+            labelTitulo.Size = new Size(206, 29);
+            labelTitulo.TabIndex = 0;
+            labelTitulo.Text = "Registro de Clientes";
             // 
             // panelBotones
             // 
@@ -531,7 +531,7 @@
             Controls.Add(panelBotones);
             Controls.Add(panelTitulo);
             Name = "FrmEditClientes";
-            Text = "FrmEditClientes";
+            Text = "Formulario de clientes";
             Load += FrmEditClientes_Load;
             panelTitulo.ResumeLayout(false);
             panelTitulo.PerformLayout();
@@ -553,7 +553,7 @@
         #endregion
 
         private Panel panelTitulo;
-        private Label label1;
+        private Label labelTitulo;
         private Panel panelBotones;
         private Button btnGuardar;
         private Button btnCancelar;

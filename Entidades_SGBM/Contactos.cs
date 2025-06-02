@@ -28,6 +28,9 @@ namespace Entidades_SGBM
         [MaxLength(150)]
         public string? Facebook { get; set; }
 
+        [Column(TypeName = "bit")]
+        public bool ExtranjeroWhatsapp { get; set; }
+
         [ForeignKey("Personas")]
         public int? IdPersona { get; set; }
 

@@ -1,4 +1,5 @@
-﻿using FrmEditClientes;
+﻿using Entidades_SGBM;
+using FrmEditClientes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -117,17 +118,57 @@ namespace Front_SGBM
                 abierto.MdiParent = this;
                 abierto.modo = modo;
                 abierto.Show();
-            } else
+            }
+            else
             {
                 abierto.Focus();
             }
 
         }
 
+        private void abrirAbmClientes(object sender, EventArgs e, EnumModoForm modo)
+        {
+            FrmAbmClientes? abierto = Application.OpenForms.OfType<FrmAbmClientes>().FirstOrDefault();
+
+            if (abierto == null)
+            {
+                abierto = new FrmAbmClientes();
+                abierto.MdiParent = this;
+                //abierto.modo = modo;
+                abierto.Show();
+            }
+            else
+            {
+                abierto.Focus();
+            }
+        }
+
+        //Métodos genéricos
+        public void abrirContactos(object sender, EventArgs e, EnumModoForm modo, string origen, List<Contactos>? contactos)
+        {
+            FrmContactos? abierto = Application.OpenForms.OfType<FrmContactos>().FirstOrDefault();
+            if (abierto != null)
+            {
+                abierto.Close();
+            }
+
+            FrmContactos formulario = new FrmContactos();
+            formulario.modo = modo;
+            formulario.origen = origen;
+            formulario._contactos = contactos;
+            formulario.MdiParent = this;
+            formulario.Show();
+        }
+
         //Opciones
         private void nuevoClienteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             abrirEditClientes(sender, e, EnumModoForm.Alta);
+        }
+
+        private void abmClientesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            abrirAbmClientes(sender, e, EnumModoForm.Consulta);
         }
     }
 }

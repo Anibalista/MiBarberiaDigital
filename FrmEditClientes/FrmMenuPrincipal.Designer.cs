@@ -1,4 +1,5 @@
-﻿namespace Front_SGBM
+﻿
+namespace Front_SGBM
 {
     partial class FrmMenuPrincipal
     {
@@ -66,8 +67,8 @@
             arrangeIconsToolStripMenuItem = new ToolStripMenuItem();
             administracionToolStripMenuItem = new ToolStripMenuItem();
             clientesToolStripMenuItem = new ToolStripMenuItem();
+            abmClientesToolStripMenuItem = new ToolStripMenuItem();
             nuevoClienteToolStripMenuItem = new ToolStripMenuItem();
-            buscarClientesToolStripMenuItem = new ToolStripMenuItem();
             toolStrip = new ToolStrip();
             newToolStripButton = new ToolStripButton();
             openToolStripButton = new ToolStripButton();
@@ -355,23 +356,24 @@
             // 
             // clientesToolStripMenuItem
             // 
-            clientesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { nuevoClienteToolStripMenuItem, buscarClientesToolStripMenuItem });
+            clientesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { abmClientesToolStripMenuItem, nuevoClienteToolStripMenuItem });
             clientesToolStripMenuItem.Name = "clientesToolStripMenuItem";
-            clientesToolStripMenuItem.Size = new Size(116, 22);
+            clientesToolStripMenuItem.Size = new Size(180, 22);
             clientesToolStripMenuItem.Text = "Clientes";
+            // 
+            // abmClientesToolStripMenuItem
+            // 
+            abmClientesToolStripMenuItem.Name = "abmClientesToolStripMenuItem";
+            abmClientesToolStripMenuItem.Size = new Size(180, 22);
+            abmClientesToolStripMenuItem.Text = "ABM Clientes";
+            abmClientesToolStripMenuItem.Click += abmClientesToolStripMenuItem_Click;
             // 
             // nuevoClienteToolStripMenuItem
             // 
             nuevoClienteToolStripMenuItem.Name = "nuevoClienteToolStripMenuItem";
-            nuevoClienteToolStripMenuItem.Size = new Size(154, 22);
+            nuevoClienteToolStripMenuItem.Size = new Size(180, 22);
             nuevoClienteToolStripMenuItem.Text = "Nuevo Cliente";
             nuevoClienteToolStripMenuItem.Click += nuevoClienteToolStripMenuItem_Click;
-            // 
-            // buscarClientesToolStripMenuItem
-            // 
-            buscarClientesToolStripMenuItem.Name = "buscarClientesToolStripMenuItem";
-            buscarClientesToolStripMenuItem.Size = new Size(154, 22);
-            buscarClientesToolStripMenuItem.Text = "Buscar Clientes";
             // 
             // toolStrip
             // 
@@ -489,6 +491,11 @@
             ResumeLayout(false);
             PerformLayout();
         }
+
+        private void buscarClientesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
 
 
@@ -541,7 +548,7 @@
         private ToolStripMenuItem administracionToolStripMenuItem;
         private ToolStripMenuItem clientesToolStripMenuItem;
         private ToolStripMenuItem nuevoClienteToolStripMenuItem;
-        private ToolStripMenuItem buscarClientesToolStripMenuItem;
+        private ToolStripMenuItem abmClientesToolStripMenuItem;
     }
 }
 
