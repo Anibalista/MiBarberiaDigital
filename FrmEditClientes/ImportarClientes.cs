@@ -1,5 +1,6 @@
 ﻿using Entidades_SGBM;
 using Negocio_SGBM;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Drawing.Text;
@@ -30,13 +31,16 @@ namespace Front_SGBM
         private string _email = string.Empty;
         private string _fijo = string.Empty;
         private string _whatsapp = string.Empty;
+        private bool _extranjeroWhatsapp = true;
         private DateTime? _nacimiento = null;
 
         private bool _localidadOk = false;
+        private static readonly HashSet<string> codigosArea = new() { "3446", "3447", "3442", "3445", "3444" };
+
 
         public ImportarClientes()
         {
-            _ruta = ArchivosOfficce.SeleccionarArchivoCSV();
+            _ruta = ArchivosOfficce.SeleccionarArchivoXLSX();
             hayArchivo = !String.IsNullOrEmpty(_ruta);
             observaciones = "";
         }
@@ -104,40 +108,44 @@ namespace Front_SGBM
         }
 
         //Importar los clientes
-        private int ProcesarCSV(ref string mensaje)
+        private int ProcesarExcel(ref string mensaje)
         {
             int exitosos = 0;
             int fracasos = 0;
             int contador = 0;
             localidadOk(ref mensaje);
             string desarrollo = "Observaciones:";
-            using (StreamReader reader = new StreamReader(_ruta))
+            FileInfo archivo;
+            try
             {
-                while (!reader.EndOfStream)
+                archivo = new FileInfo(_ruta);
+            } catch (Exception ex)
+            {
+                mensaje = "Error :" + ex.Message;
+                return 0;
+            }
+            
+            // Establecer el contexto de licencia correctamente en EPPlus 7+
+            ExcelPackage.License.SetNonCommercialPersonal("Anibal");
+
+            using (ExcelPackage package = new ExcelPackage(archivo))
+            {
+                ExcelWorksheet hoja = package.Workbook.Worksheets[0];
+
+                for (int fila = 2; fila <= hoja.Dimension.Rows; fila++)
                 {
                     vaciarCampos();
                     contador++;
                     string mensajeInterno = "";
-                    string linea = reader.ReadLine();
-                    string[] valores = linea.Split(',');
+                    _apellido = hoja.Cells[fila, 1].Text.Trim();
+                    _nombre = hoja.Cells[fila, 2].Text.Trim();
+                    _dni = hoja.Cells[fila, 3].Text.Trim();
+                    _direccion = hoja.Cells[fila, 4].Text.Trim();
+                    _email = hoja.Cells[fila, 5].Text.Trim();
+                    _fijo = hoja.Cells[fila, 6].Text.Trim();
+                    _whatsapp = hoja.Cells[fila, 7].Text.Trim();
+                    _nacimiento = ParseFecha(hoja.Cells[fila, 8].Text.Trim());
 
-                    // Asegurar que hay suficientes columnas antes de asignar valores
-                    if (valores.Length >= 8)
-                    {
-                        _apellido = valores[0].Trim();
-                        _nombre = valores[1].Trim();
-                        _dni = valores[2].Trim();
-                        _direccion = valores[3].Trim();
-                        _email = valores[4].Trim();
-                        _fijo = valores[5].Trim();
-                        _whatsapp = valores[6].Trim();
-                        _nacimiento = ParseFecha(valores[7].Trim());
-                    } else
-                    {
-                        mensajeInterno = $"No fue posible interactuar con el cliente n° {contador}";
-                        fracasos++;
-                        continue;
-                    }
                     if (_apellido == "apellido")
                     {
                         contador--;
@@ -196,10 +204,109 @@ namespace Front_SGBM
                 return;
             }
             _contacto = new Contactos();
-            _contacto.Telefono = _fijo;
-            _contacto.Whatsapp = _whatsapp;
+            _contacto.Telefono = procesarFijo();
+            _contacto.Whatsapp = procesarWhatsapp();
+            _contacto.ExtranjeroWhatsapp = _contacto.Whatsapp != null ? _extranjeroWhatsapp : false;
             _contacto.Email = _email;
-        } 
+        }
+
+        private string? procesarWhatsapp()
+        {
+            if (string.IsNullOrWhiteSpace(_whatsapp))
+            {
+                return null;
+            }
+            // Si empieza con "540", reemplazar por "549"
+            if (_whatsapp.StartsWith("540"))
+            {
+                _whatsapp = "549" + _whatsapp.Substring(3);
+            }
+
+            // Si empieza con "5490", reemplazar por "549"
+            if (_whatsapp.StartsWith("5490"))
+            {
+                _whatsapp = "549" + _whatsapp.Substring(4);
+            }
+
+            // Si empieza con "54" sin el 9, se lo agrega
+            if (_whatsapp.StartsWith("54") && !_whatsapp.StartsWith("549"))
+            {
+                _whatsapp = _whatsapp.Insert(2, "9");
+            }
+
+            if (_whatsapp.Length < 7)
+            {
+                return null;
+            }
+
+            string area = _whatsapp.Substring(0, 4);
+            if (codigosArea.Contains(area))
+            {
+                _whatsapp = "549" + _whatsapp;
+            }
+
+            // Si empieza con "549", insertar un guion después de los primeros 6 caracteres
+            if (_whatsapp.StartsWith("549"))
+            {
+                _extranjeroWhatsapp = false;
+                area = _whatsapp.Substring(3, 4); // Extraer los siguientes 4 dígitos
+                if (_whatsapp.StartsWith("54911"))
+                {
+                    _whatsapp = _whatsapp.Insert(5, "-");
+                }
+                else if (codigosArea.Contains(area))
+                {
+                    _whatsapp = _whatsapp.Insert(7, "-"); // Separar código de área con guion
+                }
+                else
+                {
+                    _whatsapp = _whatsapp.Insert(6, "-"); // Para otros números, guion después de los primeros 6
+                } 
+                
+            } else
+            {
+                _whatsapp = _whatsapp.Insert(3, "-");
+            }
+
+            return _whatsapp;
+        }
+
+        private string? procesarFijo()
+        {
+            if (string.IsNullOrWhiteSpace(_fijo))
+            {
+                return null;
+            }
+            //Si no tiene un largo suficiente no lo registra
+            if (_fijo.Length < 7)
+            {
+                return null;
+            }
+            // Si empieza con "0", se lo quita
+            if (_fijo.StartsWith("0"))
+            {
+                _fijo = _fijo.Substring(1);
+            }
+
+            // Manejo especial para el código de área 11 (Buenos Aires)
+            if (_fijo.StartsWith("11"))
+            {
+                _fijo = _fijo.Insert(2, "-");
+            }
+            // Si los primeros 4 caracteres son un código de área conocido, se coloca el guion después de 4 dígitos
+            else if (codigosArea.Contains(_fijo.Substring(0, 4)))
+            {
+                _fijo = _fijo.Insert(4, "-");
+            }
+            // Para otros números, se coloca el guion después de los primeros 3 dígitos
+            else
+            {
+                _fijo = _fijo.Insert(3, "-");
+            }
+
+            return _fijo;
+
+        }
 
         private bool importarCliente(ref string mensaje)
         {
@@ -210,7 +317,7 @@ namespace Front_SGBM
         {
             string mensaje = "";
             bool exito = false;
-            if (ProcesarCSV(ref mensaje) > 0)
+            if (ProcesarExcel(ref mensaje) > 0)
             {
                 exito = true;
             }
