@@ -33,6 +33,7 @@
             groupBoxTitulo = new GroupBox();
             labelTitulo = new Label();
             groupBox1 = new GroupBox();
+            checkAnulados = new CheckBox();
             btnRegistrar = new Button();
             btnBuscar = new Button();
             btnImportar = new Button();
@@ -49,12 +50,24 @@
             txtCampo1 = new TextBox();
             groupBox3 = new GroupBox();
             dataGridClientes = new DataGridView();
+            apellidosDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            nombresDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            dniDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            fechaNacDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            Domicilio = new DataGridViewTextBoxColumn();
+            Localidad = new DataGridViewTextBoxColumn();
+            bindingClientes = new BindingSource(components);
             groupBox4 = new GroupBox();
             dataGridContactos = new DataGridView();
+            whatsappDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            telefonoDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            instagramDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            facebookDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            emailDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            contactosBindingSource = new BindingSource(components);
             groupBoxBotones = new GroupBox();
             btnSeleccionar = new Button();
             btnSalir = new Button();
-            bindingClientes = new BindingSource(components);
             bindingContactos = new BindingSource(components);
             flowLayoutPanel1.SuspendLayout();
             groupBoxTitulo.SuspendLayout();
@@ -63,10 +76,11 @@
             ((System.ComponentModel.ISupportInitialize)bindingLocalidades).BeginInit();
             groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridClientes).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)bindingClientes).BeginInit();
             groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridContactos).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)contactosBindingSource).BeginInit();
             groupBoxBotones.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)bindingClientes).BeginInit();
             ((System.ComponentModel.ISupportInitialize)bindingContactos).BeginInit();
             SuspendLayout();
             // 
@@ -108,6 +122,7 @@
             // groupBox1
             // 
             groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            groupBox1.Controls.Add(checkAnulados);
             groupBox1.Controls.Add(btnRegistrar);
             groupBox1.Controls.Add(btnBuscar);
             groupBox1.Controls.Add(btnImportar);
@@ -121,9 +136,19 @@
             groupBox1.TabStop = false;
             groupBox1.Text = "Filtros y Archivos";
             // 
+            // checkAnulados
+            // 
+            checkAnulados.AutoSize = true;
+            checkAnulados.Location = new Point(339, 35);
+            checkAnulados.Name = "checkAnulados";
+            checkAnulados.Size = new Size(112, 19);
+            checkAnulados.TabIndex = 7;
+            checkAnulados.Text = "Incluir Anulados";
+            checkAnulados.UseVisualStyleBackColor = true;
+            // 
             // btnRegistrar
             // 
-            btnRegistrar.Location = new Point(592, 33);
+            btnRegistrar.Location = new Point(512, 33);
             btnRegistrar.Name = "btnRegistrar";
             btnRegistrar.Size = new Size(75, 23);
             btnRegistrar.TabIndex = 6;
@@ -133,12 +158,13 @@
             // 
             // btnBuscar
             // 
-            btnBuscar.Location = new Point(303, 33);
+            btnBuscar.Location = new Point(260, 33);
             btnBuscar.Name = "btnBuscar";
             btnBuscar.Size = new Size(60, 22);
             btnBuscar.TabIndex = 5;
             btnBuscar.Text = "Buscar";
             btnBuscar.UseVisualStyleBackColor = true;
+            btnBuscar.Click += btnBuscar_Click;
             // 
             // btnImportar
             // 
@@ -268,12 +294,81 @@
             // 
             // dataGridClientes
             // 
-            dataGridClientes.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridClientes.AllowUserToAddRows = false;
+            dataGridClientes.AllowUserToDeleteRows = false;
+            dataGridClientes.AllowUserToOrderColumns = true;
+            dataGridClientes.AutoGenerateColumns = false;
             dataGridClientes.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridClientes.Location = new Point(0, 34);
+            dataGridClientes.Columns.AddRange(new DataGridViewColumn[] { apellidosDataGridViewTextBoxColumn, nombresDataGridViewTextBoxColumn, dniDataGridViewTextBoxColumn, fechaNacDataGridViewTextBoxColumn, Domicilio, Localidad });
+            dataGridClientes.DataSource = bindingClientes;
+            dataGridClientes.Location = new Point(0, 22);
             dataGridClientes.Name = "dataGridClientes";
-            dataGridClientes.Size = new Size(950, 172);
+            dataGridClientes.ReadOnly = true;
+            dataGridClientes.RowHeadersVisible = false;
+            dataGridClientes.Size = new Size(944, 184);
             dataGridClientes.TabIndex = 0;
+            // 
+            // apellidosDataGridViewTextBoxColumn
+            // 
+            apellidosDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            apellidosDataGridViewTextBoxColumn.DataPropertyName = "Apellidos";
+            apellidosDataGridViewTextBoxColumn.FillWeight = 15F;
+            apellidosDataGridViewTextBoxColumn.HeaderText = "Apellidos";
+            apellidosDataGridViewTextBoxColumn.MinimumWidth = 120;
+            apellidosDataGridViewTextBoxColumn.Name = "apellidosDataGridViewTextBoxColumn";
+            apellidosDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // nombresDataGridViewTextBoxColumn
+            // 
+            nombresDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            nombresDataGridViewTextBoxColumn.DataPropertyName = "Nombres";
+            nombresDataGridViewTextBoxColumn.FillWeight = 15F;
+            nombresDataGridViewTextBoxColumn.HeaderText = "Nombres";
+            nombresDataGridViewTextBoxColumn.MinimumWidth = 120;
+            nombresDataGridViewTextBoxColumn.Name = "nombresDataGridViewTextBoxColumn";
+            nombresDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // dniDataGridViewTextBoxColumn
+            // 
+            dniDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dniDataGridViewTextBoxColumn.DataPropertyName = "Dni";
+            dniDataGridViewTextBoxColumn.FillWeight = 9F;
+            dniDataGridViewTextBoxColumn.HeaderText = "Dni";
+            dniDataGridViewTextBoxColumn.MinimumWidth = 80;
+            dniDataGridViewTextBoxColumn.Name = "dniDataGridViewTextBoxColumn";
+            dniDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // fechaNacDataGridViewTextBoxColumn
+            // 
+            fechaNacDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            fechaNacDataGridViewTextBoxColumn.DataPropertyName = "FechaNac";
+            fechaNacDataGridViewTextBoxColumn.FillWeight = 11F;
+            fechaNacDataGridViewTextBoxColumn.HeaderText = "FechaNac";
+            fechaNacDataGridViewTextBoxColumn.MinimumWidth = 100;
+            fechaNacDataGridViewTextBoxColumn.Name = "fechaNacDataGridViewTextBoxColumn";
+            fechaNacDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // Domicilio
+            // 
+            Domicilio.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Domicilio.FillWeight = 35F;
+            Domicilio.HeaderText = "Domicilio";
+            Domicilio.MinimumWidth = 200;
+            Domicilio.Name = "Domicilio";
+            Domicilio.ReadOnly = true;
+            // 
+            // Localidad
+            // 
+            Localidad.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Localidad.FillWeight = 15F;
+            Localidad.HeaderText = "Localidad";
+            Localidad.MinimumWidth = 120;
+            Localidad.Name = "Localidad";
+            Localidad.ReadOnly = true;
+            // 
+            // bindingClientes
+            // 
+            bindingClientes.DataSource = typeof(Entidades_SGBM.Personas);
             // 
             // groupBox4
             // 
@@ -288,12 +383,74 @@
             // 
             // dataGridContactos
             // 
+            dataGridContactos.AllowUserToAddRows = false;
+            dataGridContactos.AllowUserToDeleteRows = false;
+            dataGridContactos.AllowUserToOrderColumns = true;
             dataGridContactos.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridContactos.AutoGenerateColumns = false;
             dataGridContactos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridContactos.Columns.AddRange(new DataGridViewColumn[] { whatsappDataGridViewTextBoxColumn, telefonoDataGridViewTextBoxColumn, instagramDataGridViewTextBoxColumn, facebookDataGridViewTextBoxColumn, emailDataGridViewTextBoxColumn });
+            dataGridContactos.DataSource = contactosBindingSource;
             dataGridContactos.Location = new Point(0, 22);
             dataGridContactos.Name = "dataGridContactos";
-            dataGridContactos.Size = new Size(950, 80);
+            dataGridContactos.ReadOnly = true;
+            dataGridContactos.RowHeadersVisible = false;
+            dataGridContactos.Size = new Size(947, 80);
             dataGridContactos.TabIndex = 0;
+            // 
+            // whatsappDataGridViewTextBoxColumn
+            // 
+            whatsappDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            whatsappDataGridViewTextBoxColumn.DataPropertyName = "Whatsapp";
+            whatsappDataGridViewTextBoxColumn.FillWeight = 16F;
+            whatsappDataGridViewTextBoxColumn.HeaderText = "Whatsapp";
+            whatsappDataGridViewTextBoxColumn.MinimumWidth = 100;
+            whatsappDataGridViewTextBoxColumn.Name = "whatsappDataGridViewTextBoxColumn";
+            whatsappDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // telefonoDataGridViewTextBoxColumn
+            // 
+            telefonoDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            telefonoDataGridViewTextBoxColumn.DataPropertyName = "Telefono";
+            telefonoDataGridViewTextBoxColumn.FillWeight = 16F;
+            telefonoDataGridViewTextBoxColumn.HeaderText = "Telefono";
+            telefonoDataGridViewTextBoxColumn.MinimumWidth = 100;
+            telefonoDataGridViewTextBoxColumn.Name = "telefonoDataGridViewTextBoxColumn";
+            telefonoDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // instagramDataGridViewTextBoxColumn
+            // 
+            instagramDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            instagramDataGridViewTextBoxColumn.DataPropertyName = "Instagram";
+            instagramDataGridViewTextBoxColumn.FillWeight = 20F;
+            instagramDataGridViewTextBoxColumn.HeaderText = "Instagram";
+            instagramDataGridViewTextBoxColumn.MinimumWidth = 150;
+            instagramDataGridViewTextBoxColumn.Name = "instagramDataGridViewTextBoxColumn";
+            instagramDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // facebookDataGridViewTextBoxColumn
+            // 
+            facebookDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            facebookDataGridViewTextBoxColumn.DataPropertyName = "Facebook";
+            facebookDataGridViewTextBoxColumn.FillWeight = 20F;
+            facebookDataGridViewTextBoxColumn.HeaderText = "Facebook";
+            facebookDataGridViewTextBoxColumn.MinimumWidth = 180;
+            facebookDataGridViewTextBoxColumn.Name = "facebookDataGridViewTextBoxColumn";
+            facebookDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // emailDataGridViewTextBoxColumn
+            // 
+            emailDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            emailDataGridViewTextBoxColumn.DataPropertyName = "Email";
+            emailDataGridViewTextBoxColumn.FillWeight = 28F;
+            emailDataGridViewTextBoxColumn.HeaderText = "Email";
+            emailDataGridViewTextBoxColumn.MinimumWidth = 200;
+            emailDataGridViewTextBoxColumn.Name = "emailDataGridViewTextBoxColumn";
+            emailDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // contactosBindingSource
+            // 
+            contactosBindingSource.DataSource = typeof(Entidades_SGBM.Contactos);
             // 
             // groupBoxBotones
             // 
@@ -348,10 +505,11 @@
             ((System.ComponentModel.ISupportInitialize)bindingLocalidades).EndInit();
             groupBox3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataGridClientes).EndInit();
+            ((System.ComponentModel.ISupportInitialize)bindingClientes).EndInit();
             groupBox4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataGridContactos).EndInit();
+            ((System.ComponentModel.ISupportInitialize)contactosBindingSource).EndInit();
             groupBoxBotones.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)bindingClientes).EndInit();
             ((System.ComponentModel.ISupportInitialize)bindingContactos).EndInit();
             ResumeLayout(false);
         }
@@ -379,11 +537,24 @@
         private Button btnBuscar;
         private ComboBox cbLocalidad;
         private Label labelLocalidad;
-        private DataGridView dataGridClientes;
         private DataGridView dataGridContactos;
-        private BindingSource bindingClientes;
         private BindingSource bindingContactos;
         private BindingSource bindingLocalidades;
         private Button btnRegistrar;
+        private CheckBox checkAnulados;
+        private DataGridView dataGridClientes;
+        private BindingSource bindingClientes;
+        private DataGridViewTextBoxColumn apellidosDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn nombresDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn dniDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn fechaNacDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn Domicilio;
+        private DataGridViewTextBoxColumn Localidad;
+        private DataGridViewTextBoxColumn whatsappDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn telefonoDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn instagramDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn facebookDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn emailDataGridViewTextBoxColumn;
+        private BindingSource contactosBindingSource;
     }
 }

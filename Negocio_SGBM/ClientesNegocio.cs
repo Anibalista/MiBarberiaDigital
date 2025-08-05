@@ -93,6 +93,86 @@ namespace Negocio_SGBM
             return cliente;
         }
 
+        public static List<Clientes>? getListadoDeClientes(string? criterioBusqueda, string? campo1, string? campo2, Localidades? localidad, bool incluirAnulados, ref string mensaje)
+        {
+            if (string.IsNullOrWhiteSpace(criterioBusqueda))
+            {
+                mensaje = "No se ha seleccionado un criterio de búsqueda";
+                return null;
+            }
+            List<Clientes>? clientes = null;
+
+            if (string.IsNullOrWhiteSpace(campo1) && string.IsNullOrWhiteSpace(campo2) && localidad == null)
+            {
+                clientes = ClientesDatos.getClientes(ref mensaje);
+                return clientes;
+            }
+            if (criterioBusqueda == "Dni, Nombres")
+            {
+                clientes = ClientesDatos.getClientesPorDniNombres(campo1, campo2, ref mensaje);
+                return clientes;
+            }
+            if (criterioBusqueda == "Domicilio")
+            {
+                clientes = getClientesPorDomicilio(campo1, campo2, localidad, incluirAnulados, ref mensaje);
+                return clientes;
+            }
+            if (criterioBusqueda == "WhatsApp, Teléfono")
+            {
+                clientes = getClientesPorContactos(campo1, campo2, ref mensaje);
+                return clientes;
+            }
+            if (clientes == null)
+            {
+                mensaje = "No se pudo obtener el listado de clientes: " + mensaje;
+            }
+            return clientes;
+        }
+
+        public static List<Clientes>? getClientesPorDomicilio(string? calle, string? barrio, Localidades? localidad, bool incluirAnulados, ref string mensaje)
+        {
+            if (string.IsNullOrWhiteSpace(calle) && string.IsNullOrWhiteSpace(barrio) && localidad == null)
+            {
+                mensaje = "No se han enviado datos de búsqueda";
+                return null;
+            }
+            List<Domicilios>? domicilios = DomiciliosDatos.getDomiciliosPorCampos(calle, barrio, localidad, ref mensaje);
+            if (domicilios == null)
+            {
+                return null;
+            }
+            List<int> IdDomicilios = domicilios.Select(d => (int)d.IdDomicilio).ToList();
+            List<Clientes>? clientesTodos = ClientesDatos.getClientes(ref mensaje);
+            if (clientesTodos == null)
+            {
+                return null;
+            }
+            List<Clientes>? clientes = clientesTodos.Where(c => c.Personas != null && c.Personas.Domicilios != null &&
+                                                        IdDomicilios.Contains((int)c.Personas.IdDomicilio)).ToList();
+            return clientes;
+        }
+
+        public static List<Clientes>? getClientesPorContactos(string? telefono, string? whatsapp, ref string mensaje)
+        {
+            if (string.IsNullOrWhiteSpace(telefono) && string.IsNullOrWhiteSpace(whatsapp))
+            {
+                mensaje = "No se han enviado datos de búsqueda";
+                return null;
+            }
+            List<Contactos>? contactos = ContactosNegocio.getContactosPorNumero(telefono, whatsapp, ref mensaje);
+            if (contactos == null)
+            {
+                return null;
+            }
+            List<int> IdPersonas = contactos.Where(c => c.IdPersona != null).Select(c => (int)c.IdPersona).ToList();
+            List<Clientes>? clientesTodos = ClientesDatos.getClientes(ref mensaje);
+            if (clientesTodos == null)
+            {
+                return null;
+            }
+            List<Clientes>? clientes = clientesTodos.Where(c => c.Personas != null && IdPersonas.Contains((int)c.IdPersona)).ToList();
+            return clientes;
+        }
 
         //Registros
         public static bool registrarCliente(Clientes? cliente, List<Contactos>? contactos, ref string mensaje)

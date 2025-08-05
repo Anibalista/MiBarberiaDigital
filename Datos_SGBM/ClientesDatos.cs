@@ -90,6 +90,64 @@ namespace Datos_SGBM
             return cliente;
         }
 
+        public static List<Clientes>? getClientes(ref string mensaje)
+        {
+            contexto = new Contexto();
+            if (!comprobarContexto(ref mensaje))
+            {
+                return null;
+            }
+            List<Clientes>? clientes = null;
+            try
+            {
+                clientes = contexto.Clientes.Include(c => c.Estados)
+                            .Include(c => c.Personas)
+                                .ThenInclude(p => p.Domicilios)
+                                    .ThenInclude(d => d.Localidades).ToList();
+            }
+            catch (Exception ex)
+            {
+                mensaje = ex.Message + "ClientesDatos";
+                return null;
+            }
+            return clientes;
+        }
+
+        public static List<Clientes>? getClientesPorDniNombres(string? dni, string? nombres, ref string mensaje)
+        {
+            if (String.IsNullOrWhiteSpace(dni) && String.IsNullOrWhiteSpace(nombres))
+            {
+                mensaje = "No llegan los datos de búsqueda";
+                return null;
+            }
+
+            contexto = new Contexto();
+            if (!comprobarContexto(ref mensaje))
+            {
+                return null;
+            }
+
+            List<Clientes>? clientes = null;
+            try
+            {
+                clientes = contexto.Clientes.Include(c => c.Estados)
+                            .Include(c => c.Personas)
+                                .ThenInclude(p => p.Domicilios)
+                                    .ThenInclude(d => d.Localidades)
+                            .Where(c => c.Personas != null && 
+                                    ((c.Personas.Dni.Contains(dni ?? "")) &&
+                                     (c.Personas.Nombres.Contains(nombres ?? ""))))
+                            .OrderBy(c => c.Personas.Apellidos)
+                            .ThenBy(c => c.Personas.Nombres)
+                            .ToList();
+            }
+            catch (Exception ex)
+            {
+                mensaje = ex.Message + "ClientesDatos";
+                return null;
+            }
+            return clientes;
+        }
 
         //Registro
         public static int registrarCliente (Clientes? cliente, ref string mensaje)

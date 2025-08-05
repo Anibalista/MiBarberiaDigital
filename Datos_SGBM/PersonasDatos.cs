@@ -13,8 +13,44 @@ namespace Datos_SGBM
     public class PersonasDatos
     {
         static Contexto contexto;
+        //Comprobaciones
+        public static bool comprobarContexto(ref string mensaje)
+        {
+            if (contexto == null)
+            {
+                mensaje = "No se conecta a la BD";
+                return false;
+            }
+            if (contexto.Personas == null)
+            {
+                mensaje = "No se conecta a la BD (Personas)";
+                return false;
+            }
+            return true;
+        }
+
 
         //Consultas
+        public static List<Personas>? getPersonas(ref string mensaje)
+        {
+            contexto = new Contexto();
+            if (!comprobarContexto(ref mensaje))
+            {
+                return null;
+            }
+            List<Personas>? personas = null;
+            try
+            {
+                personas = contexto.Personas.Include("Domicilios").OrderBy(p => p.Apellidos).OrderBy(p => p.Nombres).ToList();
+            }
+            catch (Exception ex)
+            {
+                mensaje = ex.Message + "PersonasDatos";
+                return null;
+            }
+            return personas;
+
+        }
         public static int getIdPersonaPorDni(string dni, ref string mensaje)
         {
             if (String.IsNullOrWhiteSpace(dni))
@@ -86,6 +122,39 @@ namespace Datos_SGBM
             return persona;
         }
 
+        public static List<Personas>? getPersonasPorDniNombres(string? dni, string? nombres, ref string mensaje)
+        {
+            if (String.IsNullOrWhiteSpace(dni) && String.IsNullOrWhiteSpace(nombres))
+            {
+                mensaje = "No llegan los datos de búsqueda";
+                return null;
+            }
+
+            contexto = new Contexto();
+            if (!comprobarContexto(ref mensaje))
+            {
+                return null;
+            }
+
+            List<Personas>? personas = null;
+            try
+            {
+                personas = contexto.Personas
+                            .Include(p => p.Domicilios)
+                                .ThenInclude(d => d.Localidades)
+                            .Where(p => (dni == null || p.Dni.Contains(dni)) ||
+                                        (nombres == null || p.Nombres.Contains(nombres)))
+                            .OrderBy(p => p.Apellidos)
+                            .ThenBy(p => p.Nombres)
+                            .ToList();
+            }
+            catch (Exception ex)
+            {
+                mensaje = ex.Message + "PersonasDatos";
+                return null;
+            }
+            return personas;
+        }
 
         //Registros
         public static int registrarPersona(Personas? persona, ref string mensaje)

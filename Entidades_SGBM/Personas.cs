@@ -28,5 +28,40 @@ namespace Entidades_SGBM
         public int? IdDomicilio { get; set; }
 
         public Domicilios? Domicilios { get; set; }
+
+        [NotMapped]
+        public string? Direccion
+        {
+            get
+            {
+                if (Domicilios != null)
+                {
+                    string direccion = string.IsNullOrWhiteSpace(Domicilios.Barrio) ? "" : $"Barrio: {Domicilios.Barrio}, ";
+                    direccion += string.IsNullOrWhiteSpace(Domicilios.Calle) ? "" : $"Calle: {Domicilios.Calle}";
+                    direccion += string.IsNullOrWhiteSpace(Domicilios.Altura) ? "" : $" {Domicilios.Altura}, ";
+                    direccion += string.IsNullOrWhiteSpace(Domicilios.Piso) ? "" : $"Piso: {Domicilios.Piso}, ";
+                    direccion += string.IsNullOrWhiteSpace(Domicilios.Depto) ? "" : $"Depto: {Domicilios.Depto}, ";
+                    return direccion.TrimEnd(',', ' ');
+                }
+                return null;
+            }
+            set { _direccion = value; }
+        }
+        private string? _direccion;
+
+        [NotMapped]
+        public string? Localidad
+        {
+            get
+            {
+                if (Domicilios != null && Domicilios.Localidades != null)
+                {
+                    return Domicilios.Localidades.localidadCompleta;
+                }
+                return null;
+            }
+            set { _localidad = value; }
+        }
+        private string? _localidad;
     }
 }

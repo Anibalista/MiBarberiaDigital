@@ -166,6 +166,42 @@ namespace Datos_SGBM
             return localidad;
         }
 
+        public static List<Domicilios>? getDomiciliosPorCampos(string? calle, string? barrio, Localidades? localidad, ref string mensaje)
+        {
+            if (string.IsNullOrEmpty(calle) && string.IsNullOrEmpty(barrio) && localidad == null)
+            {
+                mensaje = "No llegan los datos de búsqueda de domicilios a la capa datos";
+                return null;
+            }
+            contexto = new Contexto();
+            if (!comprobarContexto(ref mensaje))
+            {
+                return null;
+            }
+            int idLocalidad = 0;
+            if (localidad != null && localidad.IdLocalidad != null)
+            {
+                idLocalidad = (int)localidad.IdLocalidad;
+            }
+            List<Domicilios>? domicilios = null;
+            try
+            {
+                domicilios = contexto.Domicilios.Include("Localidades.Provincias")
+                    .Where(d => (!string.IsNullOrEmpty(d.Calle) 
+                                && (d.Calle.Contains(calle ?? ""))) ||
+                                (!string.IsNullOrEmpty(barrio) && d.Barrio.Contains(barrio ?? "")) ||
+                                (d.IdLocalidad == idLocalidad))
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                mensaje = ex.Message + " DomiciliosDatos(getDomiciliosPorCampos)";
+                return null;
+            }
+            return domicilios;
+
+        }
+
         //Registros
         public static int registrarLocalidad(Localidades? localidad, ref string mensaje)
         {

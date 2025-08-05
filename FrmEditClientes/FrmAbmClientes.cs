@@ -19,14 +19,16 @@ namespace Front_SGBM
         private List<Clientes>? _clientes = null;
         private List<Contactos>? _contactos = null;
         public Clientes? _cliente = null;
+        private Personas? _persona = null;
         private List<Localidades>? _localidades = null;
-        private List<string> opcionesBuscar = new List<string> { "Dni, Nombres", "Domicilio", "WhatsApp, Teléfono" };
+        public List<string> opcionesBuscar = new List<string> { "Dni, Nombres", "Domicilio", "WhatsApp, Teléfono" };
         private bool cerrando = false;
 
         //Campos
         string _campo1 = string.Empty;
         string _campo2 = string.Empty;
         Localidades? _localidadBuscada = null;
+        private bool incluirAnulados = false;
 
         public FrmAbmClientes()
         {
@@ -83,6 +85,7 @@ namespace Front_SGBM
         //Comprobaciones
         private void llenarCampos()
         {
+            incluirAnulados = checkAnulados.Checked;
             _campo1 = txtCampo1.Text;
             _campo2 = txtCampo2.Text;
             if (!cbLocalidad.Visible)
@@ -93,7 +96,8 @@ namespace Front_SGBM
             try
             {
                 _localidadBuscada = (Localidades)cbLocalidad.SelectedItem;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 return;
@@ -104,11 +108,126 @@ namespace Front_SGBM
             }
         }
 
+        private void actualizarGrillaClientes()
+        {
+            if (cerrando)
+            {
+                return;
+            }
+            bindingClientes.Clear();
+            extraerPersonas();
+            List<Personas> personas = _personas ?? new();
+            bindingClientes.DataSource = personas;
+            dataGridClientes.Refresh();
+            if (personas.Count == 0)
+            {
+                return;
+            }
+            for (int i = 0; i < personas.Count; i++)
+            {
+                var persona = personas[i];
+
+                // Aseguramos que el índice de fila exista
+                if (i < dataGridClientes.Rows.Count)
+                {
+                    var row = dataGridClientes.Rows[i];
+
+                    // Asignamos los valores de las propiedades NotMapped
+                    row.Cells["Localidad"].Value = persona.Localidad ?? "";
+                    row.Cells["Domicilio"].Value = persona.Direccion ?? "";
+                }
+            }
+        }
+
+        private void actualizarGrillaContactos()
+        {
+            if (cerrando)
+            {
+                return;
+            }
+            bindingContactos.Clear();
+            _contactos = null;
+            string error = "";
+            if (_persona != null)
+            {
+                _contactos = ContactosNegocio.getContactosPorPersona(_persona, ref error);
+            }
+            List<Contactos> contactos = _contactos ?? new();
+            bindingContactos.DataSource = contactos;
+            dataGridContactos.Refresh();
+        }
+
+        //Métodos
+        private void limpiarValores()
+        {
+            _campo1 = string.Empty;
+            _campo2 = string.Empty;
+            _localidadBuscada = null;
+            _clientes = null;
+            _personas = null;
+            _persona = null;
+        }
+
+        private void cargarValores()
+        {
+            limpiarValores();
+            _campo1 = txtCampo1.Text;
+            _campo2 = txtCampo2.Text;
+            if (cbBusqueda.Text == "Domicilio")
+            {
+                try
+                {
+                    _localidadBuscada = (Localidades)bindingLocalidades.Current;
+                }
+                catch (Exception)
+                {
+                    _localidadBuscada = null;
+                }
+            }
+            if (_localidadBuscada != null && _localidadBuscada.IdLocalidad == null)
+            {
+                _localidadBuscada = null;
+            }
+        }
+
+        private bool buscarClientes(ref string mensaje)
+        {
+            cargarValores();
+            string opcion = cbBusqueda.Text;
+            incluirAnulados = checkAnulados.Checked;
+            _clientes = ClientesNegocio.getListadoDeClientes(opcion, _campo1, _campo2, _localidadBuscada, incluirAnulados, ref mensaje);
+            return _clientes != null;
+        }
+
+        private void extraerPersonas()
+        {
+            _personas = null;
+            if (_clientes == null)
+            {
+                return;
+            }
+            _personas = _clientes.Where(c => c.Personas != null).Select(c => c.Personas).OrderBy(p => p.Apellidos).ToList();
+        }
+
         //Botones
         private void btnSalir_Click(object sender, EventArgs e)
         {
             cerrando = true;
             this.Close();
+        }
+
+        private void btnBuscar_Click(object sender, EventArgs e)
+        {
+            if (cerrando)
+            {
+                return;
+            }
+            string mensaje = string.Empty;
+            if (!buscarClientes(ref mensaje))
+            {
+                MessageBox.Show(mensaje, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            actualizarGrillaClientes();
         }
 
         private void btnSeleccionar_Click(object sender, EventArgs e)
@@ -131,7 +250,8 @@ namespace Front_SGBM
             if (!importados.importarArchivoClientes())
             {
                 MessageBox.Show($"Error {importados.observaciones}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            } else
+            }
+            else
             {
                 MessageBox.Show(importados.observaciones, "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -143,6 +263,7 @@ namespace Front_SGBM
 
         }
 
+        //Cambios
         private void cbBusqueda_TextChanged(object sender, EventArgs e)
         {
             if (cerrando)
@@ -180,6 +301,28 @@ namespace Front_SGBM
                 return;
             }
             _localidades = null;
+        }
+
+        private void bindingClientes_CurrentChanged(object sender, EventArgs e)
+        {
+            if (cerrando)
+            {
+                return;
+            }
+            if (_personas == null)
+            {
+                return;
+            }
+            _persona = null;
+            try
+            {
+                _persona = (Personas)bindingClientes.Current;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            actualizarGrillaContactos();
         }
     }
 }
