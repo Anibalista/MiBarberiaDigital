@@ -68,7 +68,6 @@
             groupBoxBotones = new GroupBox();
             btnSeleccionar = new Button();
             btnSalir = new Button();
-            bindingContactos = new BindingSource(components);
             flowLayoutPanel1.SuspendLayout();
             groupBoxTitulo.SuspendLayout();
             groupBox1.SuspendLayout();
@@ -81,7 +80,6 @@
             ((System.ComponentModel.ISupportInitialize)dataGridContactos).BeginInit();
             ((System.ComponentModel.ISupportInitialize)contactosBindingSource).BeginInit();
             groupBoxBotones.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)bindingContactos).BeginInit();
             SuspendLayout();
             // 
             // flowLayoutPanel1
@@ -307,6 +305,7 @@
             dataGridClientes.RowHeadersVisible = false;
             dataGridClientes.Size = new Size(944, 184);
             dataGridClientes.TabIndex = 0;
+            dataGridClientes.CurrentCellChanged += bindingClientes_CurrentChanged;
             // 
             // apellidosDataGridViewTextBoxColumn
             // 
@@ -510,7 +509,6 @@
             ((System.ComponentModel.ISupportInitialize)dataGridContactos).EndInit();
             ((System.ComponentModel.ISupportInitialize)contactosBindingSource).EndInit();
             groupBoxBotones.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)bindingContactos).EndInit();
             ResumeLayout(false);
         }
 
@@ -538,7 +536,6 @@
         private ComboBox cbLocalidad;
         private Label labelLocalidad;
         private DataGridView dataGridContactos;
-        private BindingSource bindingContactos;
         private BindingSource bindingLocalidades;
         private Button btnRegistrar;
         private CheckBox checkAnulados;

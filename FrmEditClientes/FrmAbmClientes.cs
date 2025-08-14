@@ -145,7 +145,7 @@ namespace Front_SGBM
             {
                 return;
             }
-            bindingContactos.Clear();
+            contactosBindingSource.Clear();
             _contactos = null;
             string error = "";
             if (_persona != null)
@@ -153,7 +153,7 @@ namespace Front_SGBM
                 _contactos = ContactosNegocio.getContactosPorPersona(_persona, ref error);
             }
             List<Contactos> contactos = _contactos ?? new();
-            bindingContactos.DataSource = contactos;
+            contactosBindingSource.DataSource = contactos;
             dataGridContactos.Refresh();
         }
 
