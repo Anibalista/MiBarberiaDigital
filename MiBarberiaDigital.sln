@@ -3,15 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Front_SGBM", "FrmEditClientes\Front_SGBM.csproj", "{313F537C-8663-4EAC-9A4F-ACCEFE87953C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Front_SGBM", "FrmEditClientes\Front_SGBM.csproj", "{313F537C-8663-4EAC-9A4F-ACCEFE87953C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Negocio_SGBM", "Negocio_SGBM\Negocio_SGBM.csproj", "{5177E0A4-E38C-413E-B6EB-70C4827C0B5F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Negocio_SGBM", "Negocio_SGBM\Negocio_SGBM.csproj", "{5177E0A4-E38C-413E-B6EB-70C4827C0B5F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datos_SGBM", "Datos_SGBM\Datos_SGBM.csproj", "{5C71869A-807F-48B0-BFB4-75EA479C8457}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Datos_SGBM", "Datos_SGBM\Datos_SGBM.csproj", "{5C71869A-807F-48B0-BFB4-75EA479C8457}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entidades_SGBM", "Entidades_SGBM\Entidades_SGBM.csproj", "{364F171A-3B1A-4DE8-87D8-6DC7B290DB85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Entidades_SGBM", "Entidades_SGBM\Entidades_SGBM.csproj", "{364F171A-3B1A-4DE8-87D8-6DC7B290DB85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EF_SGBM", "EF_SGBM\EF_SGBM.csproj", "{E21FB4DF-9829-42B0-897A-977F39879A28}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EF_SGBM", "EF_SGBM\EF_SGBM.csproj", "{E21FB4DF-9829-42B0-897A-977F39879A28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dominio_SGBM", "Dominio_SGBM\Dominio_SGBM.csproj", "{C7FEAB7D-4CC6-401C-A8C0-7DAC6DCE927C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{E21FB4DF-9829-42B0-897A-977F39879A28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E21FB4DF-9829-42B0-897A-977F39879A28}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E21FB4DF-9829-42B0-897A-977F39879A28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7FEAB7D-4CC6-401C-A8C0-7DAC6DCE927C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7FEAB7D-4CC6-401C-A8C0-7DAC6DCE927C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7FEAB7D-4CC6-401C-A8C0-7DAC6DCE927C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7FEAB7D-4CC6-401C-A8C0-7DAC6DCE927C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

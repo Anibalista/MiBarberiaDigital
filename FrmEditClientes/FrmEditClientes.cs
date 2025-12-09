@@ -789,7 +789,7 @@ namespace Front_SGBM
                 return;
             }
 
-            principal.abrirContactos(sender, e, modoCont, "Clientes", _contactos);
+            principal.abrirFrmContactos(modoCont, "Clientes", _contactos, pnlContent);
             return;
         }
         private void cbProvincia_SelectedIndexChanged(object sender, EventArgs e)

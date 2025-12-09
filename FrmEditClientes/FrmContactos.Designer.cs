@@ -47,15 +47,15 @@
             txtInsta = new TextBox();
             txtAreaWhat = new TextBox();
             label9 = new Label();
-            flowLayoutPanel1 = new FlowLayoutPanel();
             btnCancelar = new Button();
             btnGuardar = new Button();
             btnMenos = new Button();
             btnMas = new Button();
             groupBoxBotones = new GroupBox();
+            flowLayoutPanel1 = new FlowLayoutPanel();
             groupBox1.SuspendLayout();
-            flowLayoutPanel1.SuspendLayout();
             groupBoxBotones.SuspendLayout();
+            flowLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
             // groupBox1
@@ -81,7 +81,7 @@
             groupBox1.Controls.Add(label9);
             groupBox1.Location = new Point(3, 3);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(703, 132);
+            groupBox1.Size = new Size(351, 223);
             groupBox1.TabIndex = 4;
             groupBox1.TabStop = false;
             groupBox1.Text = "Contacto Nro 1";
@@ -89,7 +89,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(301, 24);
+            label2.Location = new Point(65, 22);
             label2.Name = "label2";
             label2.Size = new Size(65, 15);
             label2.TabIndex = 19;
@@ -100,7 +100,7 @@
             checkExtranjeroWhat.AutoSize = true;
             checkExtranjeroWhat.BackColor = Color.Transparent;
             checkExtranjeroWhat.CheckAlign = ContentAlignment.BottomCenter;
-            checkExtranjeroWhat.Location = new Point(320, 43);
+            checkExtranjeroWhat.Location = new Point(38, 23);
             checkExtranjeroWhat.Name = "checkExtranjeroWhat";
             checkExtranjeroWhat.Size = new Size(15, 14);
             checkExtranjeroWhat.TabIndex = 4;
@@ -108,9 +108,8 @@
             // 
             // label1
             // 
-            label1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label1.AutoSize = true;
-            label1.Location = new Point(392, 99);
+            label1.Location = new Point(27, 189);
             label1.Name = "label1";
             label1.Size = new Size(41, 15);
             label1.TabIndex = 16;
@@ -118,8 +117,7 @@
             // 
             // txtEmail
             // 
-            txtEmail.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtEmail.Location = new Point(439, 96);
+            txtEmail.Location = new Point(90, 186);
             txtEmail.Name = "txtEmail";
             txtEmail.Size = new Size(251, 23);
             txtEmail.TabIndex = 7;
@@ -128,7 +126,7 @@
             // label13
             // 
             label13.AutoSize = true;
-            label13.Location = new Point(76, 79);
+            label13.Location = new Point(152, 74);
             label13.Name = "label13";
             label13.Size = new Size(189, 15);
             label13.TabIndex = 14;
@@ -137,7 +135,7 @@
             // label12
             // 
             label12.AutoSize = true;
-            label12.Location = new Point(76, 15);
+            label12.Location = new Point(165, 22);
             label12.Name = "label12";
             label12.Size = new Size(175, 15);
             label12.TabIndex = 13;
@@ -145,16 +143,16 @@
             // 
             // txtNumFijo
             // 
-            txtNumFijo.Location = new Point(186, 97);
+            txtNumFijo.Location = new Point(239, 95);
             txtNumFijo.Name = "txtNumFijo";
-            txtNumFijo.Size = new Size(108, 23);
+            txtNumFijo.Size = new Size(102, 23);
             txtNumFijo.TabIndex = 4;
             txtNumFijo.KeyPress += numeric_KeyPress;
             // 
             // label10
             // 
             label10.AutoSize = true;
-            label10.Location = new Point(123, 100);
+            label10.Location = new Point(160, 98);
             label10.Name = "label10";
             label10.Size = new Size(57, 15);
             label10.TabIndex = 11;
@@ -162,7 +160,7 @@
             // 
             // txtAreaFijo
             // 
-            txtAreaFijo.Location = new Point(57, 97);
+            txtAreaFijo.Location = new Point(90, 95);
             txtAreaFijo.Name = "txtAreaFijo";
             txtAreaFijo.Size = new Size(50, 23);
             txtAreaFijo.TabIndex = 3;
@@ -172,7 +170,7 @@
             // 
             label11.AutoSize = true;
             label11.BackColor = Color.Transparent;
-            label11.Location = new Point(5, 100);
+            label11.Location = new Point(21, 98);
             label11.Name = "label11";
             label11.Size = new Size(51, 15);
             label11.TabIndex = 9;
@@ -180,16 +178,16 @@
             // 
             // txtNumWhat
             // 
-            txtNumWhat.Location = new Point(186, 38);
+            txtNumWhat.Location = new Point(222, 48);
             txtNumWhat.Name = "txtNumWhat";
-            txtNumWhat.Size = new Size(108, 23);
+            txtNumWhat.Size = new Size(119, 23);
             txtNumWhat.TabIndex = 2;
             txtNumWhat.KeyPress += numeric_KeyPress;
             // 
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(116, 41);
+            label6.Location = new Point(145, 51);
             label6.Name = "label6";
             label6.Size = new Size(69, 15);
             label6.TabIndex = 7;
@@ -197,9 +195,8 @@
             // 
             // label7
             // 
-            label7.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label7.AutoSize = true;
-            label7.Location = new Point(377, 68);
+            label7.Location = new Point(12, 158);
             label7.Name = "label7";
             label7.Size = new Size(58, 15);
             label7.TabIndex = 6;
@@ -207,17 +204,15 @@
             // 
             // txtFace
             // 
-            txtFace.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtFace.Location = new Point(439, 65);
+            txtFace.Location = new Point(90, 155);
             txtFace.Name = "txtFace";
             txtFace.Size = new Size(251, 23);
             txtFace.TabIndex = 6;
             // 
             // label8
             // 
-            label8.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label8.AutoSize = true;
-            label8.Location = new Point(377, 37);
+            label8.Location = new Point(12, 127);
             label8.Name = "label8";
             label8.Size = new Size(60, 15);
             label8.TabIndex = 4;
@@ -225,15 +220,14 @@
             // 
             // txtInsta
             // 
-            txtInsta.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtInsta.Location = new Point(441, 34);
+            txtInsta.Location = new Point(90, 124);
             txtInsta.Name = "txtInsta";
-            txtInsta.Size = new Size(249, 23);
+            txtInsta.Size = new Size(251, 23);
             txtInsta.TabIndex = 5;
             // 
             // txtAreaWhat
             // 
-            txtAreaWhat.Location = new Point(57, 38);
+            txtAreaWhat.Location = new Point(89, 48);
             txtAreaWhat.Name = "txtAreaWhat";
             txtAreaWhat.Size = new Size(50, 23);
             txtAreaWhat.TabIndex = 1;
@@ -243,27 +237,18 @@
             // 
             label9.AutoSize = true;
             label9.BackColor = Color.Transparent;
-            label9.Location = new Point(5, 41);
+            label9.Location = new Point(21, 51);
             label9.Name = "label9";
             label9.Size = new Size(51, 15);
             label9.TabIndex = 0;
             label9.Text = "C. Area: ";
             // 
-            // flowLayoutPanel1
-            // 
-            flowLayoutPanel1.Controls.Add(groupBox1);
-            flowLayoutPanel1.Dock = DockStyle.Fill;
-            flowLayoutPanel1.Location = new Point(0, 0);
-            flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(717, 136);
-            flowLayoutPanel1.TabIndex = 5;
-            // 
             // btnCancelar
             // 
             btnCancelar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold);
-            btnCancelar.Location = new Point(513, 36);
+            btnCancelar.Location = new Point(163, 52);
             btnCancelar.Name = "btnCancelar";
-            btnCancelar.Size = new Size(82, 27);
+            btnCancelar.Size = new Size(144, 35);
             btnCancelar.TabIndex = 39;
             btnCancelar.Text = "Cancelar";
             btnCancelar.UseVisualStyleBackColor = true;
@@ -272,20 +257,20 @@
             // btnGuardar
             // 
             btnGuardar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold);
-            btnGuardar.Location = new Point(199, 36);
+            btnGuardar.Location = new Point(163, 14);
             btnGuardar.Name = "btnGuardar";
-            btnGuardar.Size = new Size(82, 27);
+            btnGuardar.Size = new Size(144, 35);
             btnGuardar.TabIndex = 38;
-            btnGuardar.Text = "Guardar";
+            btnGuardar.Text = "Guardar Contacto";
             btnGuardar.UseVisualStyleBackColor = true;
             btnGuardar.Click += btnGuardar_Click;
             // 
             // btnMenos
             // 
             btnMenos.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold);
-            btnMenos.Location = new Point(106, 36);
+            btnMenos.Location = new Point(11, 32);
             btnMenos.Name = "btnMenos";
-            btnMenos.Size = new Size(30, 27);
+            btnMenos.Size = new Size(45, 37);
             btnMenos.TabIndex = 37;
             btnMenos.Text = "-";
             btnMenos.UseVisualStyleBackColor = true;
@@ -294,9 +279,9 @@
             // btnMas
             // 
             btnMas.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold);
-            btnMas.Location = new Point(39, 36);
+            btnMas.Location = new Point(68, 32);
             btnMas.Name = "btnMas";
-            btnMas.Size = new Size(30, 27);
+            btnMas.Size = new Size(45, 37);
             btnMas.TabIndex = 36;
             btnMas.Text = "+";
             btnMas.UseVisualStyleBackColor = true;
@@ -306,29 +291,39 @@
             // 
             groupBoxBotones.Controls.Add(btnMas);
             groupBoxBotones.Controls.Add(btnMenos);
-            groupBoxBotones.Controls.Add(btnGuardar);
             groupBoxBotones.Controls.Add(btnCancelar);
+            groupBoxBotones.Controls.Add(btnGuardar);
             groupBoxBotones.Dock = DockStyle.Bottom;
-            groupBoxBotones.Location = new Point(0, 136);
+            groupBoxBotones.Location = new Point(0, 247);
             groupBoxBotones.Name = "groupBoxBotones";
-            groupBoxBotones.Size = new Size(717, 93);
+            groupBoxBotones.Size = new Size(361, 93);
             groupBoxBotones.TabIndex = 5;
             groupBoxBotones.TabStop = false;
+            // 
+            // flowLayoutPanel1
+            // 
+            flowLayoutPanel1.Controls.Add(groupBox1);
+            flowLayoutPanel1.Dock = DockStyle.Fill;
+            flowLayoutPanel1.Location = new Point(0, 0);
+            flowLayoutPanel1.Name = "flowLayoutPanel1";
+            flowLayoutPanel1.Size = new Size(361, 247);
+            flowLayoutPanel1.TabIndex = 5;
             // 
             // FrmContactos
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(717, 229);
+            ClientSize = new Size(361, 340);
             Controls.Add(flowLayoutPanel1);
             Controls.Add(groupBoxBotones);
+            FormBorderStyle = FormBorderStyle.None;
             Name = "FrmContactos";
             Text = "FrmContactos";
             Load += FrmContactos_Load;
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
-            flowLayoutPanel1.ResumeLayout(false);
             groupBoxBotones.ResumeLayout(false);
+            flowLayoutPanel1.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -351,7 +346,6 @@
         private Label label9;
         private Label label1;
         private TextBox txtEmail;
-        private FlowLayoutPanel flowLayoutPanel1;
         private Button btnMenos;
         private Button btnMas;
         private Button btnCancelar;
@@ -359,5 +353,6 @@
         private GroupBox groupBoxBotones;
         private Label label2;
         private CheckBox checkExtranjeroWhat;
+        private FlowLayoutPanel flowLayoutPanel1;
     }
 }

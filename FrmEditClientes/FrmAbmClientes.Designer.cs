@@ -29,14 +29,11 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            flowLayoutPanel1 = new FlowLayoutPanel();
-            groupBoxTitulo = new GroupBox();
-            labelTitulo = new Label();
             groupBox1 = new GroupBox();
             checkAnulados = new CheckBox();
             btnRegistrar = new Button();
-            btnBuscar = new Button();
             btnImportar = new Button();
+            btnBuscar = new Button();
             btnExportar = new Button();
             cbBusqueda = new ComboBox();
             label2 = new Label();
@@ -48,7 +45,6 @@
             txtCampo2 = new TextBox();
             labelCampo1 = new Label();
             txtCampo1 = new TextBox();
-            groupBox3 = new GroupBox();
             dataGridClientes = new DataGridView();
             apellidosDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             nombresDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
@@ -68,68 +64,32 @@
             groupBoxBotones = new GroupBox();
             btnSeleccionar = new Button();
             btnSalir = new Button();
-            flowLayoutPanel1.SuspendLayout();
-            groupBoxTitulo.SuspendLayout();
+            groupBox3 = new GroupBox();
             groupBox1.SuspendLayout();
             groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)bindingLocalidades).BeginInit();
-            groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridClientes).BeginInit();
             ((System.ComponentModel.ISupportInitialize)bindingClientes).BeginInit();
             groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridContactos).BeginInit();
             ((System.ComponentModel.ISupportInitialize)contactosBindingSource).BeginInit();
             groupBoxBotones.SuspendLayout();
+            groupBox3.SuspendLayout();
             SuspendLayout();
-            // 
-            // flowLayoutPanel1
-            // 
-            flowLayoutPanel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            flowLayoutPanel1.Controls.Add(groupBoxTitulo);
-            flowLayoutPanel1.Controls.Add(groupBox1);
-            flowLayoutPanel1.Controls.Add(groupBox2);
-            flowLayoutPanel1.Controls.Add(groupBox3);
-            flowLayoutPanel1.Controls.Add(groupBox4);
-            flowLayoutPanel1.Controls.Add(groupBoxBotones);
-            flowLayoutPanel1.Location = new Point(2, 0);
-            flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(959, 632);
-            flowLayoutPanel1.TabIndex = 0;
-            // 
-            // groupBoxTitulo
-            // 
-            groupBoxTitulo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            groupBoxTitulo.Controls.Add(labelTitulo);
-            groupBoxTitulo.Location = new Point(3, 3);
-            groupBoxTitulo.Name = "groupBoxTitulo";
-            groupBoxTitulo.Size = new Size(950, 55);
-            groupBoxTitulo.TabIndex = 0;
-            groupBoxTitulo.TabStop = false;
-            // 
-            // labelTitulo
-            // 
-            labelTitulo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            labelTitulo.AutoSize = true;
-            labelTitulo.Font = new Font("Roboto Condensed", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            labelTitulo.Location = new Point(365, 19);
-            labelTitulo.Name = "labelTitulo";
-            labelTitulo.Size = new Size(142, 29);
-            labelTitulo.TabIndex = 1;
-            labelTitulo.Text = "ABM Clientes";
             // 
             // groupBox1
             // 
-            groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             groupBox1.Controls.Add(checkAnulados);
             groupBox1.Controls.Add(btnRegistrar);
-            groupBox1.Controls.Add(btnBuscar);
             groupBox1.Controls.Add(btnImportar);
+            groupBox1.Controls.Add(btnBuscar);
             groupBox1.Controls.Add(btnExportar);
             groupBox1.Controls.Add(cbBusqueda);
             groupBox1.Controls.Add(label2);
-            groupBox1.Location = new Point(3, 64);
+            groupBox1.Location = new Point(877, 12);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(950, 73);
+            groupBox1.Size = new Size(285, 184);
             groupBox1.TabIndex = 1;
             groupBox1.TabStop = false;
             groupBox1.Text = "Filtros y Archivos";
@@ -137,7 +97,7 @@
             // checkAnulados
             // 
             checkAnulados.AutoSize = true;
-            checkAnulados.Location = new Point(339, 35);
+            checkAnulados.Location = new Point(81, 100);
             checkAnulados.Name = "checkAnulados";
             checkAnulados.Size = new Size(112, 19);
             checkAnulados.TabIndex = 7;
@@ -146,39 +106,39 @@
             // 
             // btnRegistrar
             // 
-            btnRegistrar.Location = new Point(512, 33);
+            btnRegistrar.Location = new Point(6, 22);
             btnRegistrar.Name = "btnRegistrar";
-            btnRegistrar.Size = new Size(75, 23);
+            btnRegistrar.Size = new Size(107, 29);
             btnRegistrar.TabIndex = 6;
             btnRegistrar.Text = "Nuevo";
             btnRegistrar.UseVisualStyleBackColor = true;
             btnRegistrar.Click += btnRegistrar_Click;
             // 
-            // btnBuscar
-            // 
-            btnBuscar.Location = new Point(260, 33);
-            btnBuscar.Name = "btnBuscar";
-            btnBuscar.Size = new Size(60, 22);
-            btnBuscar.TabIndex = 5;
-            btnBuscar.Text = "Buscar";
-            btnBuscar.UseVisualStyleBackColor = true;
-            btnBuscar.Click += btnBuscar_Click;
-            // 
             // btnImportar
             // 
-            btnImportar.Location = new Point(709, 33);
+            btnImportar.Location = new Point(6, 125);
             btnImportar.Name = "btnImportar";
-            btnImportar.Size = new Size(109, 23);
+            btnImportar.Size = new Size(109, 29);
             btnImportar.TabIndex = 4;
             btnImportar.Text = "Importar Clientes";
             btnImportar.UseVisualStyleBackColor = true;
             btnImportar.Click += btnImportar_Click;
             // 
+            // btnBuscar
+            // 
+            btnBuscar.Location = new Point(119, 22);
+            btnBuscar.Name = "btnBuscar";
+            btnBuscar.Size = new Size(111, 29);
+            btnBuscar.TabIndex = 5;
+            btnBuscar.Text = "Buscar";
+            btnBuscar.UseVisualStyleBackColor = true;
+            btnBuscar.Click += btnBuscar_Click;
+            // 
             // btnExportar
             // 
-            btnExportar.Location = new Point(824, 33);
+            btnExportar.Location = new Point(121, 125);
             btnExportar.Name = "btnExportar";
-            btnExportar.Size = new Size(109, 23);
+            btnExportar.Size = new Size(109, 29);
             btnExportar.TabIndex = 3;
             btnExportar.Text = "Exportar a Listado";
             btnExportar.UseVisualStyleBackColor = true;
@@ -188,16 +148,16 @@
             // 
             cbBusqueda.DropDownStyle = ComboBoxStyle.DropDownList;
             cbBusqueda.FormattingEnabled = true;
-            cbBusqueda.Location = new Point(84, 33);
+            cbBusqueda.Location = new Point(81, 71);
             cbBusqueda.Name = "cbBusqueda";
-            cbBusqueda.Size = new Size(170, 23);
+            cbBusqueda.Size = new Size(149, 23);
             cbBusqueda.TabIndex = 2;
             cbBusqueda.TextChanged += cbBusqueda_TextChanged;
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(9, 36);
+            label2.Location = new Point(6, 74);
             label2.Name = "label2";
             label2.Size = new Size(69, 15);
             label2.TabIndex = 1;
@@ -205,16 +165,16 @@
             // 
             // groupBox2
             // 
-            groupBox2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            groupBox2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             groupBox2.Controls.Add(cbLocalidad);
             groupBox2.Controls.Add(labelLocalidad);
             groupBox2.Controls.Add(labelCampo2);
             groupBox2.Controls.Add(txtCampo2);
             groupBox2.Controls.Add(labelCampo1);
             groupBox2.Controls.Add(txtCampo1);
-            groupBox2.Location = new Point(3, 143);
+            groupBox2.Location = new Point(877, 202);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(950, 55);
+            groupBox2.Size = new Size(284, 139);
             groupBox2.TabIndex = 2;
             groupBox2.TabStop = false;
             groupBox2.Text = "Campos de búsqueda";
@@ -225,9 +185,9 @@
             cbLocalidad.DisplayMember = "localidadCompleta";
             cbLocalidad.DropDownStyle = ComboBoxStyle.DropDownList;
             cbLocalidad.FormattingEnabled = true;
-            cbLocalidad.Location = new Point(728, 22);
+            cbLocalidad.Location = new Point(81, 96);
             cbLocalidad.Name = "cbLocalidad";
-            cbLocalidad.Size = new Size(205, 23);
+            cbLocalidad.Size = new Size(194, 23);
             cbLocalidad.TabIndex = 10;
             cbLocalidad.ValueMember = "IdLocalidad";
             cbLocalidad.VisibleChanged += cbLocalidad_VisibleChanged;
@@ -239,7 +199,7 @@
             // labelLocalidad
             // 
             labelLocalidad.AutoSize = true;
-            labelLocalidad.Location = new Point(653, 25);
+            labelLocalidad.Location = new Point(6, 99);
             labelLocalidad.Name = "labelLocalidad";
             labelLocalidad.Size = new Size(58, 15);
             labelLocalidad.TabIndex = 9;
@@ -248,7 +208,7 @@
             // labelCampo2
             // 
             labelCampo2.AutoSize = true;
-            labelCampo2.Location = new Point(339, 25);
+            labelCampo2.Location = new Point(6, 62);
             labelCampo2.Name = "labelCampo2";
             labelCampo2.Size = new Size(56, 15);
             labelCampo2.TabIndex = 8;
@@ -256,16 +216,16 @@
             // 
             // txtCampo2
             // 
-            txtCampo2.Location = new Point(417, 22);
+            txtCampo2.Location = new Point(81, 59);
             txtCampo2.MaxLength = 149;
             txtCampo2.Name = "txtCampo2";
-            txtCampo2.Size = new Size(170, 23);
+            txtCampo2.Size = new Size(194, 23);
             txtCampo2.TabIndex = 7;
             // 
             // labelCampo1
             // 
             labelCampo1.AutoSize = true;
-            labelCampo1.Location = new Point(9, 25);
+            labelCampo1.Location = new Point(37, 25);
             labelCampo1.Name = "labelCampo1";
             labelCampo1.Size = new Size(25, 15);
             labelCampo1.TabIndex = 6;
@@ -273,22 +233,11 @@
             // 
             // txtCampo1
             // 
-            txtCampo1.Location = new Point(84, 22);
+            txtCampo1.Location = new Point(81, 22);
             txtCampo1.MaxLength = 149;
             txtCampo1.Name = "txtCampo1";
-            txtCampo1.Size = new Size(170, 23);
+            txtCampo1.Size = new Size(194, 23);
             txtCampo1.TabIndex = 5;
-            // 
-            // groupBox3
-            // 
-            groupBox3.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            groupBox3.Controls.Add(dataGridClientes);
-            groupBox3.Location = new Point(3, 204);
-            groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(950, 212);
-            groupBox3.TabIndex = 3;
-            groupBox3.TabStop = false;
-            groupBox3.Text = "Clientes";
             // 
             // dataGridClientes
             // 
@@ -299,11 +248,13 @@
             dataGridClientes.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridClientes.Columns.AddRange(new DataGridViewColumn[] { apellidosDataGridViewTextBoxColumn, nombresDataGridViewTextBoxColumn, dniDataGridViewTextBoxColumn, fechaNacDataGridViewTextBoxColumn, Domicilio, Localidad });
             dataGridClientes.DataSource = bindingClientes;
-            dataGridClientes.Location = new Point(0, 22);
+            dataGridClientes.Dock = DockStyle.Fill;
+            dataGridClientes.Location = new Point(3, 19);
             dataGridClientes.Name = "dataGridClientes";
             dataGridClientes.ReadOnly = true;
             dataGridClientes.RowHeadersVisible = false;
-            dataGridClientes.Size = new Size(944, 184);
+            dataGridClientes.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridClientes.Size = new Size(860, 451);
             dataGridClientes.TabIndex = 0;
             dataGridClientes.CurrentCellChanged += bindingClientes_CurrentChanged;
             // 
@@ -371,11 +322,11 @@
             // 
             // groupBox4
             // 
-            groupBox4.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            groupBox4.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             groupBox4.Controls.Add(dataGridContactos);
-            groupBox4.Location = new Point(3, 422);
+            groupBox4.Location = new Point(3, 365);
             groupBox4.Name = "groupBox4";
-            groupBox4.Size = new Size(950, 108);
+            groupBox4.Size = new Size(863, 139);
             groupBox4.TabIndex = 4;
             groupBox4.TabStop = false;
             groupBox4.Text = "Contactos";
@@ -385,16 +336,17 @@
             dataGridContactos.AllowUserToAddRows = false;
             dataGridContactos.AllowUserToDeleteRows = false;
             dataGridContactos.AllowUserToOrderColumns = true;
-            dataGridContactos.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             dataGridContactos.AutoGenerateColumns = false;
             dataGridContactos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridContactos.Columns.AddRange(new DataGridViewColumn[] { whatsappDataGridViewTextBoxColumn, telefonoDataGridViewTextBoxColumn, instagramDataGridViewTextBoxColumn, facebookDataGridViewTextBoxColumn, emailDataGridViewTextBoxColumn });
             dataGridContactos.DataSource = contactosBindingSource;
-            dataGridContactos.Location = new Point(0, 22);
+            dataGridContactos.Dock = DockStyle.Fill;
+            dataGridContactos.Location = new Point(3, 19);
             dataGridContactos.Name = "dataGridContactos";
             dataGridContactos.ReadOnly = true;
             dataGridContactos.RowHeadersVisible = false;
-            dataGridContactos.Size = new Size(947, 80);
+            dataGridContactos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridContactos.Size = new Size(857, 117);
             dataGridContactos.TabIndex = 0;
             // 
             // whatsappDataGridViewTextBoxColumn
@@ -453,21 +405,22 @@
             // 
             // groupBoxBotones
             // 
-            groupBoxBotones.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            groupBoxBotones.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             groupBoxBotones.Controls.Add(btnSeleccionar);
             groupBoxBotones.Controls.Add(btnSalir);
-            groupBoxBotones.Location = new Point(3, 536);
+            groupBoxBotones.Location = new Point(883, 365);
             groupBoxBotones.Name = "groupBoxBotones";
-            groupBoxBotones.Size = new Size(950, 92);
+            groupBoxBotones.Size = new Size(284, 139);
             groupBoxBotones.TabIndex = 5;
             groupBoxBotones.TabStop = false;
             // 
             // btnSeleccionar
             // 
+            btnSeleccionar.Dock = DockStyle.Top;
             btnSeleccionar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnSeleccionar.Location = new Point(176, 34);
+            btnSeleccionar.Location = new Point(3, 19);
             btnSeleccionar.Name = "btnSeleccionar";
-            btnSeleccionar.Size = new Size(146, 42);
+            btnSeleccionar.Size = new Size(278, 42);
             btnSeleccionar.TabIndex = 3;
             btnSeleccionar.Text = "Seleccionar";
             btnSeleccionar.UseVisualStyleBackColor = true;
@@ -475,51 +428,59 @@
             // 
             // btnSalir
             // 
-            btnSalir.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnSalir.Dock = DockStyle.Bottom;
             btnSalir.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnSalir.Location = new Point(645, 34);
+            btnSalir.Location = new Point(3, 94);
             btnSalir.Name = "btnSalir";
-            btnSalir.Size = new Size(146, 42);
+            btnSalir.Size = new Size(278, 42);
             btnSalir.TabIndex = 2;
             btnSalir.Text = "Salir";
             btnSalir.UseVisualStyleBackColor = true;
             btnSalir.Click += btnSalir_Click;
             // 
+            // groupBox3
+            // 
+            groupBox3.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            groupBox3.Controls.Add(dataGridClientes);
+            groupBox3.Location = new Point(3, 2);
+            groupBox3.Name = "groupBox3";
+            groupBox3.Size = new Size(866, 473);
+            groupBox3.TabIndex = 3;
+            groupBox3.TabStop = false;
+            groupBox3.Text = "Clientes";
+            // 
             // FrmAbmClientes
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(964, 632);
-            Controls.Add(flowLayoutPanel1);
+            ClientSize = new Size(1174, 516);
+            Controls.Add(groupBoxBotones);
+            Controls.Add(groupBox4);
+            Controls.Add(groupBox3);
+            Controls.Add(groupBox2);
+            Controls.Add(groupBox1);
+            FormBorderStyle = FormBorderStyle.None;
             Name = "FrmAbmClientes";
             Text = "Administración de Clientes";
             Load += FrmAbmClientes_Load;
-            flowLayoutPanel1.ResumeLayout(false);
-            groupBoxTitulo.ResumeLayout(false);
-            groupBoxTitulo.PerformLayout();
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)bindingLocalidades).EndInit();
-            groupBox3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataGridClientes).EndInit();
             ((System.ComponentModel.ISupportInitialize)bindingClientes).EndInit();
             groupBox4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataGridContactos).EndInit();
             ((System.ComponentModel.ISupportInitialize)contactosBindingSource).EndInit();
             groupBoxBotones.ResumeLayout(false);
+            groupBox3.ResumeLayout(false);
             ResumeLayout(false);
         }
 
         #endregion
-
-        private FlowLayoutPanel flowLayoutPanel1;
-        private GroupBox groupBoxTitulo;
-        private Label labelTitulo;
         private GroupBox groupBox1;
         private GroupBox groupBox2;
-        private GroupBox groupBox3;
         private GroupBox groupBox4;
         private GroupBox groupBoxBotones;
         private Button btnSeleccionar;
@@ -553,5 +514,6 @@
         private DataGridViewTextBoxColumn facebookDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn emailDataGridViewTextBoxColumn;
         private BindingSource contactosBindingSource;
+        private GroupBox groupBox3;
     }
 }

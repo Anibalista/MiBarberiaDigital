@@ -1,4 +1,5 @@
 ﻿using Entidades_SGBM;
+using Front_SGBM.UXDesign;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -444,6 +445,7 @@ namespace Front_SGBM
                 }
                 contadorReplicas++;
                 vaciarValores();
+                EstiloAplicacion.AplicarEstilo(this);
             }
         }
 

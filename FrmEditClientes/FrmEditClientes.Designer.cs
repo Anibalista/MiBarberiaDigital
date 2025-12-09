@@ -73,6 +73,7 @@
             txtBarrio = new TextBox();
             txtCalle = new TextBox();
             label21 = new Label();
+            pnlContent = new Panel();
             panelTitulo.SuspendLayout();
             panelBotones.SuspendLayout();
             groupBox1.SuspendLayout();
@@ -88,10 +89,9 @@
             // panelTitulo
             // 
             panelTitulo.Controls.Add(labelTitulo);
-            panelTitulo.Dock = DockStyle.Top;
             panelTitulo.Location = new Point(0, 0);
             panelTitulo.Name = "panelTitulo";
-            panelTitulo.Size = new Size(807, 42);
+            panelTitulo.Size = new Size(717, 42);
             panelTitulo.TabIndex = 0;
             // 
             // labelTitulo
@@ -106,19 +106,19 @@
             // 
             // panelBotones
             // 
+            panelBotones.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             panelBotones.Controls.Add(btnCancelar);
             panelBotones.Controls.Add(btnGuardar);
-            panelBotones.Dock = DockStyle.Bottom;
             panelBotones.Location = new Point(0, 550);
             panelBotones.Name = "panelBotones";
-            panelBotones.Size = new Size(807, 72);
+            panelBotones.Size = new Size(717, 72);
             panelBotones.TabIndex = 1;
             // 
             // btnCancelar
             // 
             btnCancelar.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnCancelar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnCancelar.Location = new Point(535, 18);
+            btnCancelar.Location = new Point(485, 18);
             btnCancelar.Name = "btnCancelar";
             btnCancelar.Size = new Size(146, 42);
             btnCancelar.TabIndex = 1;
@@ -129,7 +129,7 @@
             // btnGuardar
             // 
             btnGuardar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnGuardar.Location = new Point(151, 18);
+            btnGuardar.Location = new Point(77, 18);
             btnGuardar.Name = "btnGuardar";
             btnGuardar.Size = new Size(146, 42);
             btnGuardar.TabIndex = 0;
@@ -140,6 +140,7 @@
             // groupBox1
             // 
             groupBox1.Controls.Add(cbEstados);
+            groupBox1.Controls.Add(linkContactos);
             groupBox1.Controls.Add(label6);
             groupBox1.Controls.Add(label5);
             groupBox1.Controls.Add(dateTimePicker1);
@@ -150,9 +151,9 @@
             groupBox1.Controls.Add(btnBuscar);
             groupBox1.Controls.Add(txtDni);
             groupBox1.Controls.Add(label2);
-            groupBox1.Location = new Point(0, 41);
+            groupBox1.Location = new Point(0, 48);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(802, 160);
+            groupBox1.Size = new Size(717, 153);
             groupBox1.TabIndex = 2;
             groupBox1.TabStop = false;
             groupBox1.Text = "Datos del Cliente";
@@ -164,9 +165,9 @@
             cbEstados.DisplayMember = "Estado";
             cbEstados.DropDownStyle = ComboBoxStyle.DropDownList;
             cbEstados.FormattingEnabled = true;
-            cbEstados.Location = new Point(564, 70);
+            cbEstados.Location = new Point(471, 70);
             cbEstados.Name = "cbEstados";
-            cbEstados.Size = new Size(226, 23);
+            cbEstados.Size = new Size(237, 23);
             cbEstados.TabIndex = 10;
             cbEstados.ValueMember = "IdEstado";
             // 
@@ -176,9 +177,8 @@
             // 
             // label6
             // 
-            label6.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label6.AutoSize = true;
-            label6.Location = new Point(510, 73);
+            label6.Location = new Point(409, 73);
             label6.Name = "label6";
             label6.Size = new Size(42, 15);
             label6.TabIndex = 9;
@@ -187,7 +187,7 @@
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(477, 32);
+            label5.Location = new Point(370, 32);
             label5.Name = "label5";
             label5.Size = new Size(81, 15);
             label5.TabIndex = 8;
@@ -195,19 +195,20 @@
             // 
             // dateTimePicker1
             // 
+            dateTimePicker1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             dateTimePicker1.Format = DateTimePickerFormat.Short;
-            dateTimePicker1.Location = new Point(564, 28);
+            dateTimePicker1.Location = new Point(471, 28);
             dateTimePicker1.MaxDate = new DateTime(2199, 12, 31, 0, 0, 0, 0);
             dateTimePicker1.MinDate = new DateTime(1910, 1, 1, 0, 0, 0, 0);
             dateTimePicker1.Name = "dateTimePicker1";
-            dateTimePicker1.Size = new Size(226, 23);
+            dateTimePicker1.Size = new Size(236, 23);
             dateTimePicker1.TabIndex = 7;
             dateTimePicker1.Value = new DateTime(2007, 1, 1, 0, 0, 0, 0);
             // 
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(41, 115);
+            label4.Location = new Point(7, 115);
             label4.Name = "label4";
             label4.Size = new Size(56, 15);
             label4.TabIndex = 6;
@@ -215,7 +216,7 @@
             // 
             // txtApellido
             // 
-            txtApellido.Location = new Point(103, 112);
+            txtApellido.Location = new Point(77, 112);
             txtApellido.MaxLength = 149;
             txtApellido.Name = "txtApellido";
             txtApellido.Size = new Size(243, 23);
@@ -224,7 +225,7 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(41, 73);
+            label3.Location = new Point(7, 73);
             label3.Name = "label3";
             label3.Size = new Size(56, 15);
             label3.TabIndex = 4;
@@ -232,7 +233,7 @@
             // 
             // txtNombre
             // 
-            txtNombre.Location = new Point(103, 70);
+            txtNombre.Location = new Point(77, 70);
             txtNombre.MaxLength = 149;
             txtNombre.Name = "txtNombre";
             txtNombre.Size = new Size(243, 23);
@@ -240,7 +241,7 @@
             // 
             // btnBuscar
             // 
-            btnBuscar.Location = new Point(271, 28);
+            btnBuscar.Location = new Point(245, 28);
             btnBuscar.Name = "btnBuscar";
             btnBuscar.Size = new Size(75, 23);
             btnBuscar.TabIndex = 2;
@@ -250,7 +251,7 @@
             // 
             // txtDni
             // 
-            txtDni.Location = new Point(103, 29);
+            txtDni.Location = new Point(77, 29);
             txtDni.MaxLength = 14;
             txtDni.Name = "txtDni";
             txtDni.Size = new Size(116, 23);
@@ -261,7 +262,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(72, 32);
+            label2.Location = new Point(38, 32);
             label2.Name = "label2";
             label2.Size = new Size(25, 15);
             label2.TabIndex = 0;
@@ -269,11 +270,11 @@
             // 
             // groupBox2
             // 
+            groupBox2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             groupBox2.Controls.Add(dataGridContactos);
-            groupBox2.Controls.Add(linkContactos);
             groupBox2.Location = new Point(0, 207);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(802, 182);
+            groupBox2.Size = new Size(717, 182);
             groupBox2.TabIndex = 3;
             groupBox2.TabStop = false;
             groupBox2.Text = "Datos de Contacto";
@@ -287,10 +288,12 @@
             dataGridContactos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridContactos.Columns.AddRange(new DataGridViewColumn[] { whatsappDataGridViewTextBoxColumn, telefonoDataGridViewTextBoxColumn, instagramDataGridViewTextBoxColumn, facebookDataGridViewTextBoxColumn, emailDataGridViewTextBoxColumn });
             dataGridContactos.DataSource = bindingContactos;
-            dataGridContactos.Location = new Point(0, 34);
+            dataGridContactos.Dock = DockStyle.Fill;
+            dataGridContactos.Location = new Point(3, 19);
             dataGridContactos.Name = "dataGridContactos";
             dataGridContactos.ReadOnly = true;
-            dataGridContactos.Size = new Size(796, 142);
+            dataGridContactos.RowHeadersVisible = false;
+            dataGridContactos.Size = new Size(711, 160);
             dataGridContactos.TabIndex = 1;
             // 
             // whatsappDataGridViewTextBoxColumn
@@ -350,11 +353,12 @@
             // linkContactos
             // 
             linkContactos.ActiveLinkColor = Color.Blue;
+            linkContactos.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             linkContactos.AutoSize = true;
             linkContactos.BackColor = Color.Transparent;
             linkContactos.DisabledLinkColor = Color.Black;
             linkContactos.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            linkContactos.Location = new Point(653, 14);
+            linkContactos.Location = new Point(572, 131);
             linkContactos.Name = "linkContactos";
             linkContactos.Size = new Size(139, 19);
             linkContactos.TabIndex = 0;
@@ -365,6 +369,7 @@
             // 
             // groupBox3
             // 
+            groupBox3.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             groupBox3.Controls.Add(cbProvincia);
             groupBox3.Controls.Add(label15);
             groupBox3.Controls.Add(cbLocalidad);
@@ -381,7 +386,7 @@
             groupBox3.Controls.Add(label21);
             groupBox3.Location = new Point(0, 395);
             groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(802, 149);
+            groupBox3.Size = new Size(717, 149);
             groupBox3.TabIndex = 4;
             groupBox3.TabStop = false;
             groupBox3.Text = "Datos de Domicilio";
@@ -391,7 +396,7 @@
             cbProvincia.DataSource = bindingProvincias;
             cbProvincia.DisplayMember = "Provincia";
             cbProvincia.FormattingEnabled = true;
-            cbProvincia.Location = new Point(103, 108);
+            cbProvincia.Location = new Point(77, 108);
             cbProvincia.Name = "cbProvincia";
             cbProvincia.Size = new Size(243, 23);
             cbProvincia.TabIndex = 17;
@@ -405,7 +410,7 @@
             // label15
             // 
             label15.AutoSize = true;
-            label15.Location = new Point(41, 111);
+            label15.Location = new Point(7, 111);
             label15.Name = "label15";
             label15.Size = new Size(56, 15);
             label15.TabIndex = 16;
@@ -416,9 +421,9 @@
             cbLocalidad.DataSource = bindingLocalidades;
             cbLocalidad.DisplayMember = "Localidad";
             cbLocalidad.FormattingEnabled = true;
-            cbLocalidad.Location = new Point(510, 70);
+            cbLocalidad.Location = new Point(471, 70);
             cbLocalidad.Name = "cbLocalidad";
-            cbLocalidad.Size = new Size(251, 23);
+            cbLocalidad.Size = new Size(237, 23);
             cbLocalidad.TabIndex = 15;
             cbLocalidad.ValueMember = "IdLocalidad";
             // 
@@ -428,7 +433,7 @@
             // 
             // txtPiso
             // 
-            txtPiso.Location = new Point(725, 27);
+            txtPiso.Location = new Point(672, 27);
             txtPiso.MaxLength = 9;
             txtPiso.Name = "txtPiso";
             txtPiso.Size = new Size(36, 23);
@@ -437,7 +442,7 @@
             // label14
             // 
             label14.AutoSize = true;
-            label14.Location = new Point(690, 30);
+            label14.Location = new Point(637, 30);
             label14.Name = "label14";
             label14.Size = new Size(29, 15);
             label14.TabIndex = 13;
@@ -445,7 +450,7 @@
             // 
             // txtDepto
             // 
-            txtDepto.Location = new Point(645, 27);
+            txtDepto.Location = new Point(592, 27);
             txtDepto.MaxLength = 9;
             txtDepto.Name = "txtDepto";
             txtDepto.Size = new Size(31, 23);
@@ -454,7 +459,7 @@
             // label16
             // 
             label16.AutoSize = true;
-            label16.Location = new Point(600, 30);
+            label16.Location = new Point(547, 30);
             label16.Name = "label16";
             label16.Size = new Size(39, 15);
             label16.TabIndex = 11;
@@ -462,16 +467,16 @@
             // 
             // txtNro
             // 
-            txtNro.Location = new Point(510, 27);
+            txtNro.Location = new Point(471, 27);
             txtNro.MaxLength = 9;
             txtNro.Name = "txtNro";
-            txtNro.Size = new Size(65, 23);
+            txtNro.Size = new Size(46, 23);
             txtNro.TabIndex = 10;
             // 
             // label17
             // 
             label17.AutoSize = true;
-            label17.Location = new Point(477, 30);
+            label17.Location = new Point(424, 30);
             label17.Name = "label17";
             label17.Size = new Size(27, 15);
             label17.TabIndex = 9;
@@ -480,7 +485,7 @@
             // label19
             // 
             label19.AutoSize = true;
-            label19.Location = new Point(446, 73);
+            label19.Location = new Point(393, 73);
             label19.Name = "label19";
             label19.Size = new Size(58, 15);
             label19.TabIndex = 6;
@@ -489,7 +494,7 @@
             // label20
             // 
             label20.AutoSize = true;
-            label20.Location = new Point(59, 73);
+            label20.Location = new Point(25, 73);
             label20.Name = "label20";
             label20.Size = new Size(38, 15);
             label20.TabIndex = 4;
@@ -497,7 +502,7 @@
             // 
             // txtBarrio
             // 
-            txtBarrio.Location = new Point(103, 70);
+            txtBarrio.Location = new Point(77, 70);
             txtBarrio.MaxLength = 149;
             txtBarrio.Name = "txtBarrio";
             txtBarrio.Size = new Size(243, 23);
@@ -505,7 +510,7 @@
             // 
             // txtCalle
             // 
-            txtCalle.Location = new Point(103, 27);
+            txtCalle.Location = new Point(77, 27);
             txtCalle.MaxLength = 149;
             txtCalle.Name = "txtCalle";
             txtCalle.Size = new Size(243, 23);
@@ -514,22 +519,32 @@
             // label21
             // 
             label21.AutoSize = true;
-            label21.Location = new Point(64, 30);
+            label21.Location = new Point(30, 30);
             label21.Name = "label21";
             label21.Size = new Size(33, 15);
             label21.TabIndex = 0;
             label21.Text = "Calle";
             // 
+            // pnlContent
+            // 
+            pnlContent.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            pnlContent.Location = new Point(723, 0);
+            pnlContent.Name = "pnlContent";
+            pnlContent.Size = new Size(488, 622);
+            pnlContent.TabIndex = 5;
+            // 
             // FrmEditClientes
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(807, 622);
+            ClientSize = new Size(1211, 622);
+            Controls.Add(pnlContent);
             Controls.Add(groupBox3);
             Controls.Add(groupBox2);
             Controls.Add(groupBox1);
             Controls.Add(panelBotones);
             Controls.Add(panelTitulo);
+            FormBorderStyle = FormBorderStyle.None;
             Name = "FrmEditClientes";
             Text = "Formulario de clientes";
             Load += FrmEditClientes_Load;
@@ -540,7 +555,6 @@
             groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)bindingEstados).EndInit();
             groupBox2.ResumeLayout(false);
-            groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridContactos).EndInit();
             ((System.ComponentModel.ISupportInitialize)bindingContactos).EndInit();
             groupBox3.ResumeLayout(false);
@@ -596,5 +610,6 @@
         private ComboBox cbEstados;
         private Label label6;
         private BindingSource bindingEstados;
+        private Panel pnlContent;
     }
 }

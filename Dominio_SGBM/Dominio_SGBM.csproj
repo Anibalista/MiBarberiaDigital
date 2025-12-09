@@ -7,8 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Datos_SGBM\Datos_SGBM.csproj" />
-    <ProjectReference Include="..\Dominio_SGBM\Dominio_SGBM.csproj" />
     <ProjectReference Include="..\Entidades_SGBM\Entidades_SGBM.csproj" />
   </ItemGroup>
 
