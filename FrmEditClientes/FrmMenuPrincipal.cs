@@ -88,38 +88,19 @@ namespace Front_SGBM
 
         //Inicio de Métodos propios
         //Accesos
-        private void abrirEditClientes(object sender, EventArgs e, EnumModoForm modo)
+        public void abrirEditClientes(object sender, EventArgs e, EnumModoForm modo, Clientes? cliente = null)
         {
-            FrmEditClientes? abierto = Application.OpenForms.OfType<FrmEditClientes>().FirstOrDefault();
-
-            if (abierto == null)
-            {
-                abierto = new FrmEditClientes();
-                abierto.modo = modo;
-                abierto.Show();
-            }
-            else
-            {
-                abierto.Focus();
-            }
-
+            FrmEditClientes frm = (FrmEditClientes)AbrirFrmHijo<FrmEditClientes>(true);
+            frm._cliente = cliente;
+            frm.modo = modo;
+            frm.Show();
         }
 
-        private void abrirAbmClientes(object sender, EventArgs e, EnumModoForm modo)
+        public void abrirAbmClientes(object sender, EventArgs e, EnumModoForm modo)
         {
-            FrmAbmClientes? abierto = Application.OpenForms.OfType<FrmAbmClientes>().FirstOrDefault();
-
-            if (abierto == null)
-            {
-                abierto = new FrmAbmClientes();
-                abierto.MdiParent = this;
-                //abierto.modo = modo;
-                abierto.Show();
-            }
-            else
-            {
-                abierto.Focus();
-            }
+            FrmAbmClientes frm = (FrmAbmClientes)AbrirFrmHijo<FrmAbmClientes>(true);
+            frm.modo = modo;
+            frm.Show();
         }
 
         //Métodos genéricos
@@ -150,13 +131,13 @@ namespace Front_SGBM
 
         private void btnClientes_Click(object sender, EventArgs e)
         {
-            // 1. Definimos las opciones del submenú
+            // 1. Defino las opciones del submenú
             var opcionesClientes = new List<EstiloAplicacion.OpcionMenu>
             {
                 // OPCIÓN A: Nuevo Cliente -> Abre FrmEditClientes
                 new EstiloAplicacion.OpcionMenu("Nuevo Cliente", (s, args) =>
                 {
-                    // Usamos tu método genérico. 'false' porque no queremos cerrar instancias previas forzosamente
+                    // Uso tu método genérico. 'false' porque no queremos cerrar instancias previas forzosamente
                     Form frm = AbrirFrmHijo<FrmEditClientes>(false);
                     frm.Show(); // Importante: Aseguramos que se muestre
                 }),

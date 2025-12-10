@@ -65,6 +65,7 @@
             btnSeleccionar = new Button();
             btnSalir = new Button();
             groupBox3 = new GroupBox();
+            btnConsultar = new Button();
             groupBox1.SuspendLayout();
             groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)bindingLocalidades).BeginInit();
@@ -254,7 +255,7 @@
             dataGridClientes.ReadOnly = true;
             dataGridClientes.RowHeadersVisible = false;
             dataGridClientes.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridClientes.Size = new Size(860, 451);
+            dataGridClientes.Size = new Size(860, 497);
             dataGridClientes.TabIndex = 0;
             dataGridClientes.CurrentCellChanged += bindingClientes_CurrentChanged;
             // 
@@ -324,7 +325,7 @@
             // 
             groupBox4.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             groupBox4.Controls.Add(dataGridContactos);
-            groupBox4.Location = new Point(3, 365);
+            groupBox4.Location = new Point(3, 411);
             groupBox4.Name = "groupBox4";
             groupBox4.Size = new Size(863, 139);
             groupBox4.TabIndex = 4;
@@ -406,19 +407,20 @@
             // groupBoxBotones
             // 
             groupBoxBotones.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            groupBoxBotones.Controls.Add(btnConsultar);
             groupBoxBotones.Controls.Add(btnSeleccionar);
             groupBoxBotones.Controls.Add(btnSalir);
-            groupBoxBotones.Location = new Point(883, 365);
+            groupBoxBotones.Location = new Point(883, 347);
             groupBoxBotones.Name = "groupBoxBotones";
-            groupBoxBotones.Size = new Size(284, 139);
+            groupBoxBotones.Size = new Size(284, 203);
             groupBoxBotones.TabIndex = 5;
             groupBoxBotones.TabStop = false;
             // 
             // btnSeleccionar
             // 
-            btnSeleccionar.Dock = DockStyle.Top;
+            btnSeleccionar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             btnSeleccionar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnSeleccionar.Location = new Point(3, 19);
+            btnSeleccionar.Location = new Point(3, 92);
             btnSeleccionar.Name = "btnSeleccionar";
             btnSeleccionar.Size = new Size(278, 42);
             btnSeleccionar.TabIndex = 3;
@@ -430,7 +432,7 @@
             // 
             btnSalir.Dock = DockStyle.Bottom;
             btnSalir.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnSalir.Location = new Point(3, 94);
+            btnSalir.Location = new Point(3, 158);
             btnSalir.Name = "btnSalir";
             btnSalir.Size = new Size(278, 42);
             btnSalir.TabIndex = 2;
@@ -444,16 +446,28 @@
             groupBox3.Controls.Add(dataGridClientes);
             groupBox3.Location = new Point(3, 2);
             groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(866, 473);
+            groupBox3.Size = new Size(866, 519);
             groupBox3.TabIndex = 3;
             groupBox3.TabStop = false;
             groupBox3.Text = "Clientes";
+            // 
+            // btnConsultar
+            // 
+            btnConsultar.Dock = DockStyle.Top;
+            btnConsultar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnConsultar.Location = new Point(3, 19);
+            btnConsultar.Name = "btnConsultar";
+            btnConsultar.Size = new Size(278, 42);
+            btnConsultar.TabIndex = 4;
+            btnConsultar.Text = "Ver Detalles";
+            btnConsultar.UseVisualStyleBackColor = true;
+            btnConsultar.Click += btnConsultar_Click;
             // 
             // FrmAbmClientes
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1174, 516);
+            ClientSize = new Size(1174, 562);
             Controls.Add(groupBoxBotones);
             Controls.Add(groupBox4);
             Controls.Add(groupBox3);
@@ -515,5 +529,6 @@
         private DataGridViewTextBoxColumn emailDataGridViewTextBoxColumn;
         private BindingSource contactosBindingSource;
         private GroupBox groupBox3;
+        private Button btnConsultar;
     }
 }

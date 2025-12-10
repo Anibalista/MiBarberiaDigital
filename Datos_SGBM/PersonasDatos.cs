@@ -1,12 +1,6 @@
 ﻿using EF_SGBM;
 using Entidades_SGBM;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Configuration.Internal;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Datos_SGBM
 {

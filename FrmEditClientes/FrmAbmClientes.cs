@@ -14,7 +14,7 @@ namespace Front_SGBM
 {
     public partial class FrmAbmClientes : Form
     {
-        EnumModoForm modo = EnumModoForm.Consulta;
+        public EnumModoForm modo = EnumModoForm.Consulta;
         private List<Personas>? _personas = null;
         private List<Clientes>? _clientes = null;
         private List<Contactos>? _contactos = null;
@@ -38,6 +38,8 @@ namespace Front_SGBM
         private void FrmAbmClientes_Load(object sender, EventArgs e)
         {
             cargarFormulario();
+            btnBuscar_Click(sender, e);
+            btnSeleccionar.Text = modo == EnumModoForm.Venta ? "Seleccionar" : "Modificar Cliente";
         }
 
         private void cargarFormulario()
@@ -232,12 +234,35 @@ namespace Front_SGBM
 
         private void btnSeleccionar_Click(object sender, EventArgs e)
         {
-
+            FrmMenuPrincipal padre = Application.OpenForms.OfType<FrmMenuPrincipal>().FirstOrDefault();
+            if (padre == null)
+                return;
+            try
+            {
+                if (modo != EnumModoForm.Venta)
+                {
+                    padre.abrirEditClientes(sender, e, EnumModoForm.Modificacion, _cliente);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error sobre el menu principal" + ex.Message, "Error fatal", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnRegistrar_Click(object sender, EventArgs e)
         {
-
+            FrmMenuPrincipal padre = Application.OpenForms.OfType<FrmMenuPrincipal>().FirstOrDefault();
+            if (padre == null)
+                return;
+            try 
+            {
+                padre.abrirEditClientes(sender, e, EnumModoForm.Alta);
+            } 
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error sobre el menu principal" + ex.Message, "Error fatal", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnImportar_Click(object sender, EventArgs e)
@@ -317,12 +342,30 @@ namespace Front_SGBM
             try
             {
                 _persona = (Personas)bindingClientes.Current;
+                if (_persona == null)
+                    return;
+                _cliente = null;
+                _cliente = _clientes?.FirstOrDefault(c => c.IdPersona == _persona.IdPersona);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
             actualizarGrillaContactos();
+        }
+
+        private void btnConsultar_Click(object sender, EventArgs e)
+        {
+            if (_persona == null)
+            {
+                MessageBox.Show("Debe seleccionar un cliente para consultar", "Error", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return;
+            }
+            FrmMenuPrincipal padre = Application.OpenForms.OfType<FrmMenuPrincipal>().FirstOrDefault();
+            if (padre != null)
+            {
+                padre.abrirEditClientes(sender, e, EnumModoForm.Consulta, _cliente);
+            }
         }
     }
 }

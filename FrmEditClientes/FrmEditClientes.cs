@@ -15,6 +15,7 @@ namespace Front_SGBM
     public partial class FrmEditClientes : Form
     {
         public EnumModoForm modo = EnumModoForm.Alta;
+
         //Listas para comboBox
         public List<Contactos>? _contactos = null;
         private List<Provincias>? _provincias = null;
@@ -46,6 +47,8 @@ namespace Front_SGBM
         public FrmEditClientes()
         {
             InitializeComponent();
+            dateTimePicker1.MaxDate = DateTime.Now.AddDays(2);
+            dateTimePicker1.MinDate = DateTime.Now.AddYears(-140);
         }
         private void FrmEditClientes_Load(object sender, EventArgs e)
         {
@@ -58,7 +61,7 @@ namespace Front_SGBM
             fechaInicial();
             if (modo != EnumModoForm.Alta)
             {
-                cargarCampos();
+                cargarDatosCliente();
                 cargarContactos();
                 titulo = modo == EnumModoForm.Modificacion ? "Modificación" : "Detalles";
             }
@@ -68,6 +71,47 @@ namespace Front_SGBM
             activarCampos(modo != EnumModoForm.Consulta);
 
             labelTitulo.Text = $"{titulo} de Cliente";
+        }
+
+        private void cargarDatosCliente()
+        {
+            if (!cargarCliente())
+                return;
+            string mensaje = string.Empty;
+            try
+            {
+                _contactos = null;
+                _contactos = ContactosNegocio.getContactosPorPersona(_persona, ref mensaje);
+                cargarCamposClientes();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al cargar los datos del cliente\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void cargarCamposClientes()
+        {
+            if (_cliente == null || _persona == null)
+                return;
+            txtApellido.Text = _persona?.Apellidos;
+            txtDni.Text = _persona?.Dni;
+            txtNombre.Text = _persona?.Nombres;
+            dateTimePicker1.Value = _persona?.FechaNac ?? DateTime.Today;
+            if (_estado != null)
+                cbEstados.SelectedItem = _estado;
+            if (_domicilio != null)
+            {
+                txtCalle.Text = _domicilio.Calle;
+                txtBarrio.Text = _domicilio.Barrio;
+                txtNro.Text = _domicilio.Altura;
+                txtPiso.Text = _domicilio.Piso;
+                txtDepto.Text = _domicilio.Depto;
+                if (_provincia != null)
+                    cbProvincia.SelectedItem = _provincia;
+                if (_localidad != null)
+                    cbLocalidad.SelectedItem = _localidad;
+            }
         }
 
         //Comprobaciones
@@ -574,6 +618,8 @@ namespace Front_SGBM
             {
                 return false;
             }
+            if (_cliente.Estados != null)
+                _estado = _cliente.Estados;
             _persona = _cliente.Personas;
             _domicilio = _persona.Domicilios;
             if (_domicilio != null)
@@ -586,28 +632,6 @@ namespace Front_SGBM
             }
             return true;
 
-        }
-
-        private void cargarCampos()
-        {
-            if (!cargarCliente())
-            {
-                return;
-            }
-            txtDni.Text = _persona.Dni;
-            txtNombre.Text = _persona.Nombres;
-            txtApellido.Text = _persona.Apellidos;
-            _nacimiento = _persona.FechaNac;
-            dateTimePicker1.Value = _nacimiento ?? DateTime.Today;
-            if (_domicilio == null)
-            {
-                return;
-            }
-            txtCalle.Text = _domicilio.Calle ?? "";
-            txtNro.Text = _domicilio.Altura ?? "";
-            txtPiso.Text = _domicilio.Piso ?? "";
-            txtDepto.Text = _domicilio.Depto ?? "";
-            txtBarrio.Text = _domicilio.Barrio ?? "";
         }
 
         private bool modificarCliente(ref string mensaje)
@@ -628,12 +652,35 @@ namespace Front_SGBM
             return true;
         }
 
+        private void cerrarFormulario(object sender, EventArgs e)
+        {
+            try
+            {
+                cerrando = true;
+                FrmMenuPrincipal frm = Application.OpenForms.OfType<FrmMenuPrincipal>().FirstOrDefault();
+                if (frm != null)
+                {
+                    frm.abrirAbmClientes(sender, e, modo);
+                    Close();
+                } 
+                else
+                {
+                    return;
+                }
+
+            } 
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error fatal al cerrar\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+        }
+
 
         //Botones
         private void btnCancelar_Click(object sender, EventArgs e)
         {
-            cerrando = true;
-            this.Close();
+            cerrarFormulario(sender, e);
         }
 
         private void btnGuardar_Click(object sender, EventArgs e)
@@ -703,7 +750,7 @@ namespace Front_SGBM
                     return;
                 }
                 MessageBox.Show($"Modificación exitosa, detalles: {mensaje}", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                btnCancelar_Click(sender, e);
+                cerrarFormulario(sender, e);
             }
         }
 
