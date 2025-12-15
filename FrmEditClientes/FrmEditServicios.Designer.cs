@@ -364,6 +364,7 @@
             // 
             // btnLimpiar
             // 
+            btnLimpiar.Enabled = false;
             btnLimpiar.Location = new Point(227, 86);
             btnLimpiar.Name = "btnLimpiar";
             btnLimpiar.Size = new Size(133, 23);
@@ -395,6 +396,7 @@
             // btnModificar
             // 
             btnModificar.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnModificar.Enabled = false;
             btnModificar.Location = new Point(185, 222);
             btnModificar.Name = "btnModificar";
             btnModificar.Size = new Size(108, 23);
@@ -417,6 +419,7 @@
             // btnEliminar
             // 
             btnEliminar.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnEliminar.Enabled = false;
             btnEliminar.Location = new Point(314, 221);
             btnEliminar.Name = "btnEliminar";
             btnEliminar.Size = new Size(103, 23);
@@ -428,6 +431,7 @@
             // 
             // txtUnidades
             // 
+            txtUnidades.Enabled = false;
             txtUnidades.Location = new Point(284, 180);
             txtUnidades.Name = "txtUnidades";
             txtUnidades.Size = new Size(76, 23);
@@ -444,6 +448,7 @@
             // 
             // btnNuevoInsumo
             // 
+            btnNuevoInsumo.Enabled = false;
             btnNuevoInsumo.Location = new Point(9, 222);
             btnNuevoInsumo.Name = "btnNuevoInsumo";
             btnNuevoInsumo.Size = new Size(116, 23);
@@ -455,6 +460,7 @@
             // 
             // txtCantidad
             // 
+            txtCantidad.Enabled = false;
             txtCantidad.Location = new Point(94, 180);
             txtCantidad.Name = "txtCantidad";
             txtCantidad.Size = new Size(87, 23);
@@ -462,6 +468,7 @@
             // 
             // txtMontoInsumo
             // 
+            txtMontoInsumo.Enabled = false;
             txtMontoInsumo.Location = new Point(94, 87);
             txtMontoInsumo.Name = "txtMontoInsumo";
             txtMontoInsumo.PlaceholderText = "$ pesos";
@@ -479,6 +486,7 @@
             // 
             // txtDescripcionInsumo
             // 
+            txtDescripcionInsumo.Enabled = false;
             txtDescripcionInsumo.Location = new Point(94, 42);
             txtDescripcionInsumo.Name = "txtDescripcionInsumo";
             txtDescripcionInsumo.Size = new Size(266, 23);
@@ -507,6 +515,7 @@
             cbProductos.DataSource = bindingSourceProductos;
             cbProductos.DisplayMember = "Descripcion";
             cbProductos.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbProductos.Enabled = false;
             cbProductos.FormattingEnabled = true;
             cbProductos.Location = new Point(94, 134);
             cbProductos.Name = "cbProductos";

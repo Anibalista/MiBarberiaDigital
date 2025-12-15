@@ -21,27 +21,6 @@ namespace Datos_SGBM
             return true;
         }
 
-        static bool ComprobarCategoria(Categorias? categoria, bool registro, ref string mensaje)
-        {
-            if (categoria == null)
-            {
-                mensaje = "La información de la categoría no llega a la capa de datos";
-                return false;
-            }
-            if (string.IsNullOrWhiteSpace(categoria.Descripcion))
-            {
-                mensaje = "La descripción de la categoría llegó vacía a la capa datos";
-                return false;
-            }
-            if (registro)
-                return true;
-            if (categoria.IdCategoria == null || categoria.IdCategoria < 1)
-            {
-                mensaje = "Error con el Id de la Categoría a manipular";
-                return false;
-            }
-            return true;
-        }
 
         public static List<Categorias>? ListaCategorias(ref string mensaje)
         {
@@ -61,6 +40,32 @@ namespace Datos_SGBM
             {
                 mensaje = $"Error al obtener categorías:\n{ex.Message}";
                 return null;
+            }
+        }
+
+        public static int RegistrarCategoria(Categorias? categoria, ref string mensaje)
+        {
+            try
+            {
+                int exito = 0;
+                using (Contexto contexto = new Contexto())
+                {
+                    if (!ComprobarContexto(contexto, ref mensaje))
+                        return 0;
+                    categoria.IdCategoria = null;
+                    contexto.Categorias.Add(categoria);
+                    exito = contexto.SaveChanges();
+                    if (categoria.IdCategoria != null)
+                        exito = (int)categoria.IdCategoria;
+                }
+                if (exito < 1)
+                    mensaje = "Error al registrar la categoría";
+                return exito;
+            }
+            catch (Exception ex)
+            {
+                mensaje = $"Error al registrar la categoría:\n{ex.Message}";
+                return 0;
             }
         }
 

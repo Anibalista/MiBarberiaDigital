@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,6 +19,7 @@ namespace Front_SGBM
         public Servicios? _servicio;
         private bool cerrando = false;
         private bool cargando = false;
+        private bool administrandoInsumos = false;
         private List<Categorias>? _categorias;
         private List<Productos>? _productos;
         private List<ServiciosInsumos>? _insumos;
@@ -46,14 +48,16 @@ namespace Front_SGBM
         {
             if (cerrando)
                 return;
+            string mensaje = string.Empty;
             try
             {
                 bindingSourceProductos.DataSource = null;
                 _productos = null;
-                //Buscar Productos
-                ///
-                ///
-                bindingSourceProductos.DataSource = _productos;
+                _productos = ProductosNegocio.ListaSimple(ref mensaje);
+                if (string.IsNullOrEmpty( mensaje ))
+                    bindingSourceProductos.DataSource = _productos;
+                else
+                    MessageBox.Show("Error al traer productos de la BD", "Error Fatal", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 cbProductos.SelectedIndex = -1;
             }
             catch (Exception ex)
@@ -146,7 +150,29 @@ namespace Front_SGBM
         {
             if (cargando)
                 return;
-
+            try
+            {
+                cargando = true;
+                List<ServiciosInsumos> lista = new List<ServiciosInsumos>();
+                dataGridInsumos.DataSource = null;
+                txtTotalCostos.Clear();
+                if (_insumos != null)
+                {
+                    lista = _insumos.OrderBy(i => i.Descripcion).ToList();
+                    decimal totalCostos = lista.Sum(i => i.Costo);
+                    txtTotalCostos.Text = totalCostos.ToString("N2", CultureInfo.GetCultureInfo("es-AR"));
+                }
+                txtCostosServicio.Text = txtTotalCostos.Text;
+                dataGridInsumos.Refresh();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al refrescar la grilla de Costos:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                cargando = false;
+            }
         }
 
         //Eventos de botones
@@ -157,7 +183,7 @@ namespace Front_SGBM
 
         private void btnAdminCostos_Click(object sender, EventArgs e)
         {
-
+            activarCamposInsumos();
         }
 
         private void btnNuevoInsumo_Click(object sender, EventArgs e)
@@ -244,6 +270,83 @@ namespace Front_SGBM
             catch
             {
                 throw;
+            }
+        }
+
+        //Activación y Limpieza de campos
+        private void activarCamposInsumos()
+        {
+            try
+            {
+                limpiarCamposInsumos();
+                txtDescripcionInsumo.Enabled = !administrandoInsumos;
+                txtMontoInsumo.Enabled = !administrandoInsumos;
+                cbProductos.Enabled = !administrandoInsumos;
+                txtCantidad.Enabled = !administrandoInsumos;
+                txtUnidades.Enabled = !administrandoInsumos;
+                btnEliminar.Enabled = !administrandoInsumos;
+                btnLimpiar.Enabled = !administrandoInsumos;
+                btnModificar.Enabled = !administrandoInsumos;
+                btnNuevoInsumo.Enabled = !administrandoInsumos;
+                cargarInsumos();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al modificar los campos de Insumos:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void limpiarCamposInsumos()
+        {
+            cargando = true;
+            try
+            {
+                txtDescripcionInsumo.Clear();
+                txtMontoInsumo.Clear();
+                txtCantidad.Clear();
+                txtUnidades.Clear();
+                cbProductos.SelectedIndex = -1;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al limpiar los campos:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                cargando = false;
+            }
+        }
+
+        private void limpiarCampos()
+        {
+            cargando = true;
+            try
+            {
+                _servicio = null;
+                _insumos = null;
+                _insumosNuevos = null;
+                txtServicio.Clear();
+                txtDescripcionServicio.Clear();
+                txtDuracion.Clear();
+                txtPrecio.Clear();
+                txtPuntaje.Clear();
+                txtComision.Clear();
+                txtCostosServicio.Clear();
+                txtMargen.Clear();
+                txtTotalCostos.Clear();
+                checkComision.Checked = true;
+                administrandoInsumos = true;
+                activarCamposInsumos();
+                cargando = false;
+                refrescarGrilla();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al limpiar los campos:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                cargando = false;
             }
         }
     }

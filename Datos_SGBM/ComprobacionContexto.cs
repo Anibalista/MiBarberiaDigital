@@ -285,6 +285,15 @@ namespace Datos_SGBM
             }
             return true;
         }
+        public bool ComprobarUnidadesMedidas(ref string mensaje)
+        {
+            if (contexto.UnidadesMedidas == null)
+            {
+                mensaje = "No se conecta al registro de Unidades de Medida";
+                return false;
+            }
+            return true;
+        }
 
         public bool ComprobarVentas(ref string mensaje)
         {
