@@ -103,7 +103,7 @@
             checkExtranjeroWhat.Location = new Point(38, 23);
             checkExtranjeroWhat.Name = "checkExtranjeroWhat";
             checkExtranjeroWhat.Size = new Size(15, 14);
-            checkExtranjeroWhat.TabIndex = 4;
+            checkExtranjeroWhat.TabIndex = 0;
             checkExtranjeroWhat.UseVisualStyleBackColor = false;
             // 
             // label1
@@ -246,10 +246,11 @@
             // btnCancelar
             // 
             btnCancelar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold);
-            btnCancelar.Location = new Point(163, 52);
+            btnCancelar.Location = new Point(163, 65);
             btnCancelar.Name = "btnCancelar";
             btnCancelar.Size = new Size(144, 35);
-            btnCancelar.TabIndex = 39;
+            btnCancelar.TabIndex = 3;
+            btnCancelar.Tag = "btnSecundarioR";
             btnCancelar.Text = "Cancelar";
             btnCancelar.UseVisualStyleBackColor = true;
             btnCancelar.Click += btnCancelar_Click;
@@ -257,10 +258,11 @@
             // btnGuardar
             // 
             btnGuardar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold);
-            btnGuardar.Location = new Point(163, 14);
+            btnGuardar.Location = new Point(163, 16);
             btnGuardar.Name = "btnGuardar";
             btnGuardar.Size = new Size(144, 35);
-            btnGuardar.TabIndex = 38;
+            btnGuardar.TabIndex = 2;
+            btnGuardar.Tag = "btnSecundarioV";
             btnGuardar.Text = "Guardar Contacto";
             btnGuardar.UseVisualStyleBackColor = true;
             btnGuardar.Click += btnGuardar_Click;
@@ -271,7 +273,8 @@
             btnMenos.Location = new Point(11, 32);
             btnMenos.Name = "btnMenos";
             btnMenos.Size = new Size(45, 37);
-            btnMenos.TabIndex = 37;
+            btnMenos.TabIndex = 1;
+            btnMenos.Tag = "btnPrincipal";
             btnMenos.Text = "-";
             btnMenos.UseVisualStyleBackColor = true;
             btnMenos.Click += btnMenos_Click;
@@ -282,7 +285,8 @@
             btnMas.Location = new Point(68, 32);
             btnMas.Name = "btnMas";
             btnMas.Size = new Size(45, 37);
-            btnMas.TabIndex = 36;
+            btnMas.TabIndex = 0;
+            btnMas.Tag = "btnPrincipal";
             btnMas.Text = "+";
             btnMas.UseVisualStyleBackColor = true;
             btnMas.Click += btnMas_Click;
@@ -294,9 +298,9 @@
             groupBoxBotones.Controls.Add(btnCancelar);
             groupBoxBotones.Controls.Add(btnGuardar);
             groupBoxBotones.Dock = DockStyle.Bottom;
-            groupBoxBotones.Location = new Point(0, 247);
+            groupBoxBotones.Location = new Point(0, 258);
             groupBoxBotones.Name = "groupBoxBotones";
-            groupBoxBotones.Size = new Size(361, 93);
+            groupBoxBotones.Size = new Size(361, 113);
             groupBoxBotones.TabIndex = 5;
             groupBoxBotones.TabStop = false;
             // 
@@ -306,14 +310,14 @@
             flowLayoutPanel1.Dock = DockStyle.Fill;
             flowLayoutPanel1.Location = new Point(0, 0);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(361, 247);
+            flowLayoutPanel1.Size = new Size(361, 258);
             flowLayoutPanel1.TabIndex = 5;
             // 
             // FrmContactos
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(361, 340);
+            ClientSize = new Size(361, 371);
             Controls.Add(flowLayoutPanel1);
             Controls.Add(groupBoxBotones);
             FormBorderStyle = FormBorderStyle.None;

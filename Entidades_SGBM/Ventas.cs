@@ -30,5 +30,10 @@ namespace Entidades_SGBM
         public Clientes? Clientes { get; set; }
         public Empleados? Empleados { get; set; }
 
+        public override string ToString()
+        {
+            return $"{NroVenta}_{FechaVenta.ToString("dd/MM/yy")}";
+        }
+
     }
 }

@@ -34,5 +34,10 @@ namespace Entidades_SGBM
 
         public Niveles? Niveles { get; set; }
         public Empleados? Empleados { get; set; }
+
+        public override string ToString()
+        {
+            return NombreUsuario;
+        }
     }
 }

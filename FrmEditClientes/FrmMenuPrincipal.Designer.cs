@@ -58,6 +58,9 @@ namespace Front_SGBM
             lblSubTitulo = new Label();
             lblTitulo = new Label();
             pnlContent = new Panel();
+            serviciosToolStripMenuItem = new ToolStripMenuItem();
+            aBMServiciosToolStripMenuItem = new ToolStripMenuItem();
+            nuevoServicioToolStripMenuItem = new ToolStripMenuItem();
             menuStrip.SuspendLayout();
             statusStrip.SuspendLayout();
             pnlHeader.SuspendLayout();
@@ -72,13 +75,13 @@ namespace Front_SGBM
             menuStrip.Location = new Point(0, 0);
             menuStrip.Name = "menuStrip";
             menuStrip.Padding = new Padding(7, 2, 0, 2);
-            menuStrip.Size = new Size(1052, 27);
+            menuStrip.Size = new Size(1165, 27);
             menuStrip.TabIndex = 0;
             menuStrip.Text = "MenuStrip";
             // 
             // administracionToolMenuItem
             // 
-            administracionToolMenuItem.DropDownItems.AddRange(new ToolStripItem[] { clientesToolStripMenuItem });
+            administracionToolMenuItem.DropDownItems.AddRange(new ToolStripItem[] { clientesToolStripMenuItem, serviciosToolStripMenuItem });
             administracionToolMenuItem.Name = "administracionToolMenuItem";
             administracionToolMenuItem.Size = new Size(100, 23);
             administracionToolMenuItem.Text = "Administracion";
@@ -87,20 +90,20 @@ namespace Front_SGBM
             // 
             clientesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { abmClientesToolStripMenuItem, nuevoClienteToolStripMenuItem });
             clientesToolStripMenuItem.Name = "clientesToolStripMenuItem";
-            clientesToolStripMenuItem.Size = new Size(116, 22);
+            clientesToolStripMenuItem.Size = new Size(180, 22);
             clientesToolStripMenuItem.Text = "Clientes";
             // 
             // abmClientesToolStripMenuItem
             // 
             abmClientesToolStripMenuItem.Name = "abmClientesToolStripMenuItem";
-            abmClientesToolStripMenuItem.Size = new Size(149, 22);
+            abmClientesToolStripMenuItem.Size = new Size(180, 22);
             abmClientesToolStripMenuItem.Text = "ABM Clientes";
             abmClientesToolStripMenuItem.Click += abmClientesToolStripMenuItem_Click;
             // 
             // nuevoClienteToolStripMenuItem
             // 
             nuevoClienteToolStripMenuItem.Name = "nuevoClienteToolStripMenuItem";
-            nuevoClienteToolStripMenuItem.Size = new Size(149, 22);
+            nuevoClienteToolStripMenuItem.Size = new Size(180, 22);
             nuevoClienteToolStripMenuItem.Text = "Nuevo Cliente";
             nuevoClienteToolStripMenuItem.Click += nuevoClienteToolStripMenuItem_Click;
             // 
@@ -138,10 +141,10 @@ namespace Front_SGBM
             // statusStrip
             // 
             statusStrip.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel });
-            statusStrip.Location = new Point(0, 653);
+            statusStrip.Location = new Point(0, 702);
             statusStrip.Name = "statusStrip";
             statusStrip.Padding = new Padding(1, 0, 16, 0);
-            statusStrip.Size = new Size(1052, 22);
+            statusStrip.Size = new Size(1165, 22);
             statusStrip.TabIndex = 2;
             statusStrip.Text = "StatusStrip";
             // 
@@ -158,7 +161,7 @@ namespace Front_SGBM
             pnlHeader.Dock = DockStyle.Top;
             pnlHeader.Location = new Point(0, 27);
             pnlHeader.Name = "pnlHeader";
-            pnlHeader.Size = new Size(1052, 115);
+            pnlHeader.Size = new Size(1165, 115);
             pnlHeader.TabIndex = 4;
             // 
             // flpMenu
@@ -175,7 +178,7 @@ namespace Front_SGBM
             flpMenu.Dock = DockStyle.Bottom;
             flpMenu.Location = new Point(0, 61);
             flpMenu.Name = "flpMenu";
-            flpMenu.Size = new Size(1052, 54);
+            flpMenu.Size = new Size(1165, 54);
             flpMenu.TabIndex = 1;
             // 
             // btnVentas
@@ -224,6 +227,7 @@ namespace Front_SGBM
             btnServicios.TabIndex = 4;
             btnServicios.Text = "Servicios";
             btnServicios.UseVisualStyleBackColor = true;
+            btnServicios.Click += btnServicios_Click;
             // 
             // btnProductos
             // 
@@ -269,14 +273,14 @@ namespace Front_SGBM
             pnlTitulo.Dock = DockStyle.Top;
             pnlTitulo.Location = new Point(0, 0);
             pnlTitulo.Name = "pnlTitulo";
-            pnlTitulo.Size = new Size(1052, 55);
+            pnlTitulo.Size = new Size(1165, 55);
             pnlTitulo.TabIndex = 0;
             // 
             // lblSubTitulo
             // 
             lblSubTitulo.Anchor = AnchorStyles.Top;
             lblSubTitulo.AutoSize = true;
-            lblSubTitulo.Location = new Point(439, 31);
+            lblSubTitulo.Location = new Point(495, 31);
             lblSubTitulo.Name = "lblSubTitulo";
             lblSubTitulo.Size = new Size(98, 15);
             lblSubTitulo.TabIndex = 1;
@@ -287,7 +291,7 @@ namespace Front_SGBM
             lblTitulo.Anchor = AnchorStyles.Top;
             lblTitulo.AutoSize = true;
             lblTitulo.Font = new Font("Roboto Condensed", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblTitulo.Location = new Point(404, 2);
+            lblTitulo.Location = new Point(460, 2);
             lblTitulo.Name = "lblTitulo";
             lblTitulo.Size = new Size(190, 29);
             lblTitulo.TabIndex = 0;
@@ -298,23 +302,47 @@ namespace Front_SGBM
             pnlContent.Dock = DockStyle.Fill;
             pnlContent.Location = new Point(0, 142);
             pnlContent.Name = "pnlContent";
-            pnlContent.Size = new Size(1052, 511);
+            pnlContent.Size = new Size(1165, 560);
             pnlContent.TabIndex = 5;
+            // 
+            // serviciosToolStripMenuItem
+            // 
+            serviciosToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aBMServiciosToolStripMenuItem, nuevoServicioToolStripMenuItem });
+            serviciosToolStripMenuItem.Name = "serviciosToolStripMenuItem";
+            serviciosToolStripMenuItem.Size = new Size(180, 22);
+            serviciosToolStripMenuItem.Text = "Servicios";
+            // 
+            // aBMServiciosToolStripMenuItem
+            // 
+            aBMServiciosToolStripMenuItem.Name = "aBMServiciosToolStripMenuItem";
+            aBMServiciosToolStripMenuItem.Size = new Size(180, 22);
+            aBMServiciosToolStripMenuItem.Text = "ABM Servicios";
+            // 
+            // nuevoServicioToolStripMenuItem
+            // 
+            nuevoServicioToolStripMenuItem.Name = "nuevoServicioToolStripMenuItem";
+            nuevoServicioToolStripMenuItem.Size = new Size(180, 22);
+            nuevoServicioToolStripMenuItem.Text = "Nuevo Servicio";
+            nuevoServicioToolStripMenuItem.Click += nuevoServicioToolStripMenuItem_Click;
             // 
             // FrmMenuPrincipal
             // 
+            AllowDrop = true;
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1052, 675);
+            AutoScroll = true;
+            ClientSize = new Size(1165, 724);
             Controls.Add(pnlContent);
             Controls.Add(pnlHeader);
             Controls.Add(statusStrip);
             Controls.Add(menuStrip);
-            IsMdiContainer = true;
+            FormBorderStyle = FormBorderStyle.Fixed3D;
             MainMenuStrip = menuStrip;
             Margin = new Padding(4, 3, 4, 3);
+            MinimumSize = new Size(1181, 763);
             Name = "FrmMenuPrincipal";
             ShowIcon = false;
+            SizeGripStyle = SizeGripStyle.Show;
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Mi Barbería Digital";
             WindowState = FormWindowState.Maximized;
@@ -366,6 +394,9 @@ namespace Front_SGBM
         private ToolStripMenuItem ventasToolStripMenuItem;
         private ToolStripMenuItem comprasToolStripMenuItem;
         private ToolStripComboBox comboTemas;
+        private ToolStripMenuItem serviciosToolStripMenuItem;
+        private ToolStripMenuItem aBMServiciosToolStripMenuItem;
+        private ToolStripMenuItem nuevoServicioToolStripMenuItem;
     }
 }
 

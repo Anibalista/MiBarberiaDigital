@@ -21,5 +21,10 @@ namespace Entidades_SGBM
 
         [Column(TypeName = "decimal(12,2)")]
         public decimal Precio { get; set; }
+
+        public override string ToString()
+        {
+            return NombreTipo;
+        }
     }
 }

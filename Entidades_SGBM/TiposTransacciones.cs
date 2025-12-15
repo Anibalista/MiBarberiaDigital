@@ -14,5 +14,10 @@ namespace Entidades_SGBM
 
         [MaxLength(100)]
         public string Tipo { get; set; }
+
+        public override string ToString()
+        {
+            return Tipo;
+        }
     }
 }

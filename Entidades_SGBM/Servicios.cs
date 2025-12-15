@@ -40,6 +40,9 @@ namespace Entidades_SGBM
 
         public Categorias? Categorias { get; set; }
 
-
+        public override string ToString()
+        {
+            return NombreServicio;
+        }
     }
 }

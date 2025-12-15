@@ -50,6 +50,9 @@ namespace Front_SGBM.UXDesign
         // NUEVAS PROPIEDADES NECESARIAS
         public static Color HoverColor => ObtenerColorHover();                  // Color al pasar el mouse por botones del menú
         public static Color ColorSalir => ObtenerColorSalir();                  // Color para el botón Salir/Eliminar
+                                                                                // Colores temáticos
+        public static Color ColorAzulado = Color.FromArgb(70, 130, 180); // SteelBlue
+        public static Color ColorVerde = Color.FromArgb(34, 139, 34);  // ForestGreen
 
         // ==========================================
         // MÉTODOS DE OBTENCIÓN DE COLOR (Getters)
@@ -492,32 +495,89 @@ namespace Front_SGBM.UXDesign
         private static void StyleButton(Button btn)
         {
             btn.FlatStyle = FlatStyle.Flat;
-            btn.Font = new Font(FontFamily, FontSize);
-            btn.TextAlign = ContentAlignment.MiddleLeft;
+            btn.TextAlign = ContentAlignment.MiddleCenter; // centrado
 
-            // Identificar botones primarios por Tag o Nombre
-            if ((btn.Tag != null && btn.Tag.ToString() == "primary") || btn.Name.ToLower().Contains("guardar") || btn.Name.ToLower().Contains("buscar"))
+            string tag = btn.Tag?.ToString()?.ToLower() ?? "";
+
+            switch (tag)
             {
-                btn.BackColor = ColorPrincipal;
-                btn.ForeColor = (CurrentTemas == Tema.Suave || CurrentTemas == Tema.Vintage) ? Color.Black : Color.White;
-                btn.FlatAppearance.BorderSize = 0;
-            }
-            else if (btn.Name.ToLower().Contains("eliminar") || btn.Name.ToLower().Contains("salir"))
-            {
-                btn.BackColor = ColorSalir;
-                btn.ForeColor = Color.White;
-                btn.FlatAppearance.BorderSize = 0;
-            }
-            else
-            {
-                // Botones secundarios (Limpiar, Volver, etc)
-                btn.BackColor = ColorFondoControles;
-                btn.ForeColor = TextoGeneral;
-                btn.FlatAppearance.BorderSize = 1;
-                btn.FlatAppearance.BorderColor = TextoSecundario;
+                case "btnprincipal":
+                    btn.Font = new Font(FontFamily, FontSize * 2, FontStyle.Bold);
+                    btn.BackColor = ColorPrincipal;
+                    btn.ForeColor = Color.White;
+                    if (btn.Text != "+" && btn.Text != "-")
+                        btn.MinimumSize = new Size(150, 44);
+                    break;
+
+                case "btnprincipalv":
+                    btn.Font = new Font(FontFamily, FontSize * 2, FontStyle.Bold);
+                    btn.BackColor = (CurrentTemas == Tema.Dark) ? ColorAzulado : ColorVerde;
+                    btn.ForeColor = Color.White;
+                    btn.MinimumSize = new Size(150, 44);
+                    break;
+
+                case "btnprincipalr":
+                    btn.Font = new Font(FontFamily, FontSize * 2, FontStyle.Bold);
+                    btn.BackColor = ColorSalir;
+                    btn.ForeColor = Color.White;
+                    btn.MinimumSize = new Size(150, 44);
+                    break;
+
+                case "btnsecundario":
+                    btn.Font = new Font(FontFamily, (float)(FontSize * 1.5), FontStyle.Bold);
+                    btn.BackColor = ColorFondoControles;
+                    btn.ForeColor = TextoGeneral;
+                    btn.FlatAppearance.BorderSize = 1;
+                    btn.FlatAppearance.BorderColor = TextoSecundario;
+                    btn.MinimumSize = new Size(140, 35);
+                    break;
+
+                case "btnsecundariov":
+                    btn.Font = new Font(FontFamily, (float)(FontSize * 1.5), FontStyle.Bold);
+                    btn.BackColor = (CurrentTemas == Tema.Dark) ? ColorAzulado : ColorVerde;
+                    btn.ForeColor = Color.White;
+                    btn.MinimumSize = new Size(140, 35);
+                    break;
+
+                case "btnsecundarior":
+                    btn.Font = new Font(FontFamily, (float)(FontSize * 1.5), FontStyle.Bold);
+                    btn.BackColor = ColorSalir;
+                    btn.ForeColor = Color.White;
+                    btn.MinimumSize = new Size(140, 35);
+                    break;
+
+                case "btnnormalr":
+                    btn.Font = new Font(FontFamily, FontSize, FontStyle.Regular);
+                    btn.BackColor = ColorSalir;
+                    btn.ForeColor = Color.White;
+                    btn.FlatAppearance.BorderSize = 1;
+                    btn.FlatAppearance.BorderColor = TextoSecundario;
+                    btn.MinimumSize = new Size(100, 25);
+                    break;
+
+                case "btnnormalv":
+                    btn.Font = new Font(FontFamily, FontSize, FontStyle.Regular);
+                    btn.BackColor = (CurrentTemas == Tema.Dark) ? ColorAzulado : ColorVerde;
+                    btn.ForeColor = Color.White;
+                    btn.FlatAppearance.BorderSize = 1;
+                    btn.FlatAppearance.BorderColor = TextoSecundario;
+                    btn.MinimumSize = new Size(100, 25);
+                    break;
+
+                default: // Botones normales
+                    btn.Font = new Font(FontFamily, FontSize, FontStyle.Regular);
+                    btn.BackColor = ColorFondoControles;
+                    btn.ForeColor = TextoGeneral;
+                    btn.FlatAppearance.BorderSize = 1;
+                    btn.FlatAppearance.BorderColor = TextoSecundario;
+                    btn.MinimumSize = new Size(100, 25);
+                    break;
             }
 
-            // Efecto hover genérico
+            // Ajustar altura según fuente
+            btn.Height = btn.Font.Height + 12; // padding configurable
+
+            // Hover genérico
             btn.FlatAppearance.MouseOverBackColor = HoverColor;
         }
 

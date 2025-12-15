@@ -17,5 +17,10 @@ namespace Entidades_SGBM
 
         [MaxLength(50)]
         public string Estado { get; set; }
+
+        public override string ToString()
+        {
+            return Estado;
+        }
     }
 }

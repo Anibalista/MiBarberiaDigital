@@ -24,5 +24,12 @@ namespace Entidades_SGBM
 
         public Productos? Productos { get; set; }
 
+        public override string ToString()
+        {
+            if (Productos != null)
+                return Productos.Descripcion;
+            return "";
+        }
+
     }
 }

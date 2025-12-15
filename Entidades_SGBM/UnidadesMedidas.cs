@@ -14,5 +14,10 @@ namespace Entidades_SGBM
 
         [MaxLength(50)]
         public string Unidad { get; set; }
+
+        public override string ToString()
+        {
+            return Unidad;
+        }
     }
 }

@@ -22,13 +22,30 @@ namespace Entidades_SGBM
         public decimal? CantidadMedida { get; set; }
 
         [ForeignKey("Insumos")]
-        public int IdInsumo { get; set; }
+        public int? IdInsumo { get; set; }
 
         [ForeignKey("Servicios")]
         public int IdServicio { get; set; }
 
+        public string? Descripcion { get; set; }
+
         public Insumos? Insumos { get; set; }
         public Servicios? Servicios { get; set; }
 
+        [NotMapped]
+        public string? NombreInsumo
+        {
+            get
+            {
+                if (Insumos != null)
+                    return Insumos.ToString();
+                return Descripcion ?? "";       
+            }
+            set
+            {
+                _nombre = value;
+            }
+        }
+        private string? _nombre;
     }
 }

@@ -14,5 +14,10 @@ namespace Entidades_SGBM
 
         [MaxLength(150)]
         public string Descripcion { get; set; }
+
+        public override string ToString()
+        {
+            return Descripcion ?? "";
+        }
     }
 }

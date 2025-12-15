@@ -14,5 +14,10 @@ namespace Entidades_SGBM
 
         [MaxLength(150)]
         public string Provincia { get; set; }
+
+        public override string ToString()
+        {
+            return Provincia;
+        }
     }
 }

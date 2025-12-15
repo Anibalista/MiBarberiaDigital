@@ -103,6 +103,14 @@ namespace Front_SGBM
             frm.Show();
         }
 
+        public void abrirEditServicios(object sender, EventArgs e, EnumModoForm modo, Servicios? servicio = null)
+        {
+            FrmEditServicios frm = (FrmEditServicios)AbrirFrmHijo<FrmEditServicios>(true);
+            frm._servicio = servicio;
+            frm.modo = modo;
+            frm.Show();
+        }
+
         //Métodos genéricos
         public void abrirFrmContactos(EnumModoForm modo, string origen, List<Contactos>? contactos, Panel content)
         {
@@ -200,6 +208,33 @@ namespace Front_SGBM
                 return;
             cerrando = true;
             Close();
+        }
+
+        private void btnServicios_Click(object sender, EventArgs e)
+        {
+            // 1. Defino las opciones del submenú
+            var opcionesClientes = new List<EstiloAplicacion.OpcionMenu>
+            {
+                // OPCIÓN A: Nuevo Cliente -> Abre FrmEditClientes
+                new EstiloAplicacion.OpcionMenu("Nuevo Servicio", (s, args) =>
+                {
+                    Form frm = AbrirFrmHijo<FrmEditServicios>(false);
+                    frm.Show();
+                }),
+
+                new EstiloAplicacion.OpcionMenu("Gestión Servicios", (s, args) =>
+                {
+                    Form frm = AbrirFrmHijo<FrmEditServicios>(false);
+                    frm.Show();
+                })
+            };
+
+            EstiloAplicacion.ToggleSubMenu(this, (Button)sender, opcionesClientes);
+        }
+
+        private void nuevoServicioToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            abrirEditServicios(sender, e, EnumModoForm.Alta);
         }
     }
 }

@@ -37,6 +37,7 @@
             groupBox1 = new GroupBox();
             cbEstados = new ComboBox();
             bindingEstados = new BindingSource(components);
+            linkContactos = new LinkLabel();
             label6 = new Label();
             label5 = new Label();
             dateTimePicker1 = new DateTimePicker();
@@ -55,7 +56,6 @@
             facebookDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             emailDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             bindingContactos = new BindingSource(components);
-            linkContactos = new LinkLabel();
             groupBox3 = new GroupBox();
             cbProvincia = new ComboBox();
             bindingProvincias = new BindingSource(components);
@@ -122,6 +122,7 @@
             btnCancelar.Name = "btnCancelar";
             btnCancelar.Size = new Size(146, 42);
             btnCancelar.TabIndex = 1;
+            btnCancelar.Tag = "btnPrincipalR";
             btnCancelar.Text = "Cancelar";
             btnCancelar.UseVisualStyleBackColor = true;
             btnCancelar.Click += btnCancelar_Click;
@@ -133,6 +134,7 @@
             btnGuardar.Name = "btnGuardar";
             btnGuardar.Size = new Size(146, 42);
             btnGuardar.TabIndex = 0;
+            btnGuardar.Tag = "btnPrincipalV";
             btnGuardar.Text = "Guardar";
             btnGuardar.UseVisualStyleBackColor = true;
             btnGuardar.Click += btnGuardar_Click;
@@ -168,12 +170,29 @@
             cbEstados.Location = new Point(471, 70);
             cbEstados.Name = "cbEstados";
             cbEstados.Size = new Size(237, 23);
-            cbEstados.TabIndex = 10;
+            cbEstados.TabIndex = 5;
             cbEstados.ValueMember = "IdEstado";
             // 
             // bindingEstados
             // 
             bindingEstados.DataSource = typeof(Entidades_SGBM.Estados);
+            // 
+            // linkContactos
+            // 
+            linkContactos.ActiveLinkColor = Color.Blue;
+            linkContactos.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            linkContactos.AutoSize = true;
+            linkContactos.BackColor = Color.Transparent;
+            linkContactos.DisabledLinkColor = Color.Black;
+            linkContactos.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            linkContactos.Location = new Point(572, 131);
+            linkContactos.Name = "linkContactos";
+            linkContactos.Size = new Size(139, 19);
+            linkContactos.TabIndex = 6;
+            linkContactos.TabStop = true;
+            linkContactos.Text = "Modificar Contactos";
+            linkContactos.VisitedLinkColor = Color.Blue;
+            linkContactos.LinkClicked += linkContactos_LinkClicked;
             // 
             // label6
             // 
@@ -202,7 +221,7 @@
             dateTimePicker1.MinDate = new DateTime(1910, 1, 1, 0, 0, 0, 0);
             dateTimePicker1.Name = "dateTimePicker1";
             dateTimePicker1.Size = new Size(236, 23);
-            dateTimePicker1.TabIndex = 7;
+            dateTimePicker1.TabIndex = 4;
             dateTimePicker1.Value = new DateTime(2007, 1, 1, 0, 0, 0, 0);
             // 
             // label4
@@ -220,7 +239,7 @@
             txtApellido.MaxLength = 149;
             txtApellido.Name = "txtApellido";
             txtApellido.Size = new Size(243, 23);
-            txtApellido.TabIndex = 5;
+            txtApellido.TabIndex = 3;
             // 
             // label3
             // 
@@ -237,14 +256,15 @@
             txtNombre.MaxLength = 149;
             txtNombre.Name = "txtNombre";
             txtNombre.Size = new Size(243, 23);
-            txtNombre.TabIndex = 3;
+            txtNombre.TabIndex = 2;
             // 
             // btnBuscar
             // 
             btnBuscar.Location = new Point(245, 28);
             btnBuscar.Name = "btnBuscar";
             btnBuscar.Size = new Size(75, 23);
-            btnBuscar.TabIndex = 2;
+            btnBuscar.TabIndex = 1;
+            btnBuscar.Tag = "btnNormal";
             btnBuscar.Text = "Buscar";
             btnBuscar.UseVisualStyleBackColor = true;
             btnBuscar.Click += btnBuscar_Click;
@@ -255,7 +275,7 @@
             txtDni.MaxLength = 14;
             txtDni.Name = "txtDni";
             txtDni.Size = new Size(116, 23);
-            txtDni.TabIndex = 1;
+            txtDni.TabIndex = 0;
             txtDni.TextAlign = HorizontalAlignment.Center;
             txtDni.KeyPress += txtDni_KeyPress;
             // 
@@ -350,23 +370,6 @@
             // 
             bindingContactos.DataSource = typeof(Entidades_SGBM.Contactos);
             // 
-            // linkContactos
-            // 
-            linkContactos.ActiveLinkColor = Color.Blue;
-            linkContactos.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            linkContactos.AutoSize = true;
-            linkContactos.BackColor = Color.Transparent;
-            linkContactos.DisabledLinkColor = Color.Black;
-            linkContactos.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            linkContactos.Location = new Point(572, 131);
-            linkContactos.Name = "linkContactos";
-            linkContactos.Size = new Size(139, 19);
-            linkContactos.TabIndex = 0;
-            linkContactos.TabStop = true;
-            linkContactos.Text = "Modificar Contactos";
-            linkContactos.VisitedLinkColor = Color.Blue;
-            linkContactos.LinkClicked += linkContactos_LinkClicked;
-            // 
             // groupBox3
             // 
             groupBox3.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
@@ -399,7 +402,7 @@
             cbProvincia.Location = new Point(77, 108);
             cbProvincia.Name = "cbProvincia";
             cbProvincia.Size = new Size(243, 23);
-            cbProvincia.TabIndex = 17;
+            cbProvincia.TabIndex = 5;
             cbProvincia.ValueMember = "IdProvincia";
             cbProvincia.SelectedIndexChanged += cbProvincia_SelectedIndexChanged;
             // 
@@ -424,7 +427,7 @@
             cbLocalidad.Location = new Point(471, 70);
             cbLocalidad.Name = "cbLocalidad";
             cbLocalidad.Size = new Size(237, 23);
-            cbLocalidad.TabIndex = 15;
+            cbLocalidad.TabIndex = 6;
             cbLocalidad.ValueMember = "IdLocalidad";
             // 
             // bindingLocalidades
@@ -437,7 +440,7 @@
             txtPiso.MaxLength = 9;
             txtPiso.Name = "txtPiso";
             txtPiso.Size = new Size(36, 23);
-            txtPiso.TabIndex = 14;
+            txtPiso.TabIndex = 3;
             // 
             // label14
             // 
@@ -454,7 +457,7 @@
             txtDepto.MaxLength = 9;
             txtDepto.Name = "txtDepto";
             txtDepto.Size = new Size(31, 23);
-            txtDepto.TabIndex = 12;
+            txtDepto.TabIndex = 2;
             // 
             // label16
             // 
@@ -471,7 +474,7 @@
             txtNro.MaxLength = 9;
             txtNro.Name = "txtNro";
             txtNro.Size = new Size(46, 23);
-            txtNro.TabIndex = 10;
+            txtNro.TabIndex = 1;
             // 
             // label17
             // 
@@ -506,7 +509,7 @@
             txtBarrio.MaxLength = 149;
             txtBarrio.Name = "txtBarrio";
             txtBarrio.Size = new Size(243, 23);
-            txtBarrio.TabIndex = 3;
+            txtBarrio.TabIndex = 4;
             // 
             // txtCalle
             // 
@@ -514,7 +517,7 @@
             txtCalle.MaxLength = 149;
             txtCalle.Name = "txtCalle";
             txtCalle.Size = new Size(243, 23);
-            txtCalle.TabIndex = 1;
+            txtCalle.TabIndex = 0;
             // 
             // label21
             // 

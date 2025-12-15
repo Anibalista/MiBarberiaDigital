@@ -17,5 +17,10 @@ namespace Entidades_SGBM
 
         [MaxLength(200)]
         public string? Observaciones { get; set; }
+
+        public override string ToString()
+        {
+            return Medio;
+        }
     }
 }

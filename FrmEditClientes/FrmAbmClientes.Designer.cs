@@ -62,10 +62,10 @@
             emailDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             contactosBindingSource = new BindingSource(components);
             groupBoxBotones = new GroupBox();
+            btnConsultar = new Button();
             btnSeleccionar = new Button();
             btnSalir = new Button();
             groupBox3 = new GroupBox();
-            btnConsultar = new Button();
             groupBox1.SuspendLayout();
             groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)bindingLocalidades).BeginInit();
@@ -101,7 +101,7 @@
             checkAnulados.Location = new Point(81, 100);
             checkAnulados.Name = "checkAnulados";
             checkAnulados.Size = new Size(112, 19);
-            checkAnulados.TabIndex = 7;
+            checkAnulados.TabIndex = 2;
             checkAnulados.Text = "Incluir Anulados";
             checkAnulados.UseVisualStyleBackColor = true;
             // 
@@ -110,37 +110,42 @@
             btnRegistrar.Location = new Point(6, 22);
             btnRegistrar.Name = "btnRegistrar";
             btnRegistrar.Size = new Size(107, 29);
-            btnRegistrar.TabIndex = 6;
+            btnRegistrar.TabIndex = 0;
+            btnRegistrar.Tag = "btnNormalV";
             btnRegistrar.Text = "Nuevo";
             btnRegistrar.UseVisualStyleBackColor = true;
             btnRegistrar.Click += btnRegistrar_Click;
             // 
             // btnImportar
             // 
-            btnImportar.Location = new Point(6, 125);
+            btnImportar.BackColor = Color.Transparent;
+            btnImportar.Location = new Point(6, 131);
             btnImportar.Name = "btnImportar";
             btnImportar.Size = new Size(109, 29);
-            btnImportar.TabIndex = 4;
+            btnImportar.TabIndex = 5;
+            btnImportar.Tag = "btnNormal";
             btnImportar.Text = "Importar Clientes";
-            btnImportar.UseVisualStyleBackColor = true;
+            btnImportar.UseVisualStyleBackColor = false;
             btnImportar.Click += btnImportar_Click;
             // 
             // btnBuscar
             // 
-            btnBuscar.Location = new Point(119, 22);
+            btnBuscar.Location = new Point(164, 22);
             btnBuscar.Name = "btnBuscar";
             btnBuscar.Size = new Size(111, 29);
-            btnBuscar.TabIndex = 5;
+            btnBuscar.TabIndex = 4;
+            btnBuscar.Tag = "btnNormal";
             btnBuscar.Text = "Buscar";
             btnBuscar.UseVisualStyleBackColor = true;
             btnBuscar.Click += btnBuscar_Click;
             // 
             // btnExportar
             // 
-            btnExportar.Location = new Point(121, 125);
+            btnExportar.Location = new Point(164, 131);
             btnExportar.Name = "btnExportar";
             btnExportar.Size = new Size(109, 29);
-            btnExportar.TabIndex = 3;
+            btnExportar.TabIndex = 1;
+            btnExportar.Tag = "btnNormal";
             btnExportar.Text = "Exportar a Listado";
             btnExportar.UseVisualStyleBackColor = true;
             btnExportar.Click += btnExportar_Click;
@@ -152,7 +157,7 @@
             cbBusqueda.Location = new Point(81, 71);
             cbBusqueda.Name = "cbBusqueda";
             cbBusqueda.Size = new Size(149, 23);
-            cbBusqueda.TabIndex = 2;
+            cbBusqueda.TabIndex = 3;
             cbBusqueda.TextChanged += cbBusqueda_TextChanged;
             // 
             // label2
@@ -189,7 +194,7 @@
             cbLocalidad.Location = new Point(81, 96);
             cbLocalidad.Name = "cbLocalidad";
             cbLocalidad.Size = new Size(194, 23);
-            cbLocalidad.TabIndex = 10;
+            cbLocalidad.TabIndex = 2;
             cbLocalidad.ValueMember = "IdLocalidad";
             cbLocalidad.VisibleChanged += cbLocalidad_VisibleChanged;
             // 
@@ -221,7 +226,7 @@
             txtCampo2.MaxLength = 149;
             txtCampo2.Name = "txtCampo2";
             txtCampo2.Size = new Size(194, 23);
-            txtCampo2.TabIndex = 7;
+            txtCampo2.TabIndex = 1;
             // 
             // labelCampo1
             // 
@@ -238,7 +243,7 @@
             txtCampo1.MaxLength = 149;
             txtCampo1.Name = "txtCampo1";
             txtCampo1.Size = new Size(194, 23);
-            txtCampo1.TabIndex = 5;
+            txtCampo1.TabIndex = 0;
             // 
             // dataGridClientes
             // 
@@ -416,14 +421,28 @@
             groupBoxBotones.TabIndex = 5;
             groupBoxBotones.TabStop = false;
             // 
+            // btnConsultar
+            // 
+            btnConsultar.Dock = DockStyle.Top;
+            btnConsultar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnConsultar.Location = new Point(3, 19);
+            btnConsultar.Name = "btnConsultar";
+            btnConsultar.Size = new Size(278, 42);
+            btnConsultar.TabIndex = 0;
+            btnConsultar.Tag = "btnPrincipal";
+            btnConsultar.Text = "Ver Detalles";
+            btnConsultar.UseVisualStyleBackColor = true;
+            btnConsultar.Click += btnConsultar_Click;
+            // 
             // btnSeleccionar
             // 
-            btnSeleccionar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            btnSeleccionar.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             btnSeleccionar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnSeleccionar.Location = new Point(3, 92);
+            btnSeleccionar.Location = new Point(3, 89);
             btnSeleccionar.Name = "btnSeleccionar";
             btnSeleccionar.Size = new Size(278, 42);
-            btnSeleccionar.TabIndex = 3;
+            btnSeleccionar.TabIndex = 1;
+            btnSeleccionar.Tag = "btnPrincipalV";
             btnSeleccionar.Text = "Seleccionar";
             btnSeleccionar.UseVisualStyleBackColor = true;
             btnSeleccionar.Click += btnSeleccionar_Click;
@@ -436,6 +455,7 @@
             btnSalir.Name = "btnSalir";
             btnSalir.Size = new Size(278, 42);
             btnSalir.TabIndex = 2;
+            btnSalir.Tag = "btnPrincipalR";
             btnSalir.Text = "Salir";
             btnSalir.UseVisualStyleBackColor = true;
             btnSalir.Click += btnSalir_Click;
@@ -450,18 +470,6 @@
             groupBox3.TabIndex = 3;
             groupBox3.TabStop = false;
             groupBox3.Text = "Clientes";
-            // 
-            // btnConsultar
-            // 
-            btnConsultar.Dock = DockStyle.Top;
-            btnConsultar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnConsultar.Location = new Point(3, 19);
-            btnConsultar.Name = "btnConsultar";
-            btnConsultar.Size = new Size(278, 42);
-            btnConsultar.TabIndex = 4;
-            btnConsultar.Text = "Ver Detalles";
-            btnConsultar.UseVisualStyleBackColor = true;
-            btnConsultar.Click += btnConsultar_Click;
             // 
             // FrmAbmClientes
             // 
