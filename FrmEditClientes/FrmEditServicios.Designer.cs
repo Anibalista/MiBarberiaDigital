@@ -74,12 +74,14 @@
             cbProductos = new ComboBox();
             bindingSourceProductos = new BindingSource(components);
             lblSelectProducto = new Label();
+            errorProvider1 = new ErrorProvider(components);
             groupBoxBotones.SuspendLayout();
             groupBoxCampos.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)bindingSourceCategorias).BeginInit();
             groupBoxInsumos.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridInsumos).BeginInit();
             ((System.ComponentModel.ISupportInitialize)bindingSourceProductos).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)errorProvider1).BeginInit();
             SuspendLayout();
             // 
             // groupBoxBotones
@@ -113,6 +115,7 @@
             btnGuardar.Tag = "btnPrincipalV";
             btnGuardar.Text = "Guardar";
             btnGuardar.UseVisualStyleBackColor = true;
+            btnGuardar.Click += btnGuardar_Click;
             // 
             // groupBoxCampos
             // 
@@ -147,7 +150,6 @@
             // 
             cbCategoria.DataSource = bindingSourceCategorias;
             cbCategoria.DisplayMember = "Descripcion";
-            cbCategoria.DropDownStyle = ComboBoxStyle.DropDownList;
             cbCategoria.FormattingEnabled = true;
             cbCategoria.Location = new Point(112, 311);
             cbCategoria.Name = "cbCategoria";
@@ -206,6 +208,7 @@
             btnAdminCostos.Tag = "btnNormal";
             btnAdminCostos.Text = "Administrar";
             btnAdminCostos.UseVisualStyleBackColor = true;
+            btnAdminCostos.Click += btnAdminCostos_Click;
             // 
             // txtCostosServicio
             // 
@@ -368,6 +371,7 @@
             btnLimpiar.Tag = "btnNormal";
             btnLimpiar.Text = "Limpiar Campos";
             btnLimpiar.UseVisualStyleBackColor = true;
+            btnLimpiar.Click += btnLimpiar_Click;
             // 
             // dataGridInsumos
             // 
@@ -377,6 +381,7 @@
             dataGridInsumos.Name = "dataGridInsumos";
             dataGridInsumos.Size = new Size(411, 289);
             dataGridInsumos.TabIndex = 8;
+            dataGridInsumos.SelectionChanged += dataGridInsumos_SelectionChanged;
             // 
             // txtTotalCostos
             // 
@@ -397,6 +402,7 @@
             btnModificar.Tag = "btnNormal";
             btnModificar.Text = "Modificar";
             btnModificar.UseVisualStyleBackColor = true;
+            btnModificar.Click += btnModificar_Click;
             // 
             // lblTotal
             // 
@@ -418,6 +424,7 @@
             btnEliminar.Tag = "btnNormalR";
             btnEliminar.Text = "Eliminar";
             btnEliminar.UseVisualStyleBackColor = true;
+            btnEliminar.Click += btnEliminar_Click;
             // 
             // txtUnidades
             // 
@@ -444,6 +451,7 @@
             btnNuevoInsumo.Tag = "btnNormalV";
             btnNuevoInsumo.Text = "Añadir";
             btnNuevoInsumo.UseVisualStyleBackColor = true;
+            btnNuevoInsumo.Click += btnNuevoInsumo_Click;
             // 
             // txtCantidad
             // 
@@ -505,6 +513,7 @@
             cbProductos.Size = new Size(266, 23);
             cbProductos.TabIndex = 3;
             cbProductos.ValueMember = "IdProducto";
+            cbProductos.SelectedIndexChanged += cbProductos_SelectedIndexChanged;
             // 
             // bindingSourceProductos
             // 
@@ -518,6 +527,11 @@
             lblSelectProducto.Size = new Size(56, 15);
             lblSelectProducto.TabIndex = 0;
             lblSelectProducto.Text = "Producto";
+            // 
+            // errorProvider1
+            // 
+            errorProvider1.BlinkStyle = ErrorBlinkStyle.NeverBlink;
+            errorProvider1.ContainerControl = this;
             // 
             // FrmEditServicios
             // 
@@ -540,6 +554,7 @@
             groupBoxInsumos.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridInsumos).EndInit();
             ((System.ComponentModel.ISupportInitialize)bindingSourceProductos).EndInit();
+            ((System.ComponentModel.ISupportInitialize)errorProvider1).EndInit();
             ResumeLayout(false);
         }
 
@@ -590,5 +605,6 @@
         private TextBox txtTotalCostos;
         private Label lblTotal;
         private Button btnLimpiar;
+        private ErrorProvider errorProvider1;
     }
 }

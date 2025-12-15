@@ -10,21 +10,15 @@ namespace Datos_SGBM
         //Comprobaciones
         public static bool comprobarContexto(ref string mensaje)
         {
-            if (contexto == null)
-            {
-                mensaje = "No se conecta a la BD";
+            ComprobacionContexto comprobar = new ComprobacionContexto(contexto);
+            if (!comprobar.Comprobar(ref mensaje))
                 return false;
-            }
-            if (contexto.Estados == null || contexto.Clientes == null)
-            {
-                mensaje = "No se conecta a la BD (Clientes o estados)";
+            if (!comprobar.ComprobarEstados(ref mensaje))
                 return false;
-            }
-            if (contexto.Personas == null)
-            {
-                mensaje = "No se conecta a la BD (Personas)";
+            if (!comprobar.ComprobarClientes(ref mensaje)) 
                 return false;
-            }
+            if (!comprobar.ComprobarPersonas(ref mensaje)) 
+                return false;
             return true;
         }
 

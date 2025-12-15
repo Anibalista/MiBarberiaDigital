@@ -16,6 +16,7 @@ namespace Front_SGBM
         public EnumModoForm modo = EnumModoForm.Alta;
         public Servicios? _servicio;
         private bool cerrando = false;
+        private bool cargando = false;
         private List<Categorias>? _categorias;
         private List<Productos>? _productos;
         private List<ServiciosInsumos>? _insumos;
@@ -88,7 +89,7 @@ namespace Front_SGBM
                 if (nombresColumnas == null || nombresColumnas.Length == 0 || dgv.Columns == null)
                     return;
 
-                // Usar HashSet para búsquedas rápidas O(1)
+                // Uso HashSet para búsquedas rápidas O(1)
                 var columnasOcultar = new HashSet<string>(
                     nombresColumnas.Select(c => c.ToLower())
                 );
@@ -99,9 +100,9 @@ namespace Front_SGBM
                 }
 
             }
-            catch 
+            catch
             {
-                throw;            
+                throw;
             }
         }
 
@@ -111,6 +112,7 @@ namespace Front_SGBM
                 return;
             try
             {
+                cargando = true;
                 dataGridInsumos.DataSource = null;
                 _insumos = null;
                 _insumos = new();
@@ -129,20 +131,117 @@ namespace Front_SGBM
             catch (Exception ex)
             {
                 MessageBox.Show("Error al traer Costos e Insumos de la BD\n" + ex.Message, "Error Fatal", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            } finally
+            }
+            finally
             {
+                cargando = false;
                 refrescarGrilla();
             }
         }
 
         private void refrescarGrilla()
         {
+            if (cargando)
+                return;
 
         }
 
+        //Eventos de botones
         private void btnSalir_Click(object sender, EventArgs e)
         {
             cerrarFormulario();
+        }
+
+        private void btnAdminCostos_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnNuevoInsumo_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnModificar_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnEliminar_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnLimpiar_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnGuardar_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cbProductos_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cerrando)
+                return;
+
+        }
+
+        private void dataGridInsumos_SelectionChanged(object sender, EventArgs e)
+        {
+            if (cerrando || cargando)
+                return;
+
+        }
+
+        //Carga de selecciones
+        private Productos? productoSeleccionado()
+        {
+            if (cbProductos.SelectedIndex < 0) return null;
+            try
+            {
+                return (Productos)cbProductos.SelectedItem;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        private ServiciosInsumos? insumoSeleccionado()
+        {
+            try
+            {
+                if (dataGridInsumos == null || dataGridInsumos.CurrentRow == null)
+                    return null;
+                return dataGridInsumos.CurrentRow.DataBoundItem as ServiciosInsumos;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        private Categorias? categoriaSeleccionada(ref string mensaje)
+        {
+            try
+            {
+                if (!Validaciones.textoCorrecto(cbCategoria.Text.Trim(), ref mensaje))
+                    return null;
+                Categorias? seleccionada = _categorias.FirstOrDefault(c => c.Descripcion.ToLower()  == cbCategoria.Text.Trim().ToLower());
+                if (seleccionada == null)
+                {
+                    seleccionada = new Categorias();
+                    seleccionada.Descripcion = Validaciones.capitalizarTexto(cbCategoria.Text.Trim());
+                }
+                return seleccionada;
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
 }
