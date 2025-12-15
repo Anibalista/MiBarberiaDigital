@@ -1,4 +1,5 @@
 ﻿using Entidades_SGBM;
+using Negocio_SGBM;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -69,9 +70,11 @@ namespace Front_SGBM
             {
                 bindingSourceCategorias.DataSource = null;
                 _categorias = null;
-                //Buscar Categorias
-                ///
-                ///
+                string mensaje = string.Empty;
+                _categorias = CategoriasNegocio.Listar(ref mensaje);
+                if (!string.IsNullOrWhiteSpace(mensaje))
+                    MessageBox.Show(mensaje, "Error Fatal", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                
                 bindingSourceCategorias.DataSource = _categorias;
                 cbCategoria.SelectedIndex = -1;
             }
