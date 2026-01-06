@@ -1,4 +1,5 @@
 ﻿using EF_SGBM;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -246,6 +247,16 @@ namespace Datos_SGBM
             return true;
         }
 
+        public bool ComprobarServicios(ref string mensaje)
+        {
+            if (contexto.Servicios == null)
+            {
+                mensaje = "No se conecta al registro de Servicios";
+                return false;
+            }
+            return true;
+        }
+
         public bool ComprobarTiposMembresias(ref string mensaje)
         {
             if (contexto.TiposMembresias == null)
@@ -300,6 +311,21 @@ namespace Datos_SGBM
             if (contexto.Ventas == null)
             {
                 mensaje = "No se conecta al registro de Ventas";
+                return false;
+            }
+            return true;
+        }
+
+        internal bool ComprobarServiciosInsumos(ref string mensaje)
+        {
+            if (contexto.ServiciosInsumos == null)
+            {
+                mensaje = "No se conecta al registro intermedio de insumos";
+                return false;
+            }
+            if (contexto.Insumos == null)
+            {
+                mensaje = "No se conecta al registro de insumos";
                 return false;
             }
             return true;

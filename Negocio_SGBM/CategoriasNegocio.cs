@@ -1,10 +1,5 @@
 ﻿using Datos_SGBM;
 using Entidades_SGBM;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Negocio_SGBM
 {
@@ -15,12 +10,12 @@ namespace Negocio_SGBM
         {
             if (categoria == null)
             {
-                mensaje = "La información de la categoría no llega a la capa de datos";
+                mensaje = "La información de la categoría no llega a la consulta";
                 return false;
             }
             if (string.IsNullOrWhiteSpace(categoria.Descripcion))
             {
-                mensaje = "La descripción de la categoría llegó vacía a la capa datos";
+                mensaje = "La descripción de la categoría llegó vacía a la consulta";
                 return false;
             }
             if (registro)

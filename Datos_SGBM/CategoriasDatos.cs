@@ -47,20 +47,21 @@ namespace Datos_SGBM
         {
             try
             {
-                int exito = 0;
                 using (Contexto contexto = new Contexto())
                 {
                     if (!ComprobarContexto(contexto, ref mensaje))
                         return 0;
                     categoria.IdCategoria = null;
                     contexto.Categorias.Add(categoria);
-                    exito = contexto.SaveChanges();
+                    contexto.SaveChanges();
                     if (categoria.IdCategoria != null)
-                        exito = (int)categoria.IdCategoria;
+                        return (int)categoria.IdCategoria;
+                    else
+                    {
+                        mensaje = "No se pudo obtener el Id de la categoría registrada.";
+                        return 0;
+                    }
                 }
-                if (exito < 1)
-                    mensaje = "Error al registrar la categoría";
-                return exito;
             }
             catch (Exception ex)
             {

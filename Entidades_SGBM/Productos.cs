@@ -19,8 +19,11 @@ namespace Entidades_SGBM
         [MaxLength(100)]
         public string Descripcion { get; set; }
 
-        public int CantidadVenta { get; set; }
-        public int? CantidadMedida { get; set; }
+        public int Stock { get; set; }
+
+        [Column(TypeName = "decimal(10,4)")]
+        public decimal? CantidadMedida { get; set; }
+        public int? Medida { get; set; }
 
         [Column(TypeName = "decimal(12,2)")]
         public decimal PrecioVenta { get; set; }
@@ -37,5 +40,9 @@ namespace Entidades_SGBM
         public UnidadesMedidas? UnidadesMedidas { get; set; }
         public Proveedores? Proveedores { get; set; }
 
+        public override string ToString()
+        {
+            return Descripcion;
+        }
     }
 }

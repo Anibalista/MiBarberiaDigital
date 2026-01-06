@@ -172,6 +172,7 @@
             checkComision.TabIndex = 18;
             checkComision.Text = "Restar Comisión";
             checkComision.UseVisualStyleBackColor = true;
+            checkComision.CheckedChanged += checkComision_CheckedChanged;
             // 
             // lblCategoria
             // 
@@ -234,6 +235,8 @@
             txtComision.PlaceholderText = "máx 100.00%";
             txtComision.Size = new Size(87, 23);
             txtComision.TabIndex = 5;
+            txtComision.KeyPress += validarSoloDecimales_KeyPress;
+            txtComision.Leave += txtComision_Leave;
             // 
             // lblComision
             // 
@@ -251,6 +254,8 @@
             txtPrecio.PlaceholderText = "$ pesos";
             txtPrecio.Size = new Size(142, 23);
             txtPrecio.TabIndex = 4;
+            txtPrecio.KeyPress += validarSoloDecimales_KeyPress;
+            txtPrecio.Leave += txtPrecio_Leave;
             // 
             // lblPrecio
             // 
@@ -267,6 +272,7 @@
             txtPuntaje.Name = "txtPuntaje";
             txtPuntaje.Size = new Size(87, 23);
             txtPuntaje.TabIndex = 3;
+            txtPuntaje.KeyPress += validarSoloNumeros_KeyPress;
             // 
             // lblPuntaje
             // 
@@ -284,6 +290,7 @@
             txtDuracion.PlaceholderText = "(minutos)";
             txtDuracion.Size = new Size(142, 23);
             txtDuracion.TabIndex = 2;
+            txtDuracion.KeyPress += validarSoloNumeros_KeyPress;
             // 
             // lblDuracion
             // 
@@ -436,6 +443,8 @@
             txtUnidades.Name = "txtUnidades";
             txtUnidades.Size = new Size(76, 23);
             txtUnidades.TabIndex = 5;
+            txtUnidades.KeyPress += validarSoloNumeros_KeyPress;
+            txtUnidades.Leave += txtUnidades_Leave;
             // 
             // lblUnidades
             // 
@@ -465,6 +474,8 @@
             txtCantidad.Name = "txtCantidad";
             txtCantidad.Size = new Size(87, 23);
             txtCantidad.TabIndex = 4;
+            txtCantidad.KeyPress += validarSoloNumeros_KeyPress;
+            txtCantidad.Leave += txtCantidad_Leave;
             // 
             // txtMontoInsumo
             // 
@@ -474,6 +485,7 @@
             txtMontoInsumo.PlaceholderText = "$ pesos";
             txtMontoInsumo.Size = new Size(87, 23);
             txtMontoInsumo.TabIndex = 1;
+            txtMontoInsumo.KeyPress += validarSoloDecimales_KeyPress;
             // 
             // lblCantidad
             // 
