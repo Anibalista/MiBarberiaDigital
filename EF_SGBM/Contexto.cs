@@ -39,7 +39,7 @@ namespace EF_SGBM
         public DbSet<DetallesVentas> DetallesVentas { get; set; }
         public DbSet<Facturas> Facturas { get; set; }
         public DbSet<DetallesFacturas> DetallesFacturas { get; set; }
-        public DbSet<ServiciosInsumos> ServiciosInsumos { get; set; }
+        public DbSet<CostosServicios> ServiciosInsumos { get; set; }
         public DbSet<Membresias> Membresias { get; set; }
         public DbSet<MembresiasServicios> MembresiasServicios { get; set; }
 

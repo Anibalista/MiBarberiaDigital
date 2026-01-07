@@ -19,17 +19,8 @@ namespace Entidades_SGBM
         [Column(TypeName = "decimal(12,2)")]
         public decimal? CantidadMedida { get; set; }
 
-        [ForeignKey("Productos")]
         public int IdProducto { get; set; }
 
-        public Productos? Productos { get; set; }
-
-        public override string ToString()
-        {
-            if (Productos != null)
-                return Productos.Descripcion;
-            return "";
-        }
 
     }
 }

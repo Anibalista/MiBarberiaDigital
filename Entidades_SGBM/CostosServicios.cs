@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -8,44 +9,34 @@ using System.Threading.Tasks;
 
 namespace Entidades_SGBM
 {
-    public class ServiciosInsumos
+    public class CostosServicios
     {
         [Key]
-        public int? IdServicioInsumo { get; set; }
+        public int? IdCostoServicio { get; set; }
 
         [Column(TypeName = "decimal(12,2)")]
         public decimal Costo { get; set; }
 
         public int? Unidades { get; set; }
 
-        [Column(TypeName = "decimal(12,2)")]
+        [Column(TypeName = "decimal(12,2)"), DisplayName("Medida")]
         public decimal? CantidadMedida { get; set; }
 
-        [ForeignKey("Insumos")]
-        public int? IdInsumo { get; set; }
+        [ForeignKey("Productos")]
+        public int? IdProducto { get; set; }
 
         [ForeignKey("Servicios")]
         public int IdServicio { get; set; }
 
         public string? Descripcion { get; set; }
 
-        public Insumos? Insumos { get; set; }
+        public Productos? Productos { get; set; }
         public Servicios? Servicios { get; set; }
 
-        [NotMapped]
-        public string? NombreInsumo
+        public override string ToString()
         {
-            get
-            {
-                if (Insumos != null)
-                    return Insumos.ToString();
-                return Descripcion ?? "";       
-            }
-            set
-            {
-                _nombre = value;
-            }
+            return Descripcion ?? "";
         }
-        private string? _nombre;
+
     }
 }
