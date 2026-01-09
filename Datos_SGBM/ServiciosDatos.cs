@@ -13,13 +13,6 @@ namespace Datos_SGBM
                 return false;
             if (!comprobar.ComprobarServicios(ref mensaje))
                 return false;
-            if (insumos)
-            {
-                if (!comprobar.ComprobarServiciosInsumos(ref mensaje))
-                    return false;
-                if (!comprobar.ComprobarProductos(ref mensaje))
-                    return false;
-            }
             return true;
         }
 
@@ -81,8 +74,9 @@ namespace Datos_SGBM
                         return false;
 
                     contexto.Servicios.Update(servicio);
-                    contexto.SaveChanges();
-                    return true;
+                    int exito = contexto.SaveChanges();
+                    mensaje = exito > 0 ? "" : "No se pudo modificar el servicio";
+                    return exito > 0;
                 }
             }
             catch (Exception ex)
@@ -144,26 +138,5 @@ namespace Datos_SGBM
             }
         }
 
-        public static List<CostosServicios>? ObtenerInsumosPorIdServicio(int id, ref string mensaje)
-        {
-            try
-            {
-                using (Contexto contexto = new Contexto())
-                {
-                    if (!ComprobarContexto(contexto, ref mensaje, true))
-                        return null;
-
-                    return contexto.ServiciosInsumos.Where(s => s.IdServicio == id)
-                                   .Include(s => s.Productos)
-                                   .OrderBy(s => s.Descripcion)
-                                   .ToList();
-                }
-            }
-            catch (Exception ex)
-            {
-                mensaje = $"Error al obtener insumos - costos:\n{ex.Message}";
-                return null;
-            }
-        }
     }
 }

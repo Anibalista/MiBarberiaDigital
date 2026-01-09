@@ -26,7 +26,6 @@ namespace Front_SGBM
         private List<Categorias>? _categorias;
         private List<Productos>? _productos;
         private List<CostosServicios>? _costos;
-        private List<CostosServicios>? _costosNuevos;
         private string[] columnas = { "IdCostoServicio", "IdProducto", "IdServicio", "Productos", "Servicios" };
         public FrmEditServicios()
         {
@@ -127,15 +126,12 @@ namespace Front_SGBM
                 _costos = null;
                 string mensaje = "";
                 if (_servicio != null && _servicio.IdServicio != null)
-                    _costos = ServiciosNegocio.ObtenerInsumosPorIdServicio((int)_servicio.IdServicio, ref mensaje);
+                    _costos = CostosNegocio.ObtenerInsumosPorIdServicio((int)_servicio.IdServicio, ref mensaje);
                 else
                     return;
 
                 if (_costos == null)
                     _costos = new();
-
-                if (_costosNuevos != null)
-                    _costos.AddRange(_costosNuevos);
 
                 sumarCostos(ref mensaje);
 
@@ -278,7 +274,7 @@ namespace Front_SGBM
         {
             try
             {
-                cargarInsumoAGrilla();
+                nuevoCostoEnGrilla();
             } 
             catch
             {
@@ -288,12 +284,89 @@ namespace Front_SGBM
 
         private void btnModificar_Click(object sender, EventArgs e)
         {
+            if (_costoServicio == null || _costos == null)
+            {
+                Mensajes.mensajeError("Seleccione un costo a modificar");
+                return;
+            }
+            if (_costoServicio.IdCostoServicio == null)
+            {
+                Mensajes.mensajeError("Problemas con e ID del costo a modificar");
+                return;
+            }
+            cargando = true;
+            try
+            {
+                string mensaje = string.Empty;
+                if (!armarCostoServicio(ref mensaje))
+                {
+                    Mensajes.mensajeError(mensaje);
+                    return;
+                }
+                int indice = _costos.FindIndex(c => c.IdCostoServicio == _costoServicio.IdCostoServicio);
+                if (indice < 0)
+                {
+                    Mensajes.mensajeError("No se encuentra el Costo a modificar");
+                    return;
+                }
+                _costos[indice] = _costoServicio;
 
+                cargando = false;
+                refrescarGrilla();
+                sumarCostos(ref mensaje);
+                limpiarCamposInsumos();
+            }
+            catch (Exception ex)
+            {
+                Mensajes.mensajeError("Error al cargar el insumo-resultado:\n" + ex.Message);
+            }
+            finally
+            {
+                cargando = false;
+            }
         }
 
         private void btnEliminar_Click(object sender, EventArgs e)
         {
+            if (_costoServicio == null || _costos == null)
+            {
+                Mensajes.mensajeError("Seleccione un costo a modificar");
+                return;
+            }
+            if (_costoServicio.IdCostoServicio == null)
+            {
+                Mensajes.mensajeError("Problemas con e ID del costo a modificar");
+                return;
+            }
+            cargando = true;
+            try
+            {
+                string mensaje = string.Empty;
+                
+                int indice = _costos.FindIndex(c => c.IdCostoServicio == _costoServicio.IdCostoServicio);
+                if (indice < 0)
+                {
+                    Mensajes.mensajeError("No se encuentra el Costo a eliminar");
+                    return;
+                }
+                DialogResult respuesta = Mensajes.respuesta("¿Confirma eliminar el costo?\nEsta acción no se puede deshacer");
+                if (respuesta == DialogResult.No)
+                    return;
+                _costos.RemoveAt(indice);
 
+                cargando = false;
+                refrescarGrilla();
+                sumarCostos(ref mensaje);
+                limpiarCamposInsumos();
+            }
+            catch (Exception ex)
+            {
+                Mensajes.mensajeError("Error al cargar el insumo-resultado:\n" + ex.Message);
+            }
+            finally
+            {
+                cargando = false;
+            }
         }
 
         private void btnLimpiar_Click(object sender, EventArgs e)
@@ -311,7 +384,7 @@ namespace Front_SGBM
         private void btnGuardar_Click(object sender, EventArgs e)
         {
             string accion = modo == EnumModoForm.Alta ? "Registrar" : "Modificar";
-            DialogResult respuesta = MessageBox.Show($"¿Confirma que desea {accion} el servicio?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            DialogResult respuesta = Mensajes.respuesta($"¿Confirma que desea {accion} el servicio?");
             if (respuesta == DialogResult.No)
                 return;
 
@@ -321,23 +394,22 @@ namespace Front_SGBM
                 //Valido que los campos son correctos
                 if (!validarServicio(ref mensaje))
                 {
-                    MessageBox.Show("Error:" + mensaje, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Mensajes.mensajeError("Error:" + mensaje);
                     return;
                 }
                 if (modo == EnumModoForm.Alta)
                 {
-                    if (!ServiciosNegocio.Registrar(_servicio, ref mensaje))
+                    if (!ServiciosNegocio.Registrar(_servicio, _costos, ref mensaje))
                     {
-                        MessageBox.Show("Error" + mensaje, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Mensajes.mensajeError("Error" + mensaje);
                         return;
                     }
-                    
                 }
                 else
                 {
 
                 }
-                DialogResult seguir = MessageBox.Show(mensaje + "\n¿Desea registrar un seguir servicio?", "Finalizado", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                DialogResult seguir = Mensajes.respuesta(mensaje + "\n¿Desea registrar un nuevo servicio?");
                 if (seguir == DialogResult.Yes)
                 {
                     limpiarCampos();
@@ -354,7 +426,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al {accion} el servicio:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Mensajes.mensajeError($"Error al {accion} el servicio:\n{ex.Message}");
                 return;
             }
         }
@@ -505,6 +577,7 @@ namespace Front_SGBM
             }
         }
 
+
         private void cbProductos_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (cerrando || cargando)
@@ -525,18 +598,13 @@ namespace Front_SGBM
                     _costoServicio.IdProducto = _productoSeleccionado.IdProducto;
                 } else
                 {
-                    MessageBox.Show("Verifique los siguientes errores\n" + error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                error = validarCamposInsumos(txtDescripcionInsumo.Text, txtMontoInsumo.Text);
-                if (!string.IsNullOrWhiteSpace(error))
-                {
-                    MessageBox.Show(error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Mensajes.mensajeError(error);
                     return;
                 }
             } 
-            catch
+            catch (Exception ex)
             {
+                Mensajes.mensajeError("Error inesperado\n" + ex.Message);
                 return;
             }
             
@@ -579,6 +647,7 @@ namespace Front_SGBM
                     {
                         // El producto existe en el BindingSource
                         _costoServicio.Productos = cbProductos.SelectedItem as Productos;
+                        _productoSeleccionado = _costoServicio.Productos;
                     }
                     else
                     {
@@ -685,6 +754,7 @@ namespace Front_SGBM
                 txtCantidad.Clear();
                 txtUnidades.Clear();
                 cbProductos.SelectedIndex = -1;
+                _productoSeleccionado = null;
                 _costoServicio = null;
                 limpiarErroresInsumos();
             }
@@ -713,7 +783,6 @@ namespace Front_SGBM
             {
                 _servicio = null;
                 _costos = null;
-                _costosNuevos = null;
                 txtServicio.Clear();
                 txtDescripcionServicio.Clear();
                 txtDuracion.Clear();
@@ -741,43 +810,68 @@ namespace Front_SGBM
         }
 
         //Carga de insumos (Costos) al servicio
-        private void cargarInsumoAGrilla()
+        private bool armarCostoServicio(ref string mensaje)
         {
-            cargando = true;
-            string mensaje = string.Empty;
-            string descripcion = txtDescripcionInsumo.Text.Trim();
-            string montoTexto = txtMontoInsumo.Text.Trim();
-            string cantidad = txtCantidad.Text.Trim();
-            string unidades = txtUnidades.Text.Trim();
             if (_costoServicio == null)
                 _costoServicio = new();
-            
+            bool error = false;
             try
             {
-                mensaje = validarCamposInsumos(descripcion, montoTexto);
-                if (!string.IsNullOrEmpty(mensaje))
+                if (!validarTexto(txtDescripcionInsumo, true, false))
+                    error = true;
+                _costoServicio.Descripcion = txtDescripcionInsumo.Text.Trim();
+
+                decimal costo = 0;
+
+                if (calcularCostoInsumo(ref mensaje))
+                    error = error ? error : false;
+                else
+                    error = !string.IsNullOrWhiteSpace(mensaje);
+                
+                mensaje = validarCampoDecimal(txtMontoInsumo, true, ref costo);
+
+                error = error ? error : !string.IsNullOrWhiteSpace(mensaje);
+                _costoServicio.Costo = error ? 0 : decimal.Parse(txtMontoInsumo.Text);
+
+                return !error;
+                
+            } catch (Exception ex)
+            {
+                mensaje = "Error inesperado\n" + ex.Message;
+                return false;
+            }
+            
+        }
+
+        private void nuevoCostoEnGrilla()
+        {
+            cargando = true;
+            if (_costoServicio == null)
+                _costoServicio = new();
+            if (_costoServicio.IdCostoServicio != null)
+            {
+                Mensajes.mensajeError("No puede volver a agregar un Costo existente, presione modificar");
+                return;
+            }
+            try
+            {
+                string mensaje = string.Empty;
+                if (!armarCostoServicio(ref mensaje))
                 {
-                    MessageBox.Show(mensaje, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Mensajes.mensajeError(mensaje);
                     return;
                 }
-                _costoServicio.Descripcion = txtDescripcionInsumo.Text;
-                if (!calcularCostoInsumo(ref mensaje))
-                {
-                    MessageBox.Show(mensaje, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
+                
                 int id = -1;
                 if (_costos == null)
                     _costos = new();
 
-                if (_costosNuevos == null)
-                    _costosNuevos = new();
-                else
-                    id = _costosNuevos.Count > 0 ? _costosNuevos.Min(c => (int)c.IdCostoServicio) - 1 : -1;
-                
+                int idMinimo = _costos.Count > 0 ? _costos.Min(c => (int)c.IdCostoServicio) : 0;
+
+                id = idMinimo > 0 ? -1 : idMinimo - 1;
+
                 _costoServicio.IdCostoServicio = id;
 
-                _costosNuevos.Add(_costoServicio);
                 _costos.Add(_costoServicio);
                 cargando = false;
                 refrescarGrilla();
@@ -786,7 +880,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al cargar el insumo-resultado:\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Mensajes.mensajeError("Error al cargar el insumo-resultado:\n" + ex.Message);
             } finally
             {
                 cargando = false;
@@ -795,43 +889,52 @@ namespace Front_SGBM
 
         private bool calcularCostoInsumo(ref string mensaje)
         {
+            mensaje = string.Empty;
             if (_costoServicio == null)
+                return false;
+            if (_productoSeleccionado == null)
                 return false;
             try
             {
-                
-                int medida = obtenerNumero(txtCantidad.Text, ref mensaje);
+                string mensajeCantidad = string.Empty;
+
+                int medida = obtenerNumero(txtCantidad.Text, ref mensajeCantidad);
                 _costoServicio.CantidadMedida = medida > 0 ? medida : null;
-                errorCampo(txtCantidad, mensaje);
-                mensaje = string.Empty;
 
                 int unidades = obtenerNumero(txtUnidades.Text, ref mensaje);
                 _costoServicio.Unidades = unidades < 0 ? 0 : unidades;
                 txtUnidades.Text = _costoServicio.Unidades.ToString();
-                errorCampo(txtCantidad, mensaje);
-                mensaje = string.Empty;
-
-                decimal costo = obtenerDecimal(txtMontoInsumo.Text, ref mensaje);
-                _costoServicio.Costo = costo;
-
-                if (_productoSeleccionado != null)
+                
+                if (!string.IsNullOrWhiteSpace(mensajeCantidad) && !string.IsNullOrWhiteSpace(mensaje))
                 {
-                    _costoServicio.Costo = _productoSeleccionado.Costo > 0 ? _productoSeleccionado.Costo * (int)_costoServicio.Unidades : costo;
-                    if (_productoSeleccionado.Medida != null)
-                    {
-                        if (_productoSeleccionado.Medida > 0)
-                            _costoServicio.Costo += (_productoSeleccionado.Costo / (int)_productoSeleccionado.Medida) * medida;
-                    }
-                    _costoServicio.IdProducto = _productoSeleccionado.IdProducto;
+                    errorCampo(txtCantidad, mensajeCantidad);
+                    errorCampo(txtCantidad, mensaje);
+                    mensaje = "Antes de continuar verifique los campos con error";
+                    return false;
+                } else
+                {
+                    errorCampo(txtCantidad, "");
+                    errorCampo(txtCantidad, "");
                 }
 
-                txtMontoInsumo.Text = _costoServicio.Costo.ToString();
+                mensaje = string.Empty;
+
+                _costoServicio.Costo = _productoSeleccionado.Costo * (int)_costoServicio.Unidades;
+                if (_productoSeleccionado.Medida != null)
+                {
+                    if (_productoSeleccionado.Medida > 0)
+                        _costoServicio.Costo += (_productoSeleccionado.Costo / (int)_productoSeleccionado.Medida) * medida;
+                }
+                _costoServicio.IdProducto = _productoSeleccionado.IdProducto;
+                _costoServicio.Productos = _productoSeleccionado;
+
+                txtMontoInsumo.Text = _costoServicio.Costo.ToString("0.00");
 
                 return _costoServicio.Costo > 0;
             }
             catch (Exception ex)
             {
-                mensaje = ex.Message;
+                mensaje = "Error excepcional: " + ex.Message;
                 return false;
             }
 
@@ -865,7 +968,40 @@ namespace Front_SGBM
             }
         }
 
-        
+        private string validarCampoDecimal(TextBox campo, bool obligatorio, ref decimal resultado)
+        {
+            string mensaje = string.Empty;
+            try
+            {
+                resultado = 0;
+                string texto = campo.Text.Trim();
+                if (!string.IsNullOrWhiteSpace(texto))
+                {
+                    if (!esnumeroDecimal(texto, ref mensaje))
+                    {
+                        errorCampo(campo, mensaje);
+                        return "Antes de continuar verifique los campos con error";
+                    } else
+                    {
+                        resultado = decimal.Parse(texto);
+                        campo.Text = resultado.ToString("0.00");
+                    }
+                }
+                if (obligatorio && resultado == 0)
+                {
+                    errorCampo(campo, "¡Campo obligatorio!");
+                    return "Antes de continuar verifique los campos con error";
+                }
+                
+                errorCampo(campo, "");
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                return "Error excepcional" + ex.Message;
+            }
+        }
+
         private int obtenerNumero(string cantidadTexto, ref string mensaje)
         {
             int cantidad = 0;
@@ -892,16 +1028,6 @@ namespace Front_SGBM
         }
 
         //Validaciones numéricas
-        private bool esCaracterNumerico(char c)
-        {
-            return char.IsNumber(c);
-        }
-
-        private bool esCaracterDecimal(char c)
-        {
-            return Validaciones.esDigitoDecimal(c);
-        }
-
         private bool esnumeroDecimal(string numero, ref string mensaje)
         {
             return Validaciones.esNumeroDecimal(numero, ref mensaje);
@@ -910,12 +1036,12 @@ namespace Front_SGBM
         //Eventos de validación de campos numéricos
         private void validarSoloNumeros_KeyPress(object sender, KeyPressEventArgs e)
         {
-            e.Handled = !esCaracterNumerico(e.KeyChar);
+            e.Handled = !Validaciones.esDigitoNumerico(e.KeyChar);
         }
 
         private void validarSoloDecimales_KeyPress(object sender, KeyPressEventArgs e)
         {
-            e.Handled = !esCaracterDecimal(e.KeyChar);
+            e.Handled = !Validaciones.esDigitoDecimal(e.KeyChar);
         }
 
         private void txtCantidad_Leave(object sender, EventArgs e)

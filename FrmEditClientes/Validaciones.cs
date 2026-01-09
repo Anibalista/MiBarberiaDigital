@@ -15,6 +15,11 @@ namespace Front_SGBM
             return char.IsDigit(c) || c == '.' || c == ',' || c == '\b';
         }
 
+        public static bool esDigitoNumerico(char c)
+        {
+            return char.IsNumber(c) || c == '\b';
+        }
+
         public static bool esNumeroDecimal(string numero, ref string mensaje)
         {
             if (string.IsNullOrEmpty(numero))

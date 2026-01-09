@@ -157,16 +157,6 @@ namespace Datos_SGBM
             return true;
         }
 
-        public bool ComprobarInsumos(ref string mensaje)
-        {
-            if (contexto.Insumos == null)
-            {
-                mensaje = "No se conecta al registro de Insumos";
-                return false;
-            }
-            return true;
-        }
-
         public bool ComprobarLocalidades(ref string mensaje)
         {
             if (contexto.Localidades == null)
@@ -316,16 +306,11 @@ namespace Datos_SGBM
             return true;
         }
 
-        internal bool ComprobarServiciosInsumos(ref string mensaje)
+        internal bool ComprobarCostosServicios(ref string mensaje)
         {
-            if (contexto.ServiciosInsumos == null)
+            if (contexto.CostosServicios == null)
             {
-                mensaje = "No se conecta al registro intermedio de insumos";
-                return false;
-            }
-            if (contexto.Insumos == null)
-            {
-                mensaje = "No se conecta al registro de insumos";
+                mensaje = "No se conecta al registro costos-insumos";
                 return false;
             }
             return true;

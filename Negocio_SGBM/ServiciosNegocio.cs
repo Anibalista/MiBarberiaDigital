@@ -100,7 +100,7 @@ namespace Negocio_SGBM
             }
         }
 
-        public static bool Registrar(Servicios? servicio, ref string mensaje)
+        public static bool Registrar(Servicios? servicio, List<CostosServicios>? costos, ref string mensaje)
         {
             if (!ComprobarServicio(servicio, true, ref mensaje))
                 return false;
@@ -118,10 +118,17 @@ namespace Negocio_SGBM
                 }
                 string mensajeDatos = "";
                 int exito = ServiciosDatos.RegistrarServicio(servicio, ref mensajeDatos);
-                ///registrar costos
-                ///
-                mensaje = exito > 0 ? "Servicio Registrado Correctamente" : $"Servicio No Registrado\n{mensajeDatos}";
-                return exito > 0;
+                if (exito <= 0)
+                {
+                    mensaje = $"Servicio No Registrado\n{mensajeDatos}";
+                    return false;
+                }
+                bool errorRegistroCostos = true;
+                if (costos != null)
+                    errorRegistroCostos = !CostosNegocio.RegistrarListaCostos(costos, exito, ref mensaje);
+                
+                mensaje = errorRegistroCostos ? $"Servicio Registrado (errores en insumos-costos)\n{mensaje}" : "Servicio Registrado Correctamente";
+                return true;
             }
             catch (Exception ex)
             {
@@ -147,20 +154,21 @@ namespace Negocio_SGBM
                 return false;
             }
         }
-
-        public static List<CostosServicios>? ObtenerInsumosPorIdServicio(int id, ref string mensaje)
+        /*
+        static bool gestionarCostosServicios(List<CostosServicios>? costos, int idServicio, ref string mensaje)
         {
-            if (id < 1) return null;
+            if (costos == null)
+                return false;
             try
             {
-                List<CostosServicios>? lista = ServiciosDatos.ObtenerInsumosPorIdServicio(id, ref mensaje);
-                return lista;
+
             }
             catch (Exception ex)
             {
-                mensaje = "Error al obtener los insumos-costos:\n" + ex.Message;
-                return null;
+                mensaje = "Error inesperado" + ex.Message;
+                return false;
             }
         }
+        */
     }
 }
