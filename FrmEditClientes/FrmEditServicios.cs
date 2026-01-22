@@ -1,16 +1,8 @@
 ﻿using Entidades_SGBM;
 using Negocio_SGBM;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+using Front_SGBM.UXDesign;
 using System.Data;
-using System.Drawing;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Xml.Serialization;
 
 namespace Front_SGBM
 {
@@ -32,18 +24,95 @@ namespace Front_SGBM
             InitializeComponent();
         }
 
-        private void cerrarFormulario()
+        private void cerrarFormulario(object sender, EventArgs e)
         {
             cerrando = Validaciones.confirmarCierre();
-            if (cerrando)
-                Close();
+            if (!cerrando)
+                return;
+            try
+            {
+                FrmMenuPrincipal padre = Application.OpenForms.OfType<FrmMenuPrincipal>().FirstOrDefault();
+                if (padre != null)
+                {
+                    padre.abrirAbmServicios(sender, e, EnumModoForm.Consulta);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error sobre el menu principal" + ex.Message, "Error fatal", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            
+            this.Close();
         }
 
         private void FrmEditServicios_Load(object sender, EventArgs e)
         {
             cargarProductos();
             cargarCategorias();
+            if (modo != EnumModoForm.Alta)
+                cargarServicio();
             cargarInsumos();
+            if (modo == EnumModoForm.Consulta)
+                activarCampos(false);
+        }
+
+        private void cargarServicio()
+        {
+            if (_servicio == null)
+                return;
+            if (_servicio.IdServicio == null)
+                return;
+
+            try
+            {
+                txtServicio.Text = _servicio.NombreServicio;
+                txtDescripcionServicio.Text = _servicio.Descripcion ?? "";
+                txtDuracion.Text = _servicio.DuracionMinutos.ToString("0.00") ?? "";
+                txtPuntaje.Text = _servicio.Puntaje.ToString("0.00") ?? "";
+                txtPrecio.Text = _servicio.PrecioVenta.ToString("0.00");
+                txtComision.Text = _servicio.Comision.ToString("0.00");
+                seleccionarCategoria();
+            }
+            catch (Exception ex)
+            {
+                Mensajes.mensajeError("Error: " + ex.Message);
+                return;
+            }
+        }
+
+        private void activarCampos(bool activos)
+        {
+            txtServicio.Enabled = activos;
+            txtDescripcionServicio.Enabled = activos;
+            txtDuracion.Enabled = activos;
+            txtPrecio.Enabled = activos;
+            txtPuntaje.Enabled = activos;
+            txtComision.Enabled = activos;
+            cbCategoria.Enabled = activos;
+            btnAdminCostos.Enabled = activos;
+            administrandoCostos = activos;
+            activarCamposInsumos();
+            btnGuardar.Enabled = activos;
+        }
+
+        private void seleccionarCategoria()
+        {
+            if (_categorias == null)
+                return;
+            if (_servicio.IdCategoria < 1)
+                return;
+            try
+            {
+                cbCategoria.SelectedValue = _servicio.IdCategoria;
+                if (cbCategoria.SelectedIndex == -1)
+                    Mensajes.mensajeAdvertencia("Problema al seleccionar la categoría");
+                
+            }
+            catch (Exception ex)
+            {
+                Mensajes.mensajeError("Error: " + ex.Message);
+                return;
+            }
         }
 
         private void cargarProductos()
@@ -197,6 +266,7 @@ namespace Front_SGBM
                 dataGridInsumos.DataSource = lista;
                 txtCostosServicio.Text = txtTotalCostos.Text;
                 ocultarColumnasGrilla(dataGridInsumos);
+                formatoGrilla();
                 dataGridInsumos.Refresh();
                 dataGridInsumos.ClearSelection();
             }
@@ -207,6 +277,43 @@ namespace Front_SGBM
             finally
             {
                 cargando = false;
+            }
+        }
+
+        private void formatoGrilla()
+        {
+            try
+            {
+                // Aplica formato de moneda a la columna "Costo"
+                EstiloAplicacion.ApplyCurrencyFormat(dataGridInsumos, "Costo");
+
+                // Ajusta el FillWeight según el nombre de la columna
+                foreach (DataGridViewColumn col in dataGridInsumos.Columns)
+                {
+                    switch (col.Name)
+                    {
+                        case "Costo":
+                            col.FillWeight = 20;
+                            col.MinimumWidth = 40;
+                            break;
+                        case "Descripción":
+                            col.FillWeight = 50;
+                            col.MinimumWidth = 120;
+                            break;
+                        case "Unidades":
+                            col.FillWeight = 15;
+                            col.MinimumWidth = 50;
+                            break;
+                        case "CantidadMedida":
+                            col.FillWeight = 15;
+                            col.MinimumWidth = 55;
+                            break;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -232,6 +339,8 @@ namespace Front_SGBM
                 _servicio.Comision = validarCampoNumerico(txtComision, false, 0, 100);
                 if (_servicio.Comision < 0)
                     correcto = false;
+                else
+                    _servicio.Comision /= 100;
 
                 //Ahora costo
                 _servicio.Costos = validarCampoNumerico(txtCostosServicio, false);
@@ -240,7 +349,7 @@ namespace Front_SGBM
 
                 if (correcto)
                 {
-                    decimal comision = checkComision.Checked && _servicio.Comision > 0 ? _servicio.PrecioVenta * (_servicio.Comision / 100) : 0;
+                    decimal comision = checkComision.Checked && _servicio.Comision > 0 ? _servicio.PrecioVenta * _servicio.Comision : 0;
                     _servicio.Margen = _servicio.PrecioVenta - comision - _servicio.Costos;
                     txtMargen.Text = _servicio.Margen.ToString("0.00");
                 }
@@ -261,7 +370,7 @@ namespace Front_SGBM
         //Eventos de botones
         private void btnSalir_Click(object sender, EventArgs e)
         {
-            cerrarFormulario();
+            cerrarFormulario(sender, e);
         }
 
         private void btnAdminCostos_Click(object sender, EventArgs e)
@@ -407,7 +516,16 @@ namespace Front_SGBM
                 }
                 else
                 {
-
+                    string mensajeCostos = string.Empty;
+                    if (!ServiciosNegocio.Modificar(_servicio, ref mensaje))
+                    {
+                        Mensajes.mensajeError("Error" + mensaje);
+                        return;
+                    } else if (!CostosNegocio.GestionarCostosServicios(_costos, (int)_servicio.IdServicio, ref mensajeCostos))
+                    {
+                        Mensajes.mensajeAdvertencia(mensaje + mensajeCostos);
+                        mensaje = string.Empty;
+                    }
                 }
                 DialogResult seguir = Mensajes.respuesta(mensaje + "\n¿Desea registrar un nuevo servicio?");
                 if (seguir == DialogResult.Yes)
@@ -419,7 +537,7 @@ namespace Front_SGBM
                 }
                 else
                 {
-                    cerrarFormulario();
+                    cerrarFormulario(sender, e);
                 }
                 return;
 
@@ -938,34 +1056,6 @@ namespace Front_SGBM
                 return false;
             }
 
-        }
-
-        private string validarCamposInsumos(string descripcion, string monto)
-        {
-            string mensaje = string.Empty;
-            try
-            {
-                if (!validarTexto(txtDescripcionInsumo, true, false))
-                {
-                    return "Antes de continuar verifique los campos con error";
-                }
-                if (string.IsNullOrWhiteSpace(monto))
-                {
-                    errorCampo(txtMontoInsumo, "¡Campo obligatorio!");
-                    return "Antes de continuar verifique los campos con error";
-                }
-                if (!esnumeroDecimal(monto, ref mensaje))
-                {
-                    errorCampo(txtMontoInsumo, mensaje);
-                    return "Antes de continuar verifique los campos con error";
-                }
-                errorCampo(txtMontoInsumo, "");
-                return string.Empty;
-            }
-            catch (Exception ex)
-            {
-                return "Error al cargar el insumo-resultado:\n" + ex.Message;
-            }
         }
 
         private string validarCampoDecimal(TextBox campo, bool obligatorio, ref decimal resultado)

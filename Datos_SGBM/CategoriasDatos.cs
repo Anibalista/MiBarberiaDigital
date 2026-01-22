@@ -14,11 +14,7 @@ namespace Datos_SGBM
         static bool ComprobarContexto(Contexto contexto, ref string mensaje)
         {
             ComprobacionContexto comprobar = new ComprobacionContexto(contexto);
-            if (!comprobar.Comprobar(ref mensaje))
-                return false;
-            if (!comprobar.ComprobarCategorias(ref mensaje)) 
-                return false;
-            return true;
+            return comprobar.ComprobarEntidad(contexto.Categorias, ref mensaje);
         }
 
 

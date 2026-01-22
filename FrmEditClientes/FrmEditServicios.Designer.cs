@@ -383,10 +383,18 @@
             // 
             // dataGridInsumos
             // 
+            dataGridInsumos.AllowUserToAddRows = false;
+            dataGridInsumos.AllowUserToDeleteRows = false;
+            dataGridInsumos.AllowUserToOrderColumns = true;
             dataGridInsumos.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridInsumos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridInsumos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridInsumos.EditMode = DataGridViewEditMode.EditProgrammatically;
             dataGridInsumos.Location = new Point(6, 250);
             dataGridInsumos.Name = "dataGridInsumos";
+            dataGridInsumos.ReadOnly = true;
+            dataGridInsumos.RowHeadersVisible = false;
+            dataGridInsumos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridInsumos.Size = new Size(411, 289);
             dataGridInsumos.TabIndex = 8;
             dataGridInsumos.SelectionChanged += dataGridInsumos_SelectionChanged;

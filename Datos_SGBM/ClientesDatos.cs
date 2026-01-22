@@ -11,15 +11,11 @@ namespace Datos_SGBM
         public static bool comprobarContexto(ref string mensaje)
         {
             ComprobacionContexto comprobar = new ComprobacionContexto(contexto);
-            if (!comprobar.Comprobar(ref mensaje))
+            if (!comprobar.ComprobarEntidad(contexto.Estados, ref mensaje))
                 return false;
-            if (!comprobar.ComprobarEstados(ref mensaje))
+            if (!comprobar.ComprobarEntidad(contexto.Clientes, ref mensaje))
                 return false;
-            if (!comprobar.ComprobarClientes(ref mensaje)) 
-                return false;
-            if (!comprobar.ComprobarPersonas(ref mensaje)) 
-                return false;
-            return true;
+            return comprobar.ComprobarEntidad(contexto.Personas, ref mensaje);
         }
 
         public static bool comprobarCliente(Clientes? cliente, bool registro, ref string mensaje)
@@ -123,8 +119,9 @@ namespace Datos_SGBM
                                 .ThenInclude(p => p.Domicilios)
                                     .ThenInclude(d => d.Localidades)
                             .Where(c => c.Personas != null && 
-                                    ((c.Personas.Dni.Contains(dni ?? "")) &&
-                                     (c.Personas.Nombres.Contains(nombres ?? ""))))
+                                    (c.Personas.Dni.Contains(dni ?? "") &&
+                                     (c.Personas.Nombres.Contains(nombres ?? "")
+                                     || c.Personas.Apellidos.Contains(nombres ?? ""))))
                             .OrderBy(c => c.Personas.Apellidos)
                             .ThenBy(c => c.Personas.Nombres)
                             .ToList();

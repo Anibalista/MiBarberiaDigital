@@ -9,11 +9,7 @@ namespace Datos_SGBM
         static bool ComprobarContexto(Contexto contexto, ref string mensaje, bool insumos = false)
         {
             ComprobacionContexto comprobar = new ComprobacionContexto(contexto);
-            if (!comprobar.Comprobar(ref mensaje))
-                return false;
-            if (!comprobar.ComprobarServicios(ref mensaje))
-                return false;
-            return true;
+            return comprobar.ComprobarEntidad(contexto.Servicios, ref mensaje);
         }
 
         public static List<Servicios>? ListaServicios (ref string mensaje)
@@ -134,6 +130,99 @@ namespace Datos_SGBM
             catch (Exception ex)
             {
                 mensaje = $"Error al obtener servicio por nombre:\n{ex.Message}";
+                return null;
+            }
+        }
+
+        public static List<Servicios>? BuscarAvanzado(string campo, string criterio, string valor, int idCategoria, ref string mensaje)
+        {
+            try
+            {
+                using (Contexto contexto = new Contexto())
+                {
+                    if (!ComprobarContexto(contexto, ref mensaje))
+                        return null;
+
+                    string campoLower = campo.ToLower();
+
+                    // Caso especial: Nombre Costo -> partimos de CostosServicios
+                    if (campoLower.Contains("nombre costo"))
+                    {
+                        // IDs de servicios que tienen al menos un costo que contiene el texto
+                        var idsExcluir = contexto.CostosServicios
+                                                 .Where(c => c.Descripcion != null && c.Descripcion.Contains(valor))
+                                                 .Select(c => c.IdServicio)
+                                                 .Distinct()
+                                                 .ToList();
+
+                        var queryCostos = contexto.CostosServicios
+                                                  .Include(c => c.Servicios)
+                                                  .Where(c => c.Servicios != null);
+
+                        // Filtro por categoría si corresponde
+                        if (idCategoria > 0)
+                            queryCostos = queryCostos.Where(c => c.Servicios!.IdCategoria == idCategoria);
+
+                        if (criterio.ToLower() == "no contiene")
+                        {
+                            // Excluir servicios que tengan algún costo con el texto
+                            return contexto.Servicios
+                                           .Where(s => !idsExcluir.Contains(s.IdServicio!.Value))
+                                           .OrderBy(s => s.NombreServicio)
+                                           .ToList();
+                        }
+                        else
+                        {
+                            // Para los demás criterios, seguimos filtrando directamente sobre CostosServicios
+                            queryCostos = FiltrosHelper.AplicarFiltroTexto(queryCostos, c => c.Descripcion!, criterio, valor);
+
+                            return queryCostos.Select(c => c.Servicios!)
+                                              .Distinct()
+                                              .OrderBy(s => s.NombreServicio)
+                                              .ToList();
+                        }
+                    }
+                    else
+                    {
+                        IQueryable<Servicios> query = contexto.Servicios.Include(s => s.Categorias);
+
+                        // Filtro por categoría si corresponde
+                        if (idCategoria > 0)
+                            query = query.Where(s => s.IdCategoria == idCategoria);
+
+                        // Filtros por campo
+                        if (campoLower.Contains("descrip"))
+                        {
+                            query = FiltrosHelper.AplicarFiltroTexto(query, s => s.Descripcion!, criterio, valor);
+                        }
+                        else if (campoLower.Contains("precio"))
+                        {
+                            if (decimal.TryParse(valor, out var numero))
+                                query = FiltrosHelper.AplicarFiltroNumerico(query, s => s.PrecioVenta, criterio, numero);
+                        }
+                        else if (campoLower.Contains("puntaje"))
+                        {
+                            if (decimal.TryParse(valor, out var numero))
+                                query = FiltrosHelper.AplicarFiltroNumerico(query, s => s.Puntaje, criterio, numero);
+                        }
+                        else if (campoLower.Contains("duracion"))
+                        {
+                            if (decimal.TryParse(valor, out var numero))
+                                query = FiltrosHelper.AplicarFiltroNumerico(query, s => s.DuracionMinutos, criterio, numero);
+                        }
+                        else if (campoLower.Contains("costo total"))
+                        {
+                            if (decimal.TryParse(valor, out var numero))
+                                query = FiltrosHelper.AplicarFiltroNumerico(query, s => s.Costos, criterio, numero);
+                        }
+
+                        return query.OrderBy(s => s.NombreServicio).ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                mensaje = $"Error en búsqueda avanzada:\n{ex.Message}";
                 return null;
             }
         }

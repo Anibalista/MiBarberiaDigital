@@ -48,8 +48,8 @@ namespace Front_SGBM
                 if (frm == null)
                 {
                     frm = new T();
-                    ConfigurarFormHijo(frm, content);       // Configuración básica
-                    ConfigurarEstiloHijo(frm); // Configuración visual/tema
+                    ConfigurarFormHijo(frm, content); // Configuración básica
+                    ConfigurarEstiloHijo(frm);        // Configuración visual/tema
 
                 }
                 else
@@ -111,6 +111,13 @@ namespace Front_SGBM
             frm.Show();
         }
 
+        public void abrirAbmServicios(object sender, EventArgs e, EnumModoForm modo)
+        {
+            FrmAbmServicios frm = (FrmAbmServicios)AbrirFrmHijo<FrmAbmServicios>(true);
+            frm.modo = modo;
+            frm.Show();
+        }
+
         //Métodos genéricos
         public void abrirFrmContactos(EnumModoForm modo, string origen, List<Contactos>? contactos, Panel content)
         {
@@ -130,6 +137,16 @@ namespace Front_SGBM
         private void abmClientesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             abrirAbmClientes(sender, e, EnumModoForm.Consulta);
+        }
+
+        private void nuevoServicioToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            abrirEditServicios(sender, e, EnumModoForm.Alta);
+        }
+
+        private void aBMServiciosToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            abrirAbmServicios(sender, e, EnumModoForm.Consulta);
         }
 
         private void btnVentas_Click(object sender, EventArgs e)
@@ -224,7 +241,7 @@ namespace Front_SGBM
 
                 new EstiloAplicacion.OpcionMenu("Gestión Servicios", (s, args) =>
                 {
-                    Form frm = AbrirFrmHijo<FrmEditServicios>(false);
+                    Form frm = AbrirFrmHijo<FrmAbmServicios>(true);
                     frm.Show();
                 })
             };
@@ -232,9 +249,5 @@ namespace Front_SGBM
             EstiloAplicacion.ToggleSubMenu(this, (Button)sender, opcionesClientes);
         }
 
-        private void nuevoServicioToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            abrirEditServicios(sender, e, EnumModoForm.Alta);
-        }
     }
 }

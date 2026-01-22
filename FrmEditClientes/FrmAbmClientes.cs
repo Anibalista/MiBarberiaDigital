@@ -1,14 +1,5 @@
 ﻿using Entidades_SGBM;
 using Negocio_SGBM;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Front_SGBM
 {
@@ -85,31 +76,7 @@ namespace Front_SGBM
             labelLocalidad.Visible = localidad;
         }
         //Comprobaciones
-        private void llenarCampos()
-        {
-            incluirAnulados = checkAnulados.Checked;
-            _campo1 = txtCampo1.Text;
-            _campo2 = txtCampo2.Text;
-            if (!cbLocalidad.Visible)
-            {
-                _localidadBuscada = null;
-                return;
-            }
-            try
-            {
-                _localidadBuscada = (Localidades)cbLocalidad.SelectedItem;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return;
-            }
-            if (_localidadBuscada.IdLocalidad == null)
-            {
-                _localidadBuscada = null;
-            }
-        }
-
+       
         private void actualizarGrillaClientes()
         {
             if (cerrando)
@@ -243,6 +210,8 @@ namespace Front_SGBM
                 {
                     padre.abrirEditClientes(sender, e, EnumModoForm.Modificacion, _cliente);
                 }
+                ///
+                //Acá hacer el enlace a la venta
             }
             catch (Exception ex)
             {
@@ -285,7 +254,8 @@ namespace Front_SGBM
 
         private void btnExportar_Click(object sender, EventArgs e)
         {
-
+            ///
+            //crear
         }
 
         //Cambios

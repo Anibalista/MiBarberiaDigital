@@ -14,13 +14,11 @@ namespace Datos_SGBM
         static bool ComprobarContexto(Contexto contexto, ref string mensaje)
         {
             ComprobacionContexto comprobar = new ComprobacionContexto(contexto);
-            if (!comprobar.Comprobar(ref mensaje))
+            if (!comprobar.ComprobarEntidad(contexto.UnidadesMedidas, ref mensaje))
                 return false;
-            if (!comprobar.ComprobarUnidadesMedidas(ref mensaje))
+            if (!comprobar.ComprobarEntidad(contexto.Productos, ref mensaje))
                 return false;
-            if (!comprobar.ComprobarProveedores(ref mensaje))
-                return false;
-            return true;
+            return comprobar.ComprobarEntidad(contexto.Proveedores, ref mensaje);
         }
 
         public static List<Productos>? ListarSimple(ref string mensaje)

@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Entidades_SGBM", "Entidades
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EF_SGBM", "EF_SGBM\EF_SGBM.csproj", "{E21FB4DF-9829-42B0-897A-977F39879A28}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dominio_SGBM", "Dominio_SGBM\Dominio_SGBM.csproj", "{C7FEAB7D-4CC6-401C-A8C0-7DAC6DCE927C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,10 +39,6 @@ Global
 		{E21FB4DF-9829-42B0-897A-977F39879A28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E21FB4DF-9829-42B0-897A-977F39879A28}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E21FB4DF-9829-42B0-897A-977F39879A28}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C7FEAB7D-4CC6-401C-A8C0-7DAC6DCE927C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C7FEAB7D-4CC6-401C-A8C0-7DAC6DCE927C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C7FEAB7D-4CC6-401C-A8C0-7DAC6DCE927C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C7FEAB7D-4CC6-401C-A8C0-7DAC6DCE927C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

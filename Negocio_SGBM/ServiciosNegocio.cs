@@ -123,7 +123,7 @@ namespace Negocio_SGBM
                     mensaje = $"Servicio No Registrado\n{mensajeDatos}";
                     return false;
                 }
-                bool errorRegistroCostos = true;
+                bool errorRegistroCostos = false;
                 if (costos != null)
                     errorRegistroCostos = !CostosNegocio.RegistrarListaCostos(costos, exito, ref mensaje);
                 
@@ -154,21 +154,19 @@ namespace Negocio_SGBM
                 return false;
             }
         }
-        /*
-        static bool gestionarCostosServicios(List<CostosServicios>? costos, int idServicio, ref string mensaje)
+
+        //Este método tiene la lógica en datos para usar helpers genéricos de filtros por campos y criterios
+        public static List<Servicios>? BuscarAvanzado(string campo, string criterio, string valor, int idCategoria, ref string mensaje)
         {
-            if (costos == null)
-                return false;
             try
             {
-
+                return ServiciosDatos.BuscarAvanzado(campo, criterio, valor, idCategoria, ref mensaje);
             }
             catch (Exception ex)
             {
-                mensaje = "Error inesperado" + ex.Message;
-                return false;
+                mensaje = "Error inesperado capa negocios" + ex.Message;
+                return null;
             }
         }
-        */
     }
 }

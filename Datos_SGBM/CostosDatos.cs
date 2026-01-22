@@ -14,13 +14,9 @@ namespace Datos_SGBM
         static bool ComprobarContexto(Contexto contexto, ref string mensaje)
         {
             ComprobacionContexto comprobar = new ComprobacionContexto(contexto);
-            if (!comprobar.Comprobar(ref mensaje))
+            if (!comprobar.ComprobarEntidad(contexto.Servicios, ref mensaje))
                 return false;
-            if (!comprobar.ComprobarCostosServicios(ref mensaje))
-                return false;
-            if (!comprobar.ComprobarProductos(ref mensaje))
-                return false;
-            return true;
+            return comprobar.ComprobarEntidad(contexto.Productos, ref mensaje);
         }
 
         public static List<CostosServicios>? ObtenerCostosPorIdServicio(int id, ref string mensaje)

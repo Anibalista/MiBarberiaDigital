@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing.Printing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -617,13 +618,25 @@ namespace Front_SGBM.UXDesign
 
         }
 
-        // (Mantener el resto de tus métodos FormatArticuloGrid y ApplyCurrencyFormat igual que antes)
+        // Formatos de monedas, porcentajes, etc
+        public static void ApplyFormats(DataGridView dgv, Dictionary<string, string> formats)
+        {
+            foreach (var kvp in formats)
+            {
+                if (dgv.Columns.Contains(kvp.Key))
+                {
+                    dgv.Columns[kvp.Key].DefaultCellStyle.Format = kvp.Value;
+                    dgv.Columns[kvp.Key].DefaultCellStyle.FormatProvider = new CultureInfo("es-AR");
+                }
+            }
+        }
+
         public static void ApplyCurrencyFormat(DataGridView dgv, string columnName)
         {
-            if (dgv.Columns.Contains(columnName))
+            if (dgv.Columns[columnName] != null)
             {
                 dgv.Columns[columnName].DefaultCellStyle.Format = "C2";
-                dgv.Columns[columnName].DefaultCellStyle.FormatProvider = new System.Globalization.CultureInfo("es-AR");
+                dgv.Columns[columnName].DefaultCellStyle.FormatProvider = new CultureInfo("es-AR");
             }
         }
 

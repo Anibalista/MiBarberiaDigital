@@ -255,12 +255,14 @@
             dataGridClientes.Columns.AddRange(new DataGridViewColumn[] { apellidosDataGridViewTextBoxColumn, nombresDataGridViewTextBoxColumn, dniDataGridViewTextBoxColumn, fechaNacDataGridViewTextBoxColumn, Domicilio, Localidad });
             dataGridClientes.DataSource = bindingClientes;
             dataGridClientes.Dock = DockStyle.Fill;
+            dataGridClientes.EditMode = DataGridViewEditMode.EditProgrammatically;
             dataGridClientes.Location = new Point(3, 19);
+            dataGridClientes.MultiSelect = false;
             dataGridClientes.Name = "dataGridClientes";
             dataGridClientes.ReadOnly = true;
             dataGridClientes.RowHeadersVisible = false;
             dataGridClientes.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridClientes.Size = new Size(860, 497);
+            dataGridClientes.Size = new Size(860, 384);
             dataGridClientes.TabIndex = 0;
             dataGridClientes.CurrentCellChanged += bindingClientes_CurrentChanged;
             // 
@@ -347,7 +349,9 @@
             dataGridContactos.Columns.AddRange(new DataGridViewColumn[] { whatsappDataGridViewTextBoxColumn, telefonoDataGridViewTextBoxColumn, instagramDataGridViewTextBoxColumn, facebookDataGridViewTextBoxColumn, emailDataGridViewTextBoxColumn });
             dataGridContactos.DataSource = contactosBindingSource;
             dataGridContactos.Dock = DockStyle.Fill;
+            dataGridContactos.EditMode = DataGridViewEditMode.EditProgrammatically;
             dataGridContactos.Location = new Point(3, 19);
+            dataGridContactos.MultiSelect = false;
             dataGridContactos.Name = "dataGridContactos";
             dataGridContactos.ReadOnly = true;
             dataGridContactos.RowHeadersVisible = false;
@@ -466,7 +470,7 @@
             groupBox3.Controls.Add(dataGridClientes);
             groupBox3.Location = new Point(3, 2);
             groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(866, 519);
+            groupBox3.Size = new Size(866, 406);
             groupBox3.TabIndex = 3;
             groupBox3.TabStop = false;
             groupBox3.Text = "Clientes";
