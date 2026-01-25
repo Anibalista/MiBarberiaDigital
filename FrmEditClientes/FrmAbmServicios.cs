@@ -1,7 +1,7 @@
 ﻿using Entidades_SGBM;
 using Front_SGBM.UXDesign;
 using Negocio_SGBM;
-using System.Xml.Serialization;
+using System.Windows.Forms;
 
 namespace Front_SGBM
 {
@@ -53,7 +53,7 @@ namespace Front_SGBM
             {
                 _categoriaSeleccionada = null;
                 cbCategorias.DataSource = null;
-                List<Categorias>? categorias = CategoriasNegocio.Listar(ref mensaje);
+                List<Categorias>? categorias = CategoriasNegocio.ListarPorIndole("Servicios", ref mensaje);
                 if (!string.IsNullOrWhiteSpace(mensaje))
                     Mensajes.mensajeAdvertencia(mensaje);
                 if (categorias == null)
@@ -81,10 +81,17 @@ namespace Front_SGBM
                 cargando = true;
                 _servicioSeleccionado = null;
                 bindingSourceServicios.DataSource = null;
+                List<Servicios>? lista;
                 _servicios = ServiciosNegocio.Listar(ref mensaje);
+                if (_servicios != null && !checkAnulados.Checked)
+                    lista = _servicios;
+                else
+                    lista = _servicios.Where(s => s.activo == true).ToList();
+
                 if (!string.IsNullOrWhiteSpace(mensaje))
                     Mensajes.mensajeAdvertencia(mensaje);
-                bindingSourceServicios.DataSource = _servicios;
+
+                bindingSourceServicios.DataSource = lista;
                 refrescarGrillaServicios();
             }
             catch (Exception ex)
@@ -183,8 +190,8 @@ namespace Front_SGBM
         //Botones
         private void btnSalir_Click(object sender, EventArgs e)
         {
-            DialogResult respuesta = Mensajes.respuesta("¿Confirma cerrar el formulario? Los cambios no se guardarán");
-            if (respuesta == DialogResult.Yes)
+            bool confirmar = Mensajes.confirmarCierre();
+            if (confirmar)
                 cerrarFormulario();
         }
 
@@ -368,13 +375,11 @@ namespace Front_SGBM
             }
         }
 
-        private void setError(Control campo ,string error)
+        private void setError(Control campo, string error)
         {
             errorProvider1.SetError(campo, error);
         }
 
-
-        ///
         //Métodos de búsqueda y filtros
         private void filtroRapidoNombre(string nombre)
         {
@@ -384,15 +389,20 @@ namespace Front_SGBM
                 _costos = null;
                 _servicioSeleccionado = null;
                 bindingSourceServicios.DataSource = null;
+
+                List<Servicios>? lista;
+
                 if (nombre.Length < 3)
                 {
-                    bindingSourceServicios.DataSource = _servicios;
+                    lista = _servicios.Where(s => s.activo == true || s.activo == !checkAnulados.Checked).ToList();
                 }
                 else
                 {
-                    List<Servicios>? lista = _servicios.Where(s => s.NombreServicio.Contains(nombre, StringComparison.OrdinalIgnoreCase)).ToList();
-                    bindingSourceServicios.DataSource = lista;
+                    lista = _servicios.Where(s => s.NombreServicio.Contains(nombre, StringComparison.OrdinalIgnoreCase)
+                            && (s.activo == true || s.activo == !checkAnulados.Checked)).ToList();
                 }
+
+                bindingSourceServicios.DataSource = lista;
                 refrescarGrillaServicios();
             }
             catch (Exception ex)
@@ -420,14 +430,14 @@ namespace Front_SGBM
                 string mensaje = string.Empty;
                 bindingSourceServicios.DataSource = null;
                 _servicios = null;
-                
+
                 string campo = cbCampos.Text.Trim().ToLower();
                 string criterio = cbCriterios.Text.Trim().ToLower();
                 string valor = txtBusqueda.Text.Trim().ToLower();
                 int idCategoria = _categoriaSeleccionada?.IdCategoria ?? 0;
-                
+
                 _servicios = ServiciosNegocio.BuscarAvanzado(campo, criterio, valor, idCategoria, ref mensaje);
-               
+
                 if (!string.IsNullOrWhiteSpace(mensaje))
                     Mensajes.mensajeError("Error al buscar" + mensaje);
 
@@ -494,6 +504,21 @@ namespace Front_SGBM
             if (!buscarNumerico)
                 return;
             e.Handled = !Validaciones.esDigitoDecimal(e.KeyChar);
+        }
+
+        private void checkAnulados_CheckedChanged(object sender, EventArgs e)
+        {
+            if (cerrando)
+                return;
+            try
+            {
+                filtroRapidoNombre(txtFiltroRapido.Text);
+            }
+            catch (Exception ex)
+            {
+                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                return;
+            }
         }
     }
 }

@@ -75,6 +75,7 @@
             bindingSourceProductos = new BindingSource(components);
             lblSelectProducto = new Label();
             errorProvider1 = new ErrorProvider(components);
+            checkActivo = new CheckBox();
             groupBoxBotones.SuspendLayout();
             groupBoxCampos.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)bindingSourceCategorias).BeginInit();
@@ -119,6 +120,7 @@
             // 
             // groupBoxCampos
             // 
+            groupBoxCampos.Controls.Add(checkActivo);
             groupBoxCampos.Controls.Add(cbCategoria);
             groupBoxCampos.Controls.Add(checkComision);
             groupBoxCampos.Controls.Add(lblCategoria);
@@ -153,7 +155,7 @@
             cbCategoria.FormattingEnabled = true;
             cbCategoria.Location = new Point(112, 311);
             cbCategoria.Name = "cbCategoria";
-            cbCategoria.Size = new Size(299, 23);
+            cbCategoria.Size = new Size(204, 23);
             cbCategoria.TabIndex = 9;
             cbCategoria.ValueMember = "IdCategoria";
             // 
@@ -562,6 +564,18 @@
             errorProvider1.BlinkStyle = ErrorBlinkStyle.NeverBlink;
             errorProvider1.ContainerControl = this;
             // 
+            // checkActivo
+            // 
+            checkActivo.AutoSize = true;
+            checkActivo.Checked = true;
+            checkActivo.CheckState = CheckState.Checked;
+            checkActivo.Location = new Point(354, 313);
+            checkActivo.Name = "checkActivo";
+            checkActivo.Size = new Size(104, 19);
+            checkActivo.TabIndex = 19;
+            checkActivo.Text = "Servicio Activo";
+            checkActivo.UseVisualStyleBackColor = true;
+            // 
             // FrmEditServicios
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -635,5 +649,6 @@
         private Label lblTotal;
         private Button btnLimpiar;
         private ErrorProvider errorProvider1;
+        private CheckBox checkActivo;
     }
 }

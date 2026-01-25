@@ -38,6 +38,9 @@ namespace Entidades_SGBM
         [ForeignKey("Categorias")]
         public int IdCategoria { get; set; }
 
+        [Column(TypeName = "bit")]
+        public bool activo {  get; set; }
+
         public Categorias? Categorias { get; set; }
 
         public override string ToString()

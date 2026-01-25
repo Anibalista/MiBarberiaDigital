@@ -26,7 +26,7 @@ namespace Front_SGBM
 
         private void cerrarFormulario(object sender, EventArgs e)
         {
-            cerrando = Validaciones.confirmarCierre();
+            cerrando = Mensajes.confirmarCierre();
             if (!cerrando)
                 return;
             try
@@ -71,6 +71,7 @@ namespace Front_SGBM
                 txtPuntaje.Text = _servicio.Puntaje.ToString("0.00") ?? "";
                 txtPrecio.Text = _servicio.PrecioVenta.ToString("0.00");
                 txtComision.Text = _servicio.Comision.ToString("0.00");
+                checkActivo.Checked = _servicio.activo;
                 seleccionarCategoria();
             }
             catch (Exception ex)
@@ -89,6 +90,7 @@ namespace Front_SGBM
             txtPuntaje.Enabled = activos;
             txtComision.Enabled = activos;
             cbCategoria.Enabled = activos;
+            checkActivo.Enabled = activos;
             btnAdminCostos.Enabled = activos;
             administrandoCostos = activos;
             activarCamposInsumos();
@@ -146,7 +148,7 @@ namespace Front_SGBM
                 bindingSourceCategorias.DataSource = null;
                 _categorias = null;
                 string mensaje = string.Empty;
-                _categorias = CategoriasNegocio.Listar(ref mensaje);
+                _categorias = CategoriasNegocio.ListarPorIndole("Servicios", ref mensaje);
                 if (!string.IsNullOrWhiteSpace(mensaje))
                     MessageBox.Show(mensaje, "Error Fatal", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
@@ -592,6 +594,8 @@ namespace Front_SGBM
                         _servicio.IdCategoria = (int)seleccionada.IdCategoria;
                 }
 
+                _servicio.activo = checkActivo.Checked;
+
                 ////ver costos
                 return correcto;
             }
@@ -832,6 +836,7 @@ namespace Front_SGBM
                 {
                     seleccionada = new Categorias();
                     seleccionada.Descripcion = Validaciones.capitalizarTexto(cbCategoria.Text.Trim());
+                    seleccionada.Indole = "Servicios";
                 }
                 return seleccionada;
             }

@@ -4,12 +4,6 @@ namespace Front_SGBM
 {
     public static class Validaciones
     {
-        public static bool confirmarCierre()
-        {
-            DialogResult respuesta = MessageBox.Show("¿Seguro desea salir? Los cambios no guardados se perderán", "Confirmación", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            return respuesta == DialogResult.Yes;
-        }
-
         public static bool esDigitoDecimal(char c)
         {
             return char.IsDigit(c) || c == '.' || c == ',' || c == '\b';
@@ -20,7 +14,7 @@ namespace Front_SGBM
             return char.IsNumber(c) || c == '\b';
         }
 
-        public static bool esNumeroDecimal(string numero, ref string mensaje)
+        public static bool esNumeroDecimal(string numero, ref string mensaje, bool obligatorio = true)
         {
             if (string.IsNullOrEmpty(numero))
             {

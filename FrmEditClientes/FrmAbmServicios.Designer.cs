@@ -30,6 +30,7 @@
         {
             components = new System.ComponentModel.Container();
             groupBoxFiltro = new GroupBox();
+            checkAnulados = new CheckBox();
             btnLimpiar = new Button();
             btnBuscar = new Button();
             cbCategorias = new ComboBox();
@@ -84,6 +85,7 @@
             // groupBoxFiltro
             // 
             groupBoxFiltro.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+            groupBoxFiltro.Controls.Add(checkAnulados);
             groupBoxFiltro.Controls.Add(btnLimpiar);
             groupBoxFiltro.Controls.Add(btnBuscar);
             groupBoxFiltro.Controls.Add(cbCategorias);
@@ -101,6 +103,17 @@
             groupBoxFiltro.TabIndex = 0;
             groupBoxFiltro.TabStop = false;
             groupBoxFiltro.Text = "Filtros";
+            // 
+            // checkAnulados
+            // 
+            checkAnulados.AutoSize = true;
+            checkAnulados.Location = new Point(9, 47);
+            checkAnulados.Name = "checkAnulados";
+            checkAnulados.Size = new Size(112, 19);
+            checkAnulados.TabIndex = 14;
+            checkAnulados.Text = "Incluir Anulados";
+            checkAnulados.UseVisualStyleBackColor = true;
+            checkAnulados.CheckedChanged += checkAnulados_CheckedChanged;
             // 
             // btnLimpiar
             // 
@@ -151,7 +164,7 @@
             // labelCampo1
             // 
             labelCampo1.AutoSize = true;
-            labelCampo1.Location = new Point(6, 154);
+            labelCampo1.Location = new Point(6, 162);
             labelCampo1.Name = "labelCampo1";
             labelCampo1.Size = new Size(36, 15);
             labelCampo1.TabIndex = 9;
@@ -159,7 +172,7 @@
             // 
             // txtBusqueda
             // 
-            txtBusqueda.Location = new Point(92, 151);
+            txtBusqueda.Location = new Point(92, 159);
             txtBusqueda.MaxLength = 149;
             txtBusqueda.Name = "txtBusqueda";
             txtBusqueda.Size = new Size(181, 23);
@@ -170,7 +183,7 @@
             // 
             cbCriterios.DropDownStyle = ComboBoxStyle.DropDownList;
             cbCriterios.FormattingEnabled = true;
-            cbCriterios.Location = new Point(92, 108);
+            cbCriterios.Location = new Point(92, 118);
             cbCriterios.Name = "cbCriterios";
             cbCriterios.Size = new Size(181, 23);
             cbCriterios.TabIndex = 7;
@@ -179,7 +192,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(6, 111);
+            label1.Location = new Point(6, 121);
             label1.Name = "label1";
             label1.Size = new Size(52, 15);
             label1.TabIndex = 6;
@@ -189,7 +202,7 @@
             // 
             cbCampos.DropDownStyle = ComboBoxStyle.DropDownList;
             cbCampos.FormattingEnabled = true;
-            cbCampos.Location = new Point(92, 62);
+            cbCampos.Location = new Point(92, 77);
             cbCampos.Name = "cbCampos";
             cbCampos.Size = new Size(181, 23);
             cbCampos.TabIndex = 5;
@@ -198,7 +211,7 @@
             // txtFiltroRapido
             // 
             txtFiltroRapido.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtFiltroRapido.Location = new Point(6, 22);
+            txtFiltroRapido.Location = new Point(6, 19);
             txtFiltroRapido.Name = "txtFiltroRapido";
             txtFiltroRapido.PlaceholderText = "Filtro Rápido Por Nombre";
             txtFiltroRapido.Size = new Size(269, 23);
@@ -208,7 +221,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(6, 65);
+            label2.Location = new Point(3, 80);
             label2.Name = "label2";
             label2.Size = new Size(69, 15);
             label2.TabIndex = 4;
@@ -459,7 +472,7 @@
             btnRegistrar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnRegistrar.Location = new Point(3, 19);
             btnRegistrar.Name = "btnRegistrar";
-            btnRegistrar.Size = new Size(275, 48);
+            btnRegistrar.Size = new Size(275, 39);
             btnRegistrar.TabIndex = 7;
             btnRegistrar.Tag = "btnPrincipalV";
             btnRegistrar.Text = "Nuevo Servicio";
@@ -472,7 +485,7 @@
             groupBoxBtnNuevo.Controls.Add(btnRegistrar);
             groupBoxBtnNuevo.Location = new Point(768, 12);
             groupBoxBtnNuevo.Name = "groupBoxBtnNuevo";
-            groupBoxBtnNuevo.Size = new Size(281, 70);
+            groupBoxBtnNuevo.Size = new Size(281, 61);
             groupBoxBtnNuevo.TabIndex = 7;
             groupBoxBtnNuevo.TabStop = false;
             // 
@@ -551,5 +564,6 @@
         private DataGridViewTextBoxColumn puntajeDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn categoriasDataGridViewTextBoxColumn;
         private ErrorProvider errorProvider1;
+        private CheckBox checkAnulados;
     }
 }

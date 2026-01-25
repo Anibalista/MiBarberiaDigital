@@ -15,6 +15,9 @@ namespace Entidades_SGBM
         [MaxLength(150)]
         public string Descripcion { get; set; }
 
+        [MaxLength(50)]
+        public string Indole { get; set; }
+
         public override string ToString()
         {
             return Descripcion ?? "";

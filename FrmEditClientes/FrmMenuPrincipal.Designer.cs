@@ -61,6 +61,8 @@ namespace Front_SGBM
             lblSubTitulo = new Label();
             lblTitulo = new Label();
             pnlContent = new Panel();
+            productosToolStripMenuItem = new ToolStripMenuItem();
+            aBMProductosToolStripMenuItem = new ToolStripMenuItem();
             menuStrip.SuspendLayout();
             statusStrip.SuspendLayout();
             pnlHeader.SuspendLayout();
@@ -81,7 +83,7 @@ namespace Front_SGBM
             // 
             // administracionToolMenuItem
             // 
-            administracionToolMenuItem.DropDownItems.AddRange(new ToolStripItem[] { clientesToolStripMenuItem, serviciosToolStripMenuItem });
+            administracionToolMenuItem.DropDownItems.AddRange(new ToolStripItem[] { clientesToolStripMenuItem, serviciosToolStripMenuItem, productosToolStripMenuItem });
             administracionToolMenuItem.Name = "administracionToolMenuItem";
             administracionToolMenuItem.Size = new Size(100, 23);
             administracionToolMenuItem.Text = "Administracion";
@@ -258,6 +260,7 @@ namespace Front_SGBM
             btnProductos.TabIndex = 5;
             btnProductos.Text = "Productos";
             btnProductos.UseVisualStyleBackColor = true;
+            btnProductos.Click += btnProductos_Click;
             // 
             // btnReportes
             // 
@@ -325,6 +328,20 @@ namespace Front_SGBM
             pnlContent.Name = "pnlContent";
             pnlContent.Size = new Size(1165, 560);
             pnlContent.TabIndex = 5;
+            // 
+            // productosToolStripMenuItem
+            // 
+            productosToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aBMProductosToolStripMenuItem });
+            productosToolStripMenuItem.Name = "productosToolStripMenuItem";
+            productosToolStripMenuItem.Size = new Size(180, 22);
+            productosToolStripMenuItem.Text = "Productos";
+            // 
+            // aBMProductosToolStripMenuItem
+            // 
+            aBMProductosToolStripMenuItem.Name = "aBMProductosToolStripMenuItem";
+            aBMProductosToolStripMenuItem.Size = new Size(180, 22);
+            aBMProductosToolStripMenuItem.Text = "ABM Productos";
+            aBMProductosToolStripMenuItem.Click += aBMProductosToolStripMenuItem_Click;
             // 
             // FrmMenuPrincipal
             // 
@@ -398,6 +415,8 @@ namespace Front_SGBM
         private ToolStripMenuItem serviciosToolStripMenuItem;
         private ToolStripMenuItem aBMServiciosToolStripMenuItem;
         private ToolStripMenuItem nuevoServicioToolStripMenuItem;
+        private ToolStripMenuItem productosToolStripMenuItem;
+        private ToolStripMenuItem aBMProductosToolStripMenuItem;
     }
 }
 

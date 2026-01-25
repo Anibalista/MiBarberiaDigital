@@ -1,10 +1,5 @@
 ﻿using EF_SGBM;
 using Entidades_SGBM;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Datos_SGBM
 {
@@ -18,7 +13,7 @@ namespace Datos_SGBM
         }
 
 
-        public static List<Categorias>? ListaCategorias(ref string mensaje)
+        public static List<Categorias>? ListaCategoriasPorIndole(string indole, ref string mensaje)
         {
             try
             {
@@ -27,7 +22,8 @@ namespace Datos_SGBM
                     if (!ComprobarContexto(contexto, ref mensaje))
                         return null;
 
-                    return contexto.Categorias
+                    return contexto.Categorias.Where(c => c.Indole.ToLower() == indole.ToLower()
+                                    || string.IsNullOrWhiteSpace(indole))
                                    .OrderBy(c => c.Descripcion)
                                    .ToList();
                 }

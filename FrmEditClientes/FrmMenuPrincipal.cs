@@ -110,6 +110,12 @@ namespace Front_SGBM
             frm.modo = modo;
             frm.Show();
         }
+        public void abrirAbmProductos(object sender, EventArgs e, EnumModoForm modo)
+        {
+            FrmAbmProductos frm = (FrmAbmProductos)AbrirFrmHijo<FrmAbmProductos>(true);
+            frm.modo = modo;
+            frm.Show();
+        }
 
         public void abrirAbmServicios(object sender, EventArgs e, EnumModoForm modo)
         {
@@ -229,10 +235,9 @@ namespace Front_SGBM
 
         private void btnServicios_Click(object sender, EventArgs e)
         {
-            // 1. Defino las opciones del submenú
             var opcionesClientes = new List<EstiloAplicacion.OpcionMenu>
             {
-                // OPCIÓN A: Nuevo Cliente -> Abre FrmEditClientes
+                
                 new EstiloAplicacion.OpcionMenu("Nuevo Servicio", (s, args) =>
                 {
                     Form frm = AbrirFrmHijo<FrmEditServicios>(false);
@@ -249,5 +254,30 @@ namespace Front_SGBM
             EstiloAplicacion.ToggleSubMenu(this, (Button)sender, opcionesClientes);
         }
 
+        private void aBMProductosToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            abrirAbmProductos(sender, e, EnumModoForm.Consulta);
+        }
+
+        private void btnProductos_Click(object sender, EventArgs e)
+        {
+            var opcionesClientes = new List<EstiloAplicacion.OpcionMenu>
+            {
+                /*
+                new EstiloAplicacion.OpcionMenu("Nuevo Producto", (s, args) =>
+                {
+                    Form frm = AbrirFrmHijo<FrmEditServicios>(false);
+                    frm.Show();
+                }),*/
+
+                new EstiloAplicacion.OpcionMenu("Gestión Productos", (s, args) =>
+                {
+                    Form frm = AbrirFrmHijo<FrmAbmProductos>(true);
+                    frm.Show();
+                })
+            };
+
+            EstiloAplicacion.ToggleSubMenu(this, (Button)sender, opcionesClientes);
+        }
     }
 }

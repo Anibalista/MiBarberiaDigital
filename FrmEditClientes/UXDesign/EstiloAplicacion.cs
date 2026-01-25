@@ -493,7 +493,7 @@ namespace Front_SGBM.UXDesign
         }
 
         // Estilo específico para botones generales (CRUD)
-        private static void StyleButton(Button btn)
+        public static void StyleButton(Button btn)
         {
             btn.FlatStyle = FlatStyle.Flat;
             btn.TextAlign = ContentAlignment.MiddleCenter; // centrado

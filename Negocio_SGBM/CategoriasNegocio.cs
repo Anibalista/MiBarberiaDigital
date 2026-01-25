@@ -28,11 +28,16 @@ namespace Negocio_SGBM
             return true;
         }
 
-        public static List<Categorias>? Listar(ref string mensaje)
+        public static List<Categorias>? ListarPorIndole(string indole, ref string mensaje)
         {
             try
             {
-                List<Categorias>? lista = CategoriasDatos.ListaCategorias(ref mensaje);
+                if (string.IsNullOrWhiteSpace(indole))
+                {
+                    mensaje = "No llega el índole de la categoría a la consulta";
+                    return null;
+                }
+                List<Categorias>? lista = CategoriasDatos.ListaCategoriasPorIndole(indole, ref mensaje);
                 return lista;
             }
             catch (Exception ex)

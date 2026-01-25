@@ -29,5 +29,12 @@ namespace Front_SGBM
             DialogResult resultado = MessageBox.Show(pregunta, caption, botones, MessageBoxIcon.Question);
             return resultado;
         }
+
+        public static bool confirmarCierre()
+        {
+
+            DialogResult confirmacion = respuesta("¿Seguro desea salir? Los cambios no guardados se perderán");
+            return confirmacion == DialogResult.Yes;
+        }
     }
 }
