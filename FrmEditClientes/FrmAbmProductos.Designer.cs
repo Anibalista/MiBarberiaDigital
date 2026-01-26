@@ -39,13 +39,6 @@
             txtFiltro = new TextBox();
             lblFiltro = new Label();
             dataGridProductos = new DataGridView();
-            codProductoDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            descripcionDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            precioVentaDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            stockDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            cantidadMedidaDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            medidaDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            costoDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             bindingSourceProductos = new BindingSource(components);
             groupBoxEdit = new GroupBox();
             lblPorcentaje = new Label();
@@ -80,6 +73,14 @@
             btnNuevo = new Button();
             btnSalir = new Button();
             errorProvider1 = new ErrorProvider(components);
+            codProductoDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            descripcionDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            precioVentaDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            stockDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            cantidadMedidaDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            medidaDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            costoDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            Comision = new DataGridViewTextBoxColumn();
             groupBoxProductos.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridProductos).BeginInit();
             ((System.ComponentModel.ISupportInitialize)bindingSourceProductos).BeginInit();
@@ -127,7 +128,7 @@
             cbCategoríaAbm.Location = new Point(712, 26);
             cbCategoríaAbm.Name = "cbCategoríaAbm";
             cbCategoríaAbm.Size = new Size(224, 23);
-            cbCategoríaAbm.TabIndex = 7;
+            cbCategoríaAbm.TabIndex = 3;
             cbCategoríaAbm.SelectedIndexChanged += cbCategoríaAbm_SelectedIndexChanged;
             // 
             // btnModificar
@@ -137,7 +138,7 @@
             btnModificar.Location = new Point(979, 40);
             btnModificar.Name = "btnModificar";
             btnModificar.Size = new Size(91, 23);
-            btnModificar.TabIndex = 6;
+            btnModificar.TabIndex = 4;
             btnModificar.Text = "Modificar";
             btnModificar.UseVisualStyleBackColor = true;
             btnModificar.Click += btnModificar_Click;
@@ -164,7 +165,7 @@
             checkSinStock.Location = new Point(470, 43);
             checkSinStock.Name = "checkSinStock";
             checkSinStock.Size = new Size(110, 19);
-            checkSinStock.TabIndex = 4;
+            checkSinStock.TabIndex = 2;
             checkSinStock.Text = "Incluir Sin Stock";
             checkSinStock.UseVisualStyleBackColor = true;
             checkSinStock.CheckedChanged += checkSinStock_CheckedChanged;
@@ -176,7 +177,7 @@
             checkAnulados.Location = new Point(470, 18);
             checkAnulados.Name = "checkAnulados";
             checkAnulados.Size = new Size(112, 19);
-            checkAnulados.TabIndex = 3;
+            checkAnulados.TabIndex = 1;
             checkAnulados.Text = "Incluir Anulados";
             checkAnulados.UseVisualStyleBackColor = true;
             checkAnulados.CheckedChanged += checkAnulados_CheckedChanged;
@@ -187,7 +188,7 @@
             txtFiltro.Location = new Point(67, 26);
             txtFiltro.Name = "txtFiltro";
             txtFiltro.Size = new Size(382, 23);
-            txtFiltro.TabIndex = 2;
+            txtFiltro.TabIndex = 0;
             txtFiltro.TextChanged += txtFiltro_TextChanged;
             // 
             // lblFiltro
@@ -206,7 +207,7 @@
             dataGridProductos.AllowUserToOrderColumns = true;
             dataGridProductos.AutoGenerateColumns = false;
             dataGridProductos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridProductos.Columns.AddRange(new DataGridViewColumn[] { codProductoDataGridViewTextBoxColumn, descripcionDataGridViewTextBoxColumn, precioVentaDataGridViewTextBoxColumn, stockDataGridViewTextBoxColumn, cantidadMedidaDataGridViewTextBoxColumn, medidaDataGridViewTextBoxColumn, costoDataGridViewTextBoxColumn });
+            dataGridProductos.Columns.AddRange(new DataGridViewColumn[] { codProductoDataGridViewTextBoxColumn, descripcionDataGridViewTextBoxColumn, precioVentaDataGridViewTextBoxColumn, stockDataGridViewTextBoxColumn, cantidadMedidaDataGridViewTextBoxColumn, medidaDataGridViewTextBoxColumn, costoDataGridViewTextBoxColumn, Comision });
             dataGridProductos.DataSource = bindingSourceProductos;
             dataGridProductos.Dock = DockStyle.Bottom;
             dataGridProductos.EditMode = DataGridViewEditMode.EditProgrammatically;
@@ -217,71 +218,8 @@
             dataGridProductos.RowHeadersVisible = false;
             dataGridProductos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridProductos.Size = new Size(1172, 399);
-            dataGridProductos.TabIndex = 0;
+            dataGridProductos.TabIndex = 6;
             dataGridProductos.SelectionChanged += dataGridProductos_SelectionChanged;
-            // 
-            // codProductoDataGridViewTextBoxColumn
-            // 
-            codProductoDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            codProductoDataGridViewTextBoxColumn.DataPropertyName = "CodProducto";
-            codProductoDataGridViewTextBoxColumn.FillWeight = 12F;
-            codProductoDataGridViewTextBoxColumn.HeaderText = "Código";
-            codProductoDataGridViewTextBoxColumn.Name = "codProductoDataGridViewTextBoxColumn";
-            codProductoDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // descripcionDataGridViewTextBoxColumn
-            // 
-            descripcionDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            descripcionDataGridViewTextBoxColumn.DataPropertyName = "Descripcion";
-            descripcionDataGridViewTextBoxColumn.FillWeight = 30F;
-            descripcionDataGridViewTextBoxColumn.HeaderText = "Descripcion";
-            descripcionDataGridViewTextBoxColumn.Name = "descripcionDataGridViewTextBoxColumn";
-            descripcionDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // precioVentaDataGridViewTextBoxColumn
-            // 
-            precioVentaDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            precioVentaDataGridViewTextBoxColumn.DataPropertyName = "PrecioVenta";
-            precioVentaDataGridViewTextBoxColumn.FillWeight = 13F;
-            precioVentaDataGridViewTextBoxColumn.HeaderText = "Precio de Venta";
-            precioVentaDataGridViewTextBoxColumn.Name = "precioVentaDataGridViewTextBoxColumn";
-            precioVentaDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // stockDataGridViewTextBoxColumn
-            // 
-            stockDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            stockDataGridViewTextBoxColumn.DataPropertyName = "Stock";
-            stockDataGridViewTextBoxColumn.FillWeight = 8F;
-            stockDataGridViewTextBoxColumn.HeaderText = "Stock";
-            stockDataGridViewTextBoxColumn.Name = "stockDataGridViewTextBoxColumn";
-            stockDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // cantidadMedidaDataGridViewTextBoxColumn
-            // 
-            cantidadMedidaDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            cantidadMedidaDataGridViewTextBoxColumn.DataPropertyName = "CantidadMedida";
-            cantidadMedidaDataGridViewTextBoxColumn.FillWeight = 15F;
-            cantidadMedidaDataGridViewTextBoxColumn.HeaderText = "Dosificación";
-            cantidadMedidaDataGridViewTextBoxColumn.Name = "cantidadMedidaDataGridViewTextBoxColumn";
-            cantidadMedidaDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // medidaDataGridViewTextBoxColumn
-            // 
-            medidaDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            medidaDataGridViewTextBoxColumn.DataPropertyName = "Medida";
-            medidaDataGridViewTextBoxColumn.FillWeight = 9F;
-            medidaDataGridViewTextBoxColumn.HeaderText = "Cant. Suelta";
-            medidaDataGridViewTextBoxColumn.Name = "medidaDataGridViewTextBoxColumn";
-            medidaDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // costoDataGridViewTextBoxColumn
-            // 
-            costoDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            costoDataGridViewTextBoxColumn.DataPropertyName = "Costo";
-            costoDataGridViewTextBoxColumn.FillWeight = 14F;
-            costoDataGridViewTextBoxColumn.HeaderText = "Costo";
-            costoDataGridViewTextBoxColumn.Name = "costoDataGridViewTextBoxColumn";
-            costoDataGridViewTextBoxColumn.ReadOnly = true;
             // 
             // bindingSourceProductos
             // 
@@ -337,7 +275,7 @@
             btnLimpiar.Location = new Point(657, 156);
             btnLimpiar.Name = "btnLimpiar";
             btnLimpiar.Size = new Size(219, 23);
-            btnLimpiar.TabIndex = 23;
+            btnLimpiar.TabIndex = 11;
             btnLimpiar.Text = "Limpiar Selección";
             btnLimpiar.UseVisualStyleBackColor = true;
             btnLimpiar.Click += btnLimpiar_Click;
@@ -360,7 +298,7 @@
             cbEditCategoria.Location = new Point(324, 156);
             cbEditCategoria.Name = "cbEditCategoria";
             cbEditCategoria.Size = new Size(300, 23);
-            cbEditCategoria.TabIndex = 21;
+            cbEditCategoria.TabIndex = 10;
             cbEditCategoria.ValueMember = "IdCategoria";
             // 
             // bindingSourceCategorias
@@ -373,7 +311,7 @@
             txtCantMedida.Location = new Point(93, 157);
             txtCantMedida.Name = "txtCantMedida";
             txtCantMedida.Size = new Size(97, 23);
-            txtCantMedida.TabIndex = 20;
+            txtCantMedida.TabIndex = 9;
             txtCantMedida.KeyPress += txtNumerico_KeyPress;
             // 
             // lblCantMedida
@@ -399,7 +337,8 @@
             txtComision.Location = new Point(327, 68);
             txtComision.Name = "txtComision";
             txtComision.Size = new Size(52, 23);
-            txtComision.TabIndex = 17;
+            txtComision.TabIndex = 4;
+            txtComision.TextChanged += txtComision_TextChanged;
             txtComision.KeyPress += txtDecimal_KeyPress;
             // 
             // lblComision
@@ -436,7 +375,8 @@
             txtCosto.Location = new Point(505, 68);
             txtCosto.Name = "txtCosto";
             txtCosto.Size = new Size(119, 23);
-            txtCosto.TabIndex = 13;
+            txtCosto.TabIndex = 5;
+            txtCosto.TextChanged += txtCosto_TextChanged;
             txtCosto.KeyPress += txtDecimal_KeyPress;
             // 
             // lblCosto
@@ -458,8 +398,9 @@
             cbUdMedida.Location = new Point(324, 111);
             cbUdMedida.Name = "cbUdMedida";
             cbUdMedida.Size = new Size(300, 23);
-            cbUdMedida.TabIndex = 11;
+            cbUdMedida.TabIndex = 7;
             cbUdMedida.ValueMember = "IdUnidadMedida";
+            cbUdMedida.SelectedIndexChanged += cbUdMedida_SelectedIndexChanged;
             // 
             // bindingSourceMedidas
             // 
@@ -472,7 +413,7 @@
             txtMedida.Location = new Point(774, 111);
             txtMedida.Name = "txtMedida";
             txtMedida.Size = new Size(102, 23);
-            txtMedida.TabIndex = 10;
+            txtMedida.TabIndex = 8;
             txtMedida.KeyPress += txtNumerico_KeyPress;
             // 
             // lblMedida
@@ -490,7 +431,7 @@
             txtStockUds.Location = new Point(93, 111);
             txtStockUds.Name = "txtStockUds";
             txtStockUds.Size = new Size(97, 23);
-            txtStockUds.TabIndex = 8;
+            txtStockUds.TabIndex = 6;
             txtStockUds.KeyPress += txtNumerico_KeyPress;
             // 
             // lblStockUds
@@ -507,7 +448,8 @@
             txtPrecioVenta.Location = new Point(93, 68);
             txtPrecioVenta.Name = "txtPrecioVenta";
             txtPrecioVenta.Size = new Size(97, 23);
-            txtPrecioVenta.TabIndex = 6;
+            txtPrecioVenta.TabIndex = 3;
+            txtPrecioVenta.TextChanged += txtPrecioVenta_TextChanged;
             txtPrecioVenta.KeyPress += txtDecimal_KeyPress;
             // 
             // lblPrecio
@@ -528,7 +470,7 @@
             checkActivo.Location = new Point(774, 28);
             checkActivo.Name = "checkActivo";
             checkActivo.Size = new Size(60, 19);
-            checkActivo.TabIndex = 4;
+            checkActivo.TabIndex = 2;
             checkActivo.Text = "Activo";
             checkActivo.UseVisualStyleBackColor = true;
             // 
@@ -538,7 +480,7 @@
             txtDescripcion.Location = new Point(327, 26);
             txtDescripcion.Name = "txtDescripcion";
             txtDescripcion.Size = new Size(425, 23);
-            txtDescripcion.TabIndex = 3;
+            txtDescripcion.TabIndex = 1;
             // 
             // lblDescripcion
             // 
@@ -554,7 +496,7 @@
             txtCodigo.Location = new Point(70, 26);
             txtCodigo.Name = "txtCodigo";
             txtCodigo.Size = new Size(120, 23);
-            txtCodigo.TabIndex = 1;
+            txtCodigo.TabIndex = 0;
             txtCodigo.KeyPress += txtNumerico_KeyPress;
             // 
             // lblCodigo
@@ -586,7 +528,7 @@
             btnGuardar.Location = new Point(6, 76);
             btnGuardar.Name = "btnGuardar";
             btnGuardar.Size = new Size(266, 45);
-            btnGuardar.TabIndex = 5;
+            btnGuardar.TabIndex = 1;
             btnGuardar.Tag = "btnPrincipal";
             btnGuardar.Text = "Guardar Cambios";
             btnGuardar.UseVisualStyleBackColor = true;
@@ -599,7 +541,7 @@
             btnNuevo.Location = new Point(6, 22);
             btnNuevo.Name = "btnNuevo";
             btnNuevo.Size = new Size(266, 45);
-            btnNuevo.TabIndex = 4;
+            btnNuevo.TabIndex = 0;
             btnNuevo.Tag = "btnPrincipalV";
             btnNuevo.Text = "Registrar Nuevo";
             btnNuevo.UseVisualStyleBackColor = true;
@@ -612,7 +554,7 @@
             btnSalir.Location = new Point(6, 134);
             btnSalir.Name = "btnSalir";
             btnSalir.Size = new Size(266, 45);
-            btnSalir.TabIndex = 3;
+            btnSalir.TabIndex = 2;
             btnSalir.Tag = "btnPrincipalR";
             btnSalir.Text = "Salir";
             btnSalir.UseVisualStyleBackColor = true;
@@ -622,6 +564,78 @@
             // 
             errorProvider1.BlinkStyle = ErrorBlinkStyle.NeverBlink;
             errorProvider1.ContainerControl = this;
+            // 
+            // codProductoDataGridViewTextBoxColumn
+            // 
+            codProductoDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            codProductoDataGridViewTextBoxColumn.DataPropertyName = "CodProducto";
+            codProductoDataGridViewTextBoxColumn.FillWeight = 10F;
+            codProductoDataGridViewTextBoxColumn.HeaderText = "Código";
+            codProductoDataGridViewTextBoxColumn.Name = "codProductoDataGridViewTextBoxColumn";
+            codProductoDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // descripcionDataGridViewTextBoxColumn
+            // 
+            descripcionDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            descripcionDataGridViewTextBoxColumn.DataPropertyName = "Descripcion";
+            descripcionDataGridViewTextBoxColumn.FillWeight = 28F;
+            descripcionDataGridViewTextBoxColumn.HeaderText = "Descripcion";
+            descripcionDataGridViewTextBoxColumn.Name = "descripcionDataGridViewTextBoxColumn";
+            descripcionDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // precioVentaDataGridViewTextBoxColumn
+            // 
+            precioVentaDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            precioVentaDataGridViewTextBoxColumn.DataPropertyName = "PrecioVenta";
+            precioVentaDataGridViewTextBoxColumn.FillWeight = 13F;
+            precioVentaDataGridViewTextBoxColumn.HeaderText = "Precio de Venta";
+            precioVentaDataGridViewTextBoxColumn.Name = "precioVentaDataGridViewTextBoxColumn";
+            precioVentaDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // stockDataGridViewTextBoxColumn
+            // 
+            stockDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            stockDataGridViewTextBoxColumn.DataPropertyName = "Stock";
+            stockDataGridViewTextBoxColumn.FillWeight = 8F;
+            stockDataGridViewTextBoxColumn.HeaderText = "Stock";
+            stockDataGridViewTextBoxColumn.Name = "stockDataGridViewTextBoxColumn";
+            stockDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // cantidadMedidaDataGridViewTextBoxColumn
+            // 
+            cantidadMedidaDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            cantidadMedidaDataGridViewTextBoxColumn.DataPropertyName = "CantidadMedida";
+            cantidadMedidaDataGridViewTextBoxColumn.FillWeight = 13F;
+            cantidadMedidaDataGridViewTextBoxColumn.HeaderText = "Dosificación";
+            cantidadMedidaDataGridViewTextBoxColumn.Name = "cantidadMedidaDataGridViewTextBoxColumn";
+            cantidadMedidaDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // medidaDataGridViewTextBoxColumn
+            // 
+            medidaDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            medidaDataGridViewTextBoxColumn.DataPropertyName = "Medida";
+            medidaDataGridViewTextBoxColumn.FillWeight = 9F;
+            medidaDataGridViewTextBoxColumn.HeaderText = "Cant. Suelta";
+            medidaDataGridViewTextBoxColumn.Name = "medidaDataGridViewTextBoxColumn";
+            medidaDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // costoDataGridViewTextBoxColumn
+            // 
+            costoDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            costoDataGridViewTextBoxColumn.DataPropertyName = "Costo";
+            costoDataGridViewTextBoxColumn.FillWeight = 12F;
+            costoDataGridViewTextBoxColumn.HeaderText = "Costo";
+            costoDataGridViewTextBoxColumn.Name = "costoDataGridViewTextBoxColumn";
+            costoDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // Comision
+            // 
+            Comision.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Comision.DataPropertyName = "Comision";
+            Comision.FillWeight = 7F;
+            Comision.HeaderText = "Comision";
+            Comision.Name = "Comision";
+            Comision.ReadOnly = true;
             // 
             // FrmAbmProductos
             // 
@@ -653,13 +667,6 @@
         private GroupBox groupBoxProductos;
         private DataGridView dataGridProductos;
         private BindingSource bindingSourceProductos;
-        private DataGridViewTextBoxColumn codProductoDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn descripcionDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn precioVentaDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn stockDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn cantidadMedidaDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn medidaDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn costoDataGridViewTextBoxColumn;
         private TextBox txtFiltro;
         private Label lblFiltro;
         private CheckBox checkSinStock;
@@ -701,5 +708,13 @@
         private Button btnGuardar;
         private Label lblPorcentaje;
         private ErrorProvider errorProvider1;
+        private DataGridViewTextBoxColumn codProductoDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn descripcionDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn precioVentaDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn stockDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn cantidadMedidaDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn medidaDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn costoDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn Comision;
     }
 }
