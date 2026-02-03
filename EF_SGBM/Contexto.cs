@@ -41,6 +41,8 @@ namespace EF_SGBM
         public DbSet<CostosServicios> CostosServicios { get; set; }
         public DbSet<Membresias> Membresias { get; set; }
         public DbSet<MembresiasServicios> MembresiasServicios { get; set; }
+        public DbSet<TiposCajas> TiposCajas { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

@@ -310,7 +310,7 @@ namespace Front_SGBM
 
         private bool importarCliente(ref string mensaje)
         {
-            return ClientesNegocio.importarCliente(_cliente, _contacto, ref mensaje);
+            return ClientesNegocio.ImportarCliente(_cliente, _contacto, ref mensaje);
         }
 
         public bool importarArchivoClientes()

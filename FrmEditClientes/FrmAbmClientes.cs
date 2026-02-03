@@ -164,7 +164,7 @@ namespace Front_SGBM
             cargarValores();
             string opcion = cbBusqueda.Text;
             incluirAnulados = checkAnulados.Checked;
-            _clientes = ClientesNegocio.getListadoDeClientes(opcion, _campo1, _campo2, _localidadBuscada, incluirAnulados, ref mensaje);
+            _clientes = ClientesNegocio.GetListadoDeClientes(opcion, _campo1, _campo2, _localidadBuscada, incluirAnulados, ref mensaje);
             return _clientes != null;
         }
 
@@ -208,7 +208,7 @@ namespace Front_SGBM
             {
                 if (modo != EnumModoForm.Venta)
                 {
-                    padre.abrirEditClientes(sender, e, EnumModoForm.Modificacion, _cliente);
+                    padre.AbrirEditClientes(sender, e, EnumModoForm.Modificacion, _cliente);
                 }
                 ///
                 //Acá hacer el enlace a la venta
@@ -226,7 +226,7 @@ namespace Front_SGBM
                 return;
             try 
             {
-                padre.abrirEditClientes(sender, e, EnumModoForm.Alta);
+                padre.AbrirEditClientes(sender, e, EnumModoForm.Alta);
             } 
             catch (Exception ex)
             {
@@ -334,7 +334,7 @@ namespace Front_SGBM
             FrmMenuPrincipal padre = Application.OpenForms.OfType<FrmMenuPrincipal>().FirstOrDefault();
             if (padre != null)
             {
-                padre.abrirEditClientes(sender, e, EnumModoForm.Consulta, _cliente);
+                padre.AbrirEditClientes(sender, e, EnumModoForm.Consulta, _cliente);
             }
         }
     }

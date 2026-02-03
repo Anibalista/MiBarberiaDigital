@@ -88,7 +88,7 @@ namespace Front_SGBM
 
         //Inicio de Métodos propios
         //Accesos
-        public void abrirEditClientes(object sender, EventArgs e, EnumModoForm modo, Clientes? cliente = null)
+        public void AbrirEditClientes(object sender, EventArgs e, EnumModoForm modo, Clientes? cliente = null)
         {
             FrmEditClientes frm = (FrmEditClientes)AbrirFrmHijo<FrmEditClientes>(true);
             frm._cliente = cliente;
@@ -96,28 +96,37 @@ namespace Front_SGBM
             frm.Show();
         }
 
-        public void abrirAbmClientes(object sender, EventArgs e, EnumModoForm modo)
+        public void AbrirAbmClientes(object sender, EventArgs e, EnumModoForm modo)
         {
             FrmAbmClientes frm = (FrmAbmClientes)AbrirFrmHijo<FrmAbmClientes>(true);
             frm.modo = modo;
             frm.Show();
         }
 
-        public void abrirEditServicios(object sender, EventArgs e, EnumModoForm modo, Servicios? servicio = null)
+        public void AbrirEditServicios(object sender, EventArgs e, EnumModoForm modo, Servicios? servicio = null)
         {
             FrmEditServicios frm = (FrmEditServicios)AbrirFrmHijo<FrmEditServicios>(true);
             frm._servicio = servicio;
             frm.modo = modo;
             frm.Show();
         }
-        public void abrirAbmProductos(object sender, EventArgs e, EnumModoForm modo)
+
+        public void AbrirEditEmpleados(object sender, EventArgs e, EnumModoForm modo, Empleados? empleado = null)
+        {
+            FrmEditBarbero frm = (FrmEditBarbero)AbrirFrmHijo<FrmEditBarbero>(true);
+            frm._barbero = empleado;
+            frm.modo = modo;
+            frm.Show();
+        }
+
+        public void AbrirAbmProductos(object sender, EventArgs e, EnumModoForm modo)
         {
             FrmAbmProductos frm = (FrmAbmProductos)AbrirFrmHijo<FrmAbmProductos>(true);
             frm.modo = modo;
             frm.Show();
         }
 
-        public void abrirAbmServicios(object sender, EventArgs e, EnumModoForm modo)
+        public void AbrirAbmServicios(object sender, EventArgs e, EnumModoForm modo)
         {
             FrmAbmServicios frm = (FrmAbmServicios)AbrirFrmHijo<FrmAbmServicios>(true);
             frm.modo = modo;
@@ -125,7 +134,7 @@ namespace Front_SGBM
         }
 
         //Métodos genéricos
-        public void abrirFrmContactos(EnumModoForm modo, string origen, List<Contactos>? contactos, Panel content)
+        public void AbrirFrmContactos(EnumModoForm modo, string origen, List<Contactos>? contactos, Panel content)
         {
             FrmContactos frm = (FrmContactos)AbrirFrmHijo<FrmContactos>(true, content);
             frm.origen = origen;
@@ -135,32 +144,41 @@ namespace Front_SGBM
         }
 
         //Opciones
-        private void nuevoClienteToolStripMenuItem_Click(object sender, EventArgs e)
+        private void NuevoClienteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            abrirEditClientes(sender, e, EnumModoForm.Alta);
+            AbrirEditClientes(sender, e, EnumModoForm.Alta);
         }
 
-        private void abmClientesToolStripMenuItem_Click(object sender, EventArgs e)
+        private void AbmClientesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            abrirAbmClientes(sender, e, EnumModoForm.Consulta);
+            AbrirAbmClientes(sender, e, EnumModoForm.Consulta);
         }
 
-        private void nuevoServicioToolStripMenuItem_Click(object sender, EventArgs e)
+        private void NuevoServicioToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            abrirEditServicios(sender, e, EnumModoForm.Alta);
+            AbrirEditServicios(sender, e, EnumModoForm.Alta);
         }
 
-        private void aBMServiciosToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ABMServiciosToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            abrirAbmServicios(sender, e, EnumModoForm.Consulta);
+            AbrirAbmServicios(sender, e, EnumModoForm.Consulta);
+        }
+        private void ABMProductosToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AbrirAbmProductos(sender, e, EnumModoForm.Consulta);
         }
 
-        private void btnVentas_Click(object sender, EventArgs e)
+        private void nuevoModificarToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AbrirEditEmpleados(sender, e, EnumModoForm.Alta);
+        }
+
+        private void BtnVentas_Click(object sender, EventArgs e)
         {
 
         }
 
-        private void btnClientes_Click(object sender, EventArgs e)
+        private void BtnClientes_Click(object sender, EventArgs e)
         {
             // 1. Defino las opciones del submenú
             var opcionesClientes = new List<EstiloAplicacion.OpcionMenu>
@@ -185,7 +203,7 @@ namespace Front_SGBM
             EstiloAplicacion.ToggleSubMenu(this, (Button)sender, opcionesClientes);
         }
 
-        private void comboTemas_SelectedIndexChanged(object sender, EventArgs e)
+        private void ComboTemas_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (cerrando) return;
 
@@ -224,7 +242,7 @@ namespace Front_SGBM
 
         }
 
-        private void btnSalir_Click(object sender, EventArgs e)
+        private void BtnSalir_Click(object sender, EventArgs e)
         {
             DialogResult respuesta = MessageBox.Show("¿Desea cerrar la aplicación?\nLos cambios no guardados se perderán", "Confirmar Cierre", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (respuesta == DialogResult.No)
@@ -233,11 +251,11 @@ namespace Front_SGBM
             Close();
         }
 
-        private void btnServicios_Click(object sender, EventArgs e)
+        private void BtnServicios_Click(object sender, EventArgs e)
         {
             var opcionesClientes = new List<EstiloAplicacion.OpcionMenu>
             {
-                
+
                 new EstiloAplicacion.OpcionMenu("Nuevo Servicio", (s, args) =>
                 {
                     Form frm = AbrirFrmHijo<FrmEditServicios>(false);
@@ -254,12 +272,8 @@ namespace Front_SGBM
             EstiloAplicacion.ToggleSubMenu(this, (Button)sender, opcionesClientes);
         }
 
-        private void aBMProductosToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            abrirAbmProductos(sender, e, EnumModoForm.Consulta);
-        }
 
-        private void btnProductos_Click(object sender, EventArgs e)
+        private void BtnProductos_Click(object sender, EventArgs e)
         {
             var opcionesClientes = new List<EstiloAplicacion.OpcionMenu>
             {
@@ -279,5 +293,6 @@ namespace Front_SGBM
 
             EstiloAplicacion.ToggleSubMenu(this, (Button)sender, opcionesClientes);
         }
+
     }
 }

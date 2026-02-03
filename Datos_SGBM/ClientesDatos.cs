@@ -1,203 +1,213 @@
 ﻿using EF_SGBM;
 using Entidades_SGBM;
 using Microsoft.EntityFrameworkCore;
+using Utilidades;
 
 namespace Datos_SGBM
 {
+    /// <summary>
+    /// Clase de acceso a datos para la entidad Clientes.
+    /// Contiene métodos de comprobación de contexto y operaciones CRUD.
+    /// </summary>
     public class ClientesDatos
     {
-        static Contexto contexto;
-        //Comprobaciones
-        public static bool comprobarContexto(ref string mensaje)
+        /// <summary>
+        /// Comprueba que las entidades necesarias del contexto estén disponibles.
+        /// </summary>
+        /// <param name="contexto">Instancia del contexto de base de datos.</param>
+        /// <param name="mensaje">Mensaje de error si la validación falla.</param>
+        /// <returns>True si todas las entidades están disponibles, False en caso contrario.</returns>
+        public static bool ComprobarContexto(Contexto contexto, ref string mensaje)
         {
             ComprobacionContexto comprobar = new ComprobacionContexto(contexto);
+
+            // Verifica la entidad Estados
             if (!comprobar.ComprobarEntidad(contexto.Estados, ref mensaje))
                 return false;
+
+            // Verifica la entidad Clientes
             if (!comprobar.ComprobarEntidad(contexto.Clientes, ref mensaje))
                 return false;
+
+            // Verifica la entidad Personas
             return comprobar.ComprobarEntidad(contexto.Personas, ref mensaje);
         }
 
-        public static bool comprobarCliente(Clientes? cliente, bool registro, ref string mensaje)
+        /// <summary>
+        /// Obtiene un cliente a partir del ID de persona.
+        /// </summary>
+        /// <param name="idPersona">ID de la persona asociada al cliente.</param>
+        /// <param name="mensaje">Mensaje de error si la consulta falla.</param>
+        /// <returns>Cliente encontrado o null si no existe.</returns>
+        public static Clientes? GetClientePorIdPersona(int idPersona, ref string mensaje)
         {
-            if (cliente == null)
-            {
-                mensaje = "La información del cliente no llega a la consulta de la BD";
-                return false;
-            }
-            if (cliente.IdEstado < 1)
-            {
-                mensaje = "La información del cliente (Estado) no llega a la consulta de la BD";
-                return false;
-            }
-            if (!registro)
-            {
-                if (cliente.IdCliente == null)
-                {
-                    mensaje = "La información del cliente (Id) no llega a la consulta de la BD";
-                    return false;
-                }
-                return true;
-            }
-            if (cliente.Personas == null && cliente.IdPersona < 1)
-            {
-                mensaje = "La informacion personal del cliente no llega a la capa de datos";
-                return false;
-            }
-            return true;
-        }
-
-        //Consulta
-        public static Clientes? getClientePorIdPersona(int idPersona, ref string mensaje)
-        {
+            // Valida que el ID sea mayor a cero
             if (idPersona < 1)
             {
                 mensaje = "El ID de la persona no llega a la consulta";
                 return null;
             }
-            contexto = new Contexto();
-            if (!comprobarContexto(ref mensaje))
-            {
-                return null;
-            }
-            Clientes? cliente = null;
+
             try
             {
-                cliente = contexto.Clientes.Include("Estados").Where(c => c.IdPersona == idPersona).FirstOrDefault();
+                using (var contexto = new Contexto())
+                {
+                    // Comprueba que el contexto esté correcto
+                    if (!ComprobarContexto(contexto, ref mensaje))
+                        return null;
+
+                    // Incluye relaciones: Personas -> Domicilios -> Localidades
+                    return contexto.Clientes.Include(c => c.Personas)
+                                            .ThenInclude(p => p.Domicilios)
+                                            .ThenInclude(d => d.Localidades)
+                                            .FirstOrDefault(c => c.IdPersona == idPersona);
+                }
             }
             catch (Exception ex)
             {
-                mensaje = ex.Message + "ClientesDatos";
+                Logger.LogError(ex.Message);
+                mensaje = "Error en la búsqueda de clientes (capa datos)";
                 return null;
             }
-
-            return cliente;
         }
 
-        public static List<Clientes>? getClientes(ref string mensaje)
+        /// <summary>
+        /// Obtiene todos los clientes ordenados por apellido y nombre.
+        /// </summary>
+        /// <param name="mensaje">Mensaje de error si la consulta falla.</param>
+        /// <returns>Lista de clientes o null si ocurre un error.</returns>
+        public static List<Clientes>? GetClientes(ref string mensaje)
         {
-            contexto = new Contexto();
-            if (!comprobarContexto(ref mensaje))
-            {
-                return null;
-            }
-            List<Clientes>? clientes = null;
             try
             {
-                clientes = contexto.Clientes.Include(c => c.Estados)
-                            .Include(c => c.Personas)
-                                .ThenInclude(p => p.Domicilios)
-                                    .ThenInclude(d => d.Localidades).ToList();
+                using (Contexto contexto = new Contexto())
+                {
+                    if (!ComprobarContexto(contexto, ref mensaje))
+                        return null;
+
+                    // Incluye Estados, Personas y sus relaciones
+                    return contexto.Clientes.Include(c => c.Estados)
+                                            .Include(c => c.Personas)
+                                                .ThenInclude(p => p.Domicilios)
+                                                    .ThenInclude(d => d.Localidades)
+                                            .OrderBy(c => c.Personas.Apellidos)
+                                            .ThenBy(c => c.Personas.Nombres)
+                                            .ToList();
+                }
             }
             catch (Exception ex)
             {
-                mensaje = ex.Message + "ClientesDatos";
+                Logger.LogError(ex.Message);
+                mensaje = ex.Message + "(Capa Datos)";
                 return null;
             }
-            return clientes;
         }
 
-        public static List<Clientes>? getClientesPorDniNombres(string? dni, string? nombres, ref string mensaje)
+        /// <summary>
+        /// Obtiene clientes filtrados por DNI y/o nombres.
+        /// </summary>
+        /// <param name="dni">DNI del cliente.</param>
+        /// <param name="nombres">Nombres o apellidos del cliente.</param>
+        /// <param name="mensaje">Mensaje de error si la consulta falla.</param>
+        /// <returns>Lista de clientes filtrados o null si ocurre un error.</returns>
+        public static List<Clientes>? GetClientesPorDniNombres(string? dni, string? nombres, ref string mensaje)
         {
+            // Valida que al menos un dato de búsqueda llegue
             if (String.IsNullOrWhiteSpace(dni) && String.IsNullOrWhiteSpace(nombres))
             {
-                mensaje = "No llegan los datos de búsqueda";
+                mensaje = "No llegan los datos de búsqueda a la consulta";
                 return null;
             }
 
-            contexto = new Contexto();
-            if (!comprobarContexto(ref mensaje))
-            {
-                return null;
-            }
-
-            List<Clientes>? clientes = null;
             try
             {
-                clientes = contexto.Clientes.Include(c => c.Estados)
-                            .Include(c => c.Personas)
-                                .ThenInclude(p => p.Domicilios)
-                                    .ThenInclude(d => d.Localidades)
-                            .Where(c => c.Personas != null && 
-                                    (c.Personas.Dni.Contains(dni ?? "") &&
-                                     (c.Personas.Nombres.Contains(nombres ?? "")
-                                     || c.Personas.Apellidos.Contains(nombres ?? ""))))
-                            .OrderBy(c => c.Personas.Apellidos)
-                            .ThenBy(c => c.Personas.Nombres)
-                            .ToList();
+                using (Contexto contexto = new Contexto())
+                {
+                    if (!ComprobarContexto(contexto, ref mensaje))
+                        return null;
+
+                    // Filtra clientes por coincidencia en DNI y nombres/apellidos
+                    return contexto.Clientes.Include(c => c.Estados)
+                                            .Include(c => c.Personas)
+                                                .ThenInclude(p => p.Domicilios)
+                                                    .ThenInclude(d => d.Localidades)
+                                            .Where(c => c.Personas != null &&
+                                                        (c.Personas.Dni.Contains(dni ?? "") &&
+                                                         (c.Personas.Nombres.Contains(nombres ?? "") ||
+                                                          c.Personas.Apellidos.Contains(nombres ?? ""))))
+                                            .OrderBy(c => c.Personas.Apellidos)
+                                            .ThenBy(c => c.Personas.Nombres)
+                                            .ToList();
+                }
             }
             catch (Exception ex)
             {
-                mensaje = ex.Message + "ClientesDatos";
+                Logger.LogError(ex.Message);
+                mensaje = ex.Message + " (Capa Datos)";
                 return null;
             }
-            return clientes;
         }
 
-        //Registro
-        public static int registrarCliente (Clientes? cliente, ref string mensaje)
+        /// <summary>
+        /// Registra un nuevo cliente en la base de datos.
+        /// </summary>
+        /// <param name="cliente">Cliente a registrar.</param>
+        /// <param name="mensaje">Mensaje de error si la operación falla.</param>
+        /// <returns>ID del cliente registrado o -1 si ocurre un error.</returns>
+        public static int RegistrarCliente(Clientes cliente, ref string mensaje)
         {
-            if (!comprobarCliente(cliente, true, ref mensaje))
-            {
-                return -1;
-            }
-            contexto = new Contexto();
-            if (!comprobarContexto(ref mensaje))
-            {
-                return -1;
-            }
-            int id = 0;
+            cliente.IdCliente = null; // Reinicia el ID antes de registrar
+
             try
             {
-                contexto.Clientes.Add(cliente);
-                id = contexto.SaveChanges();
-            } catch (Exception ex)
+                using (Contexto contexto = new Contexto())
+                {
+                    if (!ComprobarContexto(contexto, ref mensaje))
+                        return -1;
+
+                    contexto.Add(cliente);
+                    contexto.SaveChanges();
+
+                    // Retorna el ID generado
+                    return cliente.IdCliente ?? 0;
+                }
+            }
+            catch (Exception ex)
             {
-                mensaje = "Error: " + ex.Message + "ClientesDatos";
+                Logger.LogError(ex.Message);
+                mensaje = ex.Message + " (Capa Datos)";
                 return -1;
             }
-            return id;
         }
 
-        //Modificaciones
-        public static bool modificarCliente(Clientes? cliente, ref string mensaje)
+        /// <summary>
+        /// Modifica un cliente existente en la base de datos.
+        /// </summary>
+        /// <param name="cliente">Cliente a modificar.</param>
+        /// <param name="mensaje">Mensaje de error si la operación falla.</param>
+        /// <returns>True si la modificación fue exitosa, False en caso contrario.</returns>
+        public static bool ModificarCliente(Clientes cliente, ref string mensaje)
         {
-            if (!comprobarCliente(cliente, false, ref mensaje))
-            {
-                return false;
-            }
-            contexto = new Contexto();
-            if (!comprobarContexto(ref mensaje))
-            {
-                return false;
-            }
-            Clientes? c = null;
             try
             {
-                c = contexto.Clientes.FirstOrDefault(cl => cl.IdCliente == cliente.IdCliente);
-            } catch (Exception ex)
+                using (Contexto contexto = new Contexto())
+                {
+                    if (!ComprobarContexto(contexto, ref mensaje))
+                        return false;
+
+                    contexto.Update(cliente);
+                    int exito = contexto.SaveChanges();
+
+                    // Retorna true si se modificó al menos un registro
+                    return exito > 0;
+                }
+            }
+            catch (Exception ex)
             {
-                mensaje = ex.Message + "ClientesDatos";
+                Logger.LogError(ex.Message);
+                mensaje = ex.Message + " (Capa Datos)";
                 return false;
             }
-            if (c == null)
-            {
-                mensaje = "Problemas al obtener la información de registro del cliente";
-                return false;
-            }
-            c.IdEstado = cliente.IdEstado;
-            c.IdPersona = cliente.IdPersona;
-            int exito = 0;
-            try
-            {
-                contexto.Clientes.Update(c);
-                exito = contexto.SaveChanges();
-            } catch (Exception ex)
-            {
-                mensaje = ex.Message + "ClientesDatos";
-                return false;
-            }
-            return exito > 0;
         }
     }
 }

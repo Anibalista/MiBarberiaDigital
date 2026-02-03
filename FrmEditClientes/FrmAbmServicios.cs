@@ -202,7 +202,7 @@ namespace Front_SGBM
                 return;
             try
             {
-                padre.abrirEditServicios(sender, e, EnumModoForm.Alta);
+                padre.AbrirEditServicios(sender, e, EnumModoForm.Alta);
             }
             catch (Exception ex)
             {
@@ -222,7 +222,7 @@ namespace Front_SGBM
             }
             try
             {
-                padre.abrirEditServicios(sender, e, EnumModoForm.Consulta, _servicioSeleccionado);
+                padre.AbrirEditServicios(sender, e, EnumModoForm.Consulta, _servicioSeleccionado);
             }
             catch (Exception ex)
             {
@@ -243,7 +243,7 @@ namespace Front_SGBM
             try
             {
                 if (modo != EnumModoForm.Venta)
-                    padre.abrirEditServicios(sender, e, EnumModoForm.Modificacion, _servicioSeleccionado);
+                    padre.AbrirEditServicios(sender, e, EnumModoForm.Modificacion, _servicioSeleccionado);
 
                 ///
                 //Programar para la venta

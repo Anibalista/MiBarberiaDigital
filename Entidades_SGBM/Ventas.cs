@@ -27,8 +27,13 @@ namespace Entidades_SGBM
         [ForeignKey("Empleados")]
         public int IdEmpleado { get; set; }
 
+        [ForeignKey("Estados")]
+        public int IdEstado { get; set; }
+
         public Clientes? Clientes { get; set; }
         public Empleados? Empleados { get; set; }
+        public Estados? Estados { get; set; }
+
 
         public override string ToString()
         {

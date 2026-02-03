@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Datos_SGBM\Datos_SGBM.csproj" />
     <ProjectReference Include="..\Entidades_SGBM\Entidades_SGBM.csproj" />
+    <ProjectReference Include="..\Utilidades\Utilidades.csproj" />
   </ItemGroup>
 
 </Project>

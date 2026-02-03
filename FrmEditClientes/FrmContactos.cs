@@ -166,6 +166,13 @@ namespace Front_SGBM
                 {
                     frmEditClientes.editandoContactos = false;
                 }
+            } else if (origen == "Barberos")
+            {
+                FrmEditBarbero frmEditBarbero = Application.OpenForms.OfType<FrmEditBarbero>().FirstOrDefault();
+                if (frmEditBarbero != null)
+                {
+                    frmEditBarbero.editandoContactos = false;
+                }
             }
             this.Close();
         }
@@ -295,6 +302,13 @@ namespace Front_SGBM
                 if (frmEditClientes != null)
                 {
                     exito = frmEditClientes.traerContactos(_contactosNuevos);
+                }
+            } else if (origen == "Barberos")
+            {
+                FrmEditBarbero frmEditBarberos = Application.OpenForms.OfType<FrmEditBarbero>().FirstOrDefault();
+                if (frmEditBarberos != null)
+                {
+                    exito = frmEditBarberos.TraerContactos(_contactosNuevos);
                 }
             }
             if (!exito)

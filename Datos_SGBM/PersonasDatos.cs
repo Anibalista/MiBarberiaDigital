@@ -1,122 +1,126 @@
 ﻿using EF_SGBM;
 using Entidades_SGBM;
 using Microsoft.EntityFrameworkCore;
+using Utilidades;
 
 namespace Datos_SGBM
 {
+    /// <summary>
+    /// Clase de acceso a datos para la entidad Personas.
+    /// Contiene métodos de validación de contexto, obtención de listas,
+    /// búsquedas específicas y edición de registros.
+    /// </summary>
     public class PersonasDatos
     {
-        static Contexto contexto;
-        //Comprobaciones
-        public static bool comprobarContexto(ref string mensaje)
+        #region Validaciones (contexto)
+
+        /// <summary>
+        /// Valida que el contexto tenga disponibles las entidades necesarias
+        /// para operar con Personas, Domicilios, Localidades y Provincias.
+        /// </summary>
+        /// <param name="contexto">Instancia del contexto de base de datos.</param>
+        /// <param name="mensaje">Mensaje de error en caso de fallo.</param>
+        /// <returns>true si el contexto es válido; false en caso contrario.</returns>
+        static bool ComprobarContexto(Contexto contexto, ref string mensaje)
         {
-            if (contexto == null)
-            {
-                mensaje = "No se conecta a la BD";
+            ComprobacionContexto comprobar = new ComprobacionContexto(contexto);
+
+            if (!comprobar.ComprobarEntidad(contexto.Personas, ref mensaje))
                 return false;
-            }
-            if (contexto.Personas == null)
-            {
-                mensaje = "No se conecta a la BD (Personas)";
+            if (!comprobar.ComprobarEntidad(contexto.Domicilios, ref mensaje))
                 return false;
-            }
+            if (!comprobar.ComprobarEntidad(contexto.Localidades, ref mensaje))
+                return false;
+            if (!comprobar.ComprobarEntidad(contexto.Provincias, ref mensaje))
+                return false;
+
             return true;
         }
 
+        #endregion
 
-        //Consultas
-        public static List<Personas>? getPersonas(ref string mensaje)
+        #region Listados
+
+        /// <summary>
+        /// Obtiene la lista completa de personas, incluyendo sus domicilios,
+        /// localidades y provincias asociadas.
+        /// </summary>
+        /// <param name="mensaje">Mensaje de error en caso de fallo.</param>
+        /// <returns>Lista de personas o null si ocurre un error.</returns>
+        public static List<Personas>? GetPersonas(ref string mensaje)
         {
-            contexto = new Contexto();
-            if (!comprobarContexto(ref mensaje))
-            {
-                return null;
-            }
-            List<Personas>? personas = null;
             try
             {
-                personas = contexto.Personas.Include("Domicilios").OrderBy(p => p.Apellidos).OrderBy(p => p.Nombres).ToList();
+                using (var contexto = new Contexto())
+                {
+                    if (!ComprobarContexto(contexto, ref mensaje))
+                        return null;
+
+                    return contexto.Personas
+                        .Include(p => p.Domicilios)
+                            .ThenInclude(d => d.Localidades.Provincias)
+                        .OrderBy(p => p.Apellidos)
+                        .OrderBy(p => p.Nombres)
+                        .ToList();
+                }
             }
             catch (Exception ex)
             {
-                mensaje = ex.Message + "PersonasDatos";
+                Logger.LogError(ex.Message);
+                mensaje = $"Error al obtener el registro de personas\n{ex.Message}";
                 return null;
             }
-            return personas;
-
-        }
-        public static int getIdPersonaPorDni(string dni, ref string mensaje)
-        {
-            if (String.IsNullOrWhiteSpace(dni))
-            {
-                mensaje = "El Dni no llega a la consulta";
-                return -1;
-            }
-            contexto = new Contexto();
-            if (contexto == null)
-            {
-                mensaje = "No se conecta a la BD";
-                return -1;
-            }
-            if (contexto.Personas == null)
-            {
-                mensaje = "No se conecta a la BD (Personas)";
-                return -1;
-            }
-            int? id = null;
-            try
-            {
-                id = contexto.Personas.Where(p => p.Dni == dni).Select(p => p.IdPersona).FirstOrDefault();
-            } catch (Exception ex)
-            {
-                mensaje = ex.Message + "PersonasDatos";
-                return -2;
-            }
-            if (id == null)
-            {
-                return 0;
-            }
-            return (int)id;          
-
         }
 
-        public static Personas? getPersonaPorDni(string dni, ref string mensaje)
+        #endregion
+
+        #region Búsquedas
+                
+        /// <summary>
+        /// Obtiene una persona a partir de su DNI, incluyendo domicilio,
+        /// localidad y provincia asociada.
+        /// </summary>
+        /// <param name="dni">Número de documento de la persona.</param>
+        /// <param name="mensaje">Mensaje de error en caso de fallo.</param>
+        /// <returns>Objeto Persona o null si ocurre un error.</returns>
+        public static Personas? GetPersonaPorDni(string dni, ref string mensaje)
         {
             if (String.IsNullOrWhiteSpace(dni))
             {
                 mensaje = "El Dni no llega a la consulta";
                 return null;
             }
-            contexto = new Contexto();
-            if (contexto == null)
-            {
-                mensaje = "No se conecta a la BD";
-                return null;
-            }
-            if (contexto.Personas == null)
-            {
-                mensaje = "No se conecta a la BD (Personas)";
-                return null;
-            }
-            Personas? persona = null;
+
             try
             {
-                persona = contexto.Personas.Where(p => p.Dni == dni).FirstOrDefault();
+                using (var contexto = new Contexto())
+                {
+                    if (!ComprobarContexto(contexto, ref mensaje))
+                        return null;
+
+                    return contexto.Personas
+                        .Include(p => p.Domicilios)
+                            .ThenInclude(d => d.Localidades.Provincias)
+                        .FirstOrDefault(p => p.Dni == dni);
+                }
             }
             catch (Exception ex)
             {
-                mensaje = ex.Message + "PersonasDatos";
+                mensaje = $"Error al obtener a la persona con Dni: {dni}\n{ex.Message}";
+                Logger.LogError(ex.Message);
                 return null;
             }
-            mensaje = "";
-            if (persona != null)
-            {
-                persona.Domicilios = DomiciliosDatos.getDomicilioPorPersona(persona, ref  mensaje);
-            }
-            return persona;
         }
 
-        public static List<Personas>? getPersonasPorDniNombres(string? dni, string? nombres, ref string mensaje)
+        /// <summary>
+        /// Obtiene una lista de personas filtradas por DNI o nombres.
+        /// Incluye domicilio, localidad y provincia asociada.
+        /// </summary>
+        /// <param name="dni">Número de documento parcial o completo.</param>
+        /// <param name="nombres">Nombres parciales o completos.</param>
+        /// <param name="mensaje">Mensaje de error en caso de fallo.</param>
+        /// <returns>Lista de personas o null si ocurre un error.</returns>
+        public static List<Personas>? GetPersonasPorDniNombres(string? dni, string? nombres, ref string mensaje)
         {
             if (String.IsNullOrWhiteSpace(dni) && String.IsNullOrWhiteSpace(nombres))
             {
@@ -124,154 +128,111 @@ namespace Datos_SGBM
                 return null;
             }
 
-            contexto = new Contexto();
-            if (!comprobarContexto(ref mensaje))
-            {
-                return null;
-            }
-
-            List<Personas>? personas = null;
             try
             {
-                personas = contexto.Personas
-                            .Include(p => p.Domicilios)
-                                .ThenInclude(d => d.Localidades)
-                            .Where(p => (dni == null || p.Dni.Contains(dni)) ||
-                                        (nombres == null || p.Nombres.Contains(nombres)))
-                            .OrderBy(p => p.Apellidos)
-                            .ThenBy(p => p.Nombres)
-                            .ToList();
+                using (var contexto = new Contexto())
+                {
+                    if (!ComprobarContexto(contexto, ref mensaje))
+                        return null;
+
+                    return contexto.Personas
+                        .Include(p => p.Domicilios)
+                            .ThenInclude(d => d.Localidades.Provincias)
+                        .Where(p => (dni == null || p.Dni.Contains(dni)) ||
+                                    (nombres == null || p.Nombres.Contains(nombres)))
+                        .OrderBy(p => p.Apellidos)
+                        .ThenBy(p => p.Nombres)
+                        .ToList();
+                }
             }
             catch (Exception ex)
             {
-                mensaje = ex.Message + "PersonasDatos";
+                mensaje = $"Error al obtener a la persona buscada\n{ex.Message}";
+                Logger.LogError(ex.Message);
                 return null;
             }
-            return personas;
         }
 
-        //Registros
-        public static int registrarPersona(Personas? persona, ref string mensaje)
+        #endregion
+
+        #region Edición (registro y modificación)
+
+        /// <summary>
+        /// Registra una nueva persona en la base de datos.
+        /// </summary>
+        /// <param name="persona">Objeto Persona a registrar.</param>
+        /// <param name="mensaje">Mensaje de error en caso de fallo.</param>
+        /// <returns>Id de la persona registrada, -1 si ocurre un error.</returns>
+        public static int RegistrarPersona(Personas? persona, ref string mensaje)
         {
             if (persona == null)
             {
                 mensaje = "La información de la persona no llega a la capa datos";
                 return -1;
             }
+
             persona.IdPersona = null;
-            contexto = new Contexto();
-            if (contexto == null)
-            {
-                mensaje = "Problemas de copnexión a la BD";
-                return -1;
-            }
-            if (contexto.Personas == null)
-            {
-                mensaje = "Problemas de copnexión a la BD (Personas)";
-                return -1;
-            }
-            if (persona.IdDomicilio != null)
-            {
-                persona.Domicilios = null;
-            }
-            if (persona.Domicilios != null)
-            {
-                persona.Domicilios.IdDomicilio = null;
-                if (persona.Domicilios.IdLocalidad > 0)
-                {
-                    persona.Domicilios.Localidades = null;
-                }
-            }
-            int exito = 0;
+
             try
             {
-                contexto.Personas.Add(persona);
-                exito = contexto.SaveChanges();
-            } catch (Exception ex)
+                using (var contexto = new Contexto())
+                {
+                    if (!ComprobarContexto(contexto, ref mensaje))
+                        return -1;
+
+                    contexto.Add(persona);
+                    contexto.SaveChanges();
+                    return persona.IdPersona ?? 0;
+                }
+            }
+            catch (Exception ex)
             {
-                mensaje = ex.Message + "PersonasDatos";
+                mensaje = $"Error al registrar a la persona\n{ex.Message}";
+                Logger.LogError(ex.Message);
                 return -1;
             }
-            if (exito == 0)
-            {
-                mensaje = "No se pudo completar el registro de la persona";
-                return 0;
-            }
-            if (persona.IdPersona == null)
-            {
-                mensaje = "No se pudo completar el registro de la persona";
-                return 0;
-            }
-            return (int)persona.IdPersona;
         }
 
-
-        //Modificaciones
-        public static int modificarPersona(Personas? persona, ref string mensaje)
+        /// <summary>
+        /// Modifica los datos de una persona existente en la base de datos.
+        /// </summary>
+        /// <param name="persona">Objeto Persona con datos actualizados.</param>
+        /// <param name="mensaje">Mensaje de error en caso de fallo.</param>
+        /// <returns>Número de registros afectados, -1 si ocurre un error.</returns>
+        public static int ModificarPersona(Personas? persona, ref string mensaje)
         {
             if (persona == null)
             {
                 mensaje = "Los datos personales llegan vacíos";
                 return -1;
             }
+
             if (persona.IdPersona < 1)
             {
                 mensaje = "No llega el Id de la persona a la capa datos";
                 return -1;
             }
 
-            contexto = new Contexto();
-            
-            if (contexto == null)
-            {
-                mensaje = "No se conecta a la BD";
-                return -1;
-            }
-            if (contexto.Personas == null)
-            {
-                mensaje = "No se conecta a la BD (Personas)";
-                return -1;
-            }
-            Personas? p = null;
             try
             {
-                p = contexto.Personas.Where(p => p.IdPersona == persona.IdPersona).FirstOrDefault();
-            } catch (Exception ex)
-            {
-                mensaje = ex.Message + "PersonasDatos";
-                return -1;
-            }
-            if (p == null)
-            {
-                mensaje = "No se puede encontrar a la persona a modificar";
-                return -1;
-            }
-            p.Dni = persona.Dni;
-            p.Nombres = persona.Nombres;
-            p.Apellidos = persona.Apellidos;
-            p.FechaNac = persona.FechaNac;
-            p.IdDomicilio = persona.IdDomicilio;
+                using (var contexto = new Contexto())
+                {
+                    if (!ComprobarContexto(contexto, ref mensaje))
+                        return -1;
 
-            int modificado = 0;
-            try
+                    contexto.Update(persona);
+                    int exito = contexto.SaveChanges();
+                    return exito;
+                }
+            }
+            catch (Exception ex)
             {
-                contexto.Personas.Update(p);
-                modificado = contexto.SaveChanges();
-            } catch (Exception ex)
-            {
-                mensaje = ex.Message + "PersonasDatos";
+                mensaje = $"Error al modificar los datos de la persona\n{ex.Message}";
+                Logger.LogError(ex.Message);
                 return -1;
             }
-            if (modificado == 0)
-            {
-                mensaje = "Problemas al modificar los registros de la persona";
-            } else
-            {
-                mensaje = "";
-            }
-            
-            return modificado;
-
         }
+
+        #endregion
     }
 }

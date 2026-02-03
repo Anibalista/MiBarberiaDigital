@@ -34,7 +34,7 @@ namespace Front_SGBM
                 FrmMenuPrincipal padre = Application.OpenForms.OfType<FrmMenuPrincipal>().FirstOrDefault();
                 if (padre != null)
                 {
-                    padre.abrirAbmServicios(sender, e, EnumModoForm.Consulta);
+                    padre.AbrirAbmServicios(sender, e, EnumModoForm.Consulta);
                 }
             }
             catch (Exception ex)

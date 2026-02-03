@@ -132,7 +132,7 @@ namespace Front_SGBM
             {
                 return false;
             }
-            _cliente = ClientesNegocio.getClientePorDni(_dni, ref mens);
+            _cliente = ClientesNegocio.GetClientePorDni(_dni, ref mens);
             if (!String.IsNullOrWhiteSpace(mens))
             {
                 mensaje = mens;
@@ -600,7 +600,7 @@ namespace Front_SGBM
                 _domicilio = null;
             }
             armarObjetoCliente();
-            if (!ClientesNegocio.registrarCliente(_cliente, _contactos, ref mensaje))
+            if (!ClientesNegocio.RegistrarCliente(_cliente, _contactos, ref mensaje))
             {
                 return false;
             }
@@ -660,7 +660,7 @@ namespace Front_SGBM
                 FrmMenuPrincipal frm = Application.OpenForms.OfType<FrmMenuPrincipal>().FirstOrDefault();
                 if (frm != null)
                 {
-                    frm.abrirAbmClientes(sender, e, modo);
+                    frm.AbrirAbmClientes(sender, e, modo);
                     Close();
                 } 
                 else
@@ -836,7 +836,7 @@ namespace Front_SGBM
                 return;
             }
 
-            principal.abrirFrmContactos(modoCont, "Clientes", _contactos, pnlContent);
+            principal.AbrirFrmContactos(modoCont, "Clientes", _contactos, pnlContent);
             return;
         }
         private void cbProvincia_SelectedIndexChanged(object sender, EventArgs e)
