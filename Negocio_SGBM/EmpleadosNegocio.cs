@@ -59,10 +59,10 @@ namespace Negocio_SGBM
             if (Empleado.IdPersona < 1)
                 return false;
 
-            Empleados? cl = null;
-            cl = GetEmpleadoPorDni(Empleado.Personas.Dni, ref mensaje);
+            Empleados? emp = null;
+            emp = GetEmpleadoPorDni(Empleado.Personas.Dni, ref mensaje);
             Empleado.Personas = null;
-            if (cl == null)
+            if (emp == null)
             {
                 if (!RegistrarEmpleadoBasico(Empleado, ref mensaje))
                     return false;
@@ -84,10 +84,10 @@ namespace Negocio_SGBM
                 return null;
             
             Empleados? Empleado = EmpleadosDatos.GetEmpleadoPorIdPersona((int)persona.IdPersona, ref mensaje);
-            if (Empleado != null)
-            {
-                Empleado.Personas = persona;
-            }
+            if (Empleado == null)
+                Empleado = new();
+            Empleado.Personas = persona;
+            Empleado.IdPersona = persona.IdPersona ?? 0;
             return Empleado;
         }
 

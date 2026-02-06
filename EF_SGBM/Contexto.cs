@@ -1,11 +1,6 @@
 ﻿using Entidades_SGBM;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EF_SGBM
 {
@@ -48,6 +43,26 @@ namespace EF_SGBM
         {
             string connString = ConfigurationManager.ConnectionStrings["Default"].ConnectionString;
             optionsBuilder.UseSqlServer(connString);
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // --- SOLUCIÓN GLOBAL AL BORRADO EN CASCADA---
+
+            // Este bucle busca TODAS las relaciones (Foreign Keys) del sistema
+            // y les quita el borrado en cascada (Cascade) cambiándolo a Restrict.
+            var cascadas = modelBuilder.Model.GetEntityTypes()
+                .SelectMany(t => t.GetForeignKeys())
+                .Where(fk => !fk.IsOwnership && fk.DeleteBehavior == DeleteBehavior.Cascade);
+
+            foreach (var fk in cascadas)
+            {
+                fk.DeleteBehavior = DeleteBehavior.Restrict;
+            }
+
+            // --- FIN DE LA SOLUCIÓN GLOBAL ---
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

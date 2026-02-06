@@ -49,11 +49,14 @@ namespace Negocio_SGBM
             try
             {
                 // Ajusta referencias de domicilio, localidad y provincia.
+                
                 if (persona.Domicilios != null)
                 {
                     persona.Domicilios.IdDomicilio = null;
                     persona.IdDomicilio = null;
-                    persona.Domicilios.IdLocalidad = persona.Domicilios.Localidades?.IdLocalidad ?? 0;
+                    persona.Domicilios.IdLocalidad = persona.Domicilios.IdLocalidad > 0 
+                        ? persona.Domicilios.IdLocalidad 
+                        : (persona.Domicilios.Localidades?.IdLocalidad ?? 0);
 
                     if (persona.Domicilios.IdLocalidad > 0)
                         persona.Domicilios.Localidades = null;

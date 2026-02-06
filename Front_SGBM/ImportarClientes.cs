@@ -1,12 +1,6 @@
 ﻿using Entidades_SGBM;
 using Negocio_SGBM;
 using OfficeOpenXml;
-using System;
-using System.Collections.Generic;
-using System.Drawing.Text;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Front_SGBM
 {

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Front_SGBM", "FrmEditClientes\Front_SGBM.csproj", "{313F537C-8663-4EAC-9A4F-ACCEFE87953C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Front_SGBM", "Front_SGBM\Front_SGBM.csproj", "{313F537C-8663-4EAC-9A4F-ACCEFE87953C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Negocio_SGBM", "Negocio_SGBM\Negocio_SGBM.csproj", "{5177E0A4-E38C-413E-B6EB-70C4827C0B5F}"
 EndProject

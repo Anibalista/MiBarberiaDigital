@@ -1,6 +1,6 @@
 using Front_SGBM;
 
-namespace FrmEditClientes
+namespace Front_SGBM
 {
     internal static class Program
     {

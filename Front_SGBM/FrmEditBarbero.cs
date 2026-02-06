@@ -621,10 +621,11 @@ namespace Front_SGBM
             DialogResult respuesta = Mensajes.respuesta(mensaje + "\n¿Desea registrar un nuevo Barbero?");
             if (respuesta == DialogResult.Yes)
             {
-                LimpiarCampos();
                 LimpiarValores(true);
+                LimpiarCampos();
                 modo = EnumModoForm.Alta;
                 cargarFormulario();
+                ActivarCamposEditables(false);
                 return;
             }
 
@@ -754,6 +755,8 @@ namespace Front_SGBM
             // Refresca la grilla para mostrar datos actualizados
             RefrescarGrilla();
 
+            errorProvider1.Clear();
+
             // Vacía los campos de texto
             txtDni.Text = string.Empty;
             txtNombre.Text = string.Empty;
@@ -792,7 +795,7 @@ namespace Front_SGBM
             dateTimeNacimiento.Value = _persona?.FechaNac ?? DateTime.Today;
 
             //Asigna la fecha de ingreso
-            dateTimeIngreso.Value = _barbero.FechaIngreso;
+            dateTimeIngreso.Value = _barbero.IdEmpleado != null ? _barbero.FechaIngreso : DateTime.Now;
 
             // Asigna el estado si existe.
             SeleccionarEstado();
@@ -1070,9 +1073,6 @@ namespace Front_SGBM
                 // Verificar si la fecha es menor a la actual (ayer o anterior), sino nulificar
                 _persona.FechaNac = fechaSeleccionada < DateTime.Today.AddDays(-1) ? fechaSeleccionada : null;
 
-                // Si la fecha es inválida, se asigna mensaje de error
-                if (_persona.FechaNac == null)
-                    mensaje = "La fecha de nacimiento debe ser anterior a hoy.";
             }
             catch (Exception ex)
             {
@@ -1484,7 +1484,7 @@ namespace Front_SGBM
             _barbero = EmpleadosNegocio.GetEmpleadoPorDni(txtDni.Text, ref mensaje);
 
             // Retorna true si se encontró un empleado válido
-            return _barbero != null;
+            return _barbero?.IdEmpleado != null;
         }
         #endregion
 
@@ -1631,6 +1631,13 @@ namespace Front_SGBM
         {
             if (!existe)
             {
+                if (_barbero?.Personas != null)
+                {
+                    Mensajes.mensajeExito($"El DNI: {txtDni.Text} ya es un cliente registrado. Cargando datos");
+                    PrepararModificacion();
+                    return;
+                }
+
                 // Si el DNI está libre, se habilita el registro
                 Mensajes.mensajeExito($"El DNI: {txtDni.Text} está libre para utilizar. Habilitando registro");
                 ActivarCamposEditables(true);
