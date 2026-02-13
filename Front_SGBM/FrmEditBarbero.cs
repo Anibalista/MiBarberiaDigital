@@ -226,7 +226,7 @@ namespace Front_SGBM
             try
             {
                 // Obtiene la lista de provincias o inicializa una nueva si es null con Entre Ríos como genérica
-                _provincias = DomiciliosNegocio.getProvincias()
+                _provincias = DomiciliosNegocio.GetProvincias()
                     ?? new List<Provincias> { new Provincias { Provincia = "Entre Ríos" } };
 
                 // Asigna la lista al binding
@@ -301,7 +301,7 @@ namespace Front_SGBM
 
                 // Si se encontró la provincia, carga sus localidades
                 if (_provincia != null)
-                    _localidades = DomiciliosNegocio.getLocalidadesPorProvincia(_provincia) ?? new List<Localidades>();
+                    _localidades = DomiciliosNegocio.GetLocalidadesPorProvincia(_provincia) ?? new List<Localidades>();
 
                 // Asigna la lista de localidades al binding
                 bindingLocalidades.DataSource = _localidades;
@@ -1221,9 +1221,9 @@ namespace Front_SGBM
                         ? txtPiso.Text.Trim() : null,
                     Depto = Validaciones.textoCorrecto(txtDepto.Text.Trim(), ref mensaje)
                         ? txtDepto.Text.Trim() : null,
-                    IdLocalidad = _localidad.IdLocalidad ?? 0,
-                    Localidades = _localidad.IdLocalidad != null
-                        ? null : _localidad
+                    IdLocalidad = _localidad?.IdLocalidad ?? 0,
+                    Localidades = _localidad?.IdLocalidad > 0
+                        ? _localidad : null
                 };
 
                 // Asigna el domicilio si fue válido
@@ -1293,7 +1293,7 @@ namespace Front_SGBM
                 _localidad ??= new Localidades { Localidad = Validaciones.capitalizarTexto(localidad, true) };
 
                 // Asigna la provincia correspondiente
-                _localidad.IdProvincia = _provincia.IdProvincia ?? 0;
+                _localidad.IdProvincia = _provincia?.IdProvincia ?? 0;
 
                 // Si la provincia no tiene Id, asigna el objeto provincia directamente
                 _localidad.Provincias = _localidad.IdProvincia == 0 ? _provincia : null;

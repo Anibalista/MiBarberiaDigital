@@ -365,7 +365,7 @@ namespace Front_SGBM
 
         private void cargarProvincias()
         {
-            _provincias = DomiciliosNegocio.getProvincias(); ;
+            _provincias = DomiciliosNegocio.GetProvincias(); ;
             if (_provincias == null)
             {
                 _provincias = new List<Provincias>();
@@ -411,7 +411,7 @@ namespace Front_SGBM
             }
             if (_provincia != null)
             {
-                _localidades = DomiciliosNegocio.getLocalidadesPorProvincia(_provincia);
+                _localidades = DomiciliosNegocio.GetLocalidadesPorProvincia(_provincia);
             }
             bindingLocalidades.DataSource = _localidades;
             if (_localidad == null)

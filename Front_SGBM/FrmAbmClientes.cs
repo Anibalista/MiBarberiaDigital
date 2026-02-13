@@ -51,7 +51,7 @@ namespace Front_SGBM
             List<Localidades>? localidades = new List<Localidades>();
             localidades.Add(localidadCero);
             string error = string.Empty;
-            _localidades = DomiciliosNegocio.getLocalidades(ref error);
+            _localidades = DomiciliosNegocio.GetLocalidades(ref error);
             if (_localidades != null)
             {
                 localidades.AddRange(_localidades);

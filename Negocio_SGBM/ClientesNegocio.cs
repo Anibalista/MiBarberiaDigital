@@ -137,7 +137,7 @@ namespace Negocio_SGBM
                 mensaje = "No se han enviado datos de búsqueda";
                 return null;
             }
-            List<Domicilios>? domicilios = DomiciliosDatos.getDomiciliosPorCampos(calle, barrio, localidad, ref mensaje);
+            List<Domicilios>? domicilios = DomiciliosDatos.GetDomiciliosPorCampos(calle, barrio, localidad, ref mensaje);
             if (domicilios == null)
             {
                 return null;

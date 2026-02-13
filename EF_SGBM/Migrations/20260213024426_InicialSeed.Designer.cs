@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EF_SGBM.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20260206033336_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260213024426_InicialSeed")]
+    partial class InicialSeed
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -211,41 +211,6 @@ namespace EF_SGBM.Migrations
                     b.ToTable("Credenciales");
                 });
 
-            modelBuilder.Entity("Entidades_SGBM.CuotasMembresias", b =>
-                {
-                    b.Property<int?>("IdCuota")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("IdCuota"));
-
-                    b.Property<DateTime?>("FechaPago")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("FechaVencimiento")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("IdFondoMembresia")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdTransaccion")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Recargo")
-                        .HasColumnType("decimal(6,2)");
-
-                    b.Property<decimal>("Total")
-                        .HasColumnType("decimal(12,2)");
-
-                    b.HasKey("IdCuota");
-
-                    b.HasIndex("IdFondoMembresia");
-
-                    b.HasIndex("IdTransaccion");
-
-                    b.ToTable("CuotasMembresias");
-                });
-
             modelBuilder.Entity("Entidades_SGBM.DetallesFacturas", b =>
                 {
                     b.Property<int?>("IdDetalleFactura")
@@ -294,6 +259,9 @@ namespace EF_SGBM.Migrations
                     b.Property<int?>("IdServicio")
                         .HasColumnType("int");
 
+                    b.Property<int>("IdVenta")
+                        .HasColumnType("int");
+
                     b.Property<decimal?>("InteresDescuento")
                         .HasColumnType("decimal(6,2)");
 
@@ -302,11 +270,11 @@ namespace EF_SGBM.Migrations
 
                     b.HasKey("IdDetalleVenta");
 
-                    b.HasIndex("IdFondoMembresia");
-
                     b.HasIndex("IdProducto");
 
                     b.HasIndex("IdServicio");
+
+                    b.HasIndex("IdVenta");
 
                     b.ToTable("DetallesVentas");
                 });
@@ -405,6 +373,74 @@ namespace EF_SGBM.Migrations
                     b.HasKey("IdEstado");
 
                     b.ToTable("Estados");
+
+                    b.HasData(
+                        new
+                        {
+                            IdEstado = 1,
+                            Estado = "Activo",
+                            Indole = "Empleados"
+                        },
+                        new
+                        {
+                            IdEstado = 2,
+                            Estado = "Inactivo",
+                            Indole = "Empleados"
+                        },
+                        new
+                        {
+                            IdEstado = 3,
+                            Estado = "Bloqueado",
+                            Indole = "Empleados"
+                        },
+                        new
+                        {
+                            IdEstado = 4,
+                            Estado = "Desvinculado",
+                            Indole = "Empleados"
+                        },
+                        new
+                        {
+                            IdEstado = 5,
+                            Estado = "Activo",
+                            Indole = "Clientes"
+                        },
+                        new
+                        {
+                            IdEstado = 6,
+                            Estado = "Inactivo",
+                            Indole = "Clientes"
+                        },
+                        new
+                        {
+                            IdEstado = 7,
+                            Estado = "Activo",
+                            Indole = "Servicios"
+                        },
+                        new
+                        {
+                            IdEstado = 8,
+                            Estado = "Inactivo",
+                            Indole = "Servicios"
+                        },
+                        new
+                        {
+                            IdEstado = 9,
+                            Estado = "En Curso",
+                            Indole = "Ventas"
+                        },
+                        new
+                        {
+                            IdEstado = 10,
+                            Estado = "Finalizada",
+                            Indole = "Ventas"
+                        },
+                        new
+                        {
+                            IdEstado = 11,
+                            Estado = "Anulada",
+                            Indole = "Ventas"
+                        });
                 });
 
             modelBuilder.Entity("Entidades_SGBM.Facturas", b =>
@@ -448,38 +484,13 @@ namespace EF_SGBM.Migrations
                     b.ToTable("Facturas");
                 });
 
-            modelBuilder.Entity("Entidades_SGBM.FondosMembresias", b =>
-                {
-                    b.Property<int?>("IdFondoMembresia")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("IdFondoMembresia"));
-
-                    b.Property<decimal>("MontoAcumulado")
-                        .HasColumnType("decimal(12,2)");
-
-                    b.Property<DateTime?>("PeriodoDesde")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("PeriodoHasta")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("PuntajeAcumulado")
-                        .HasColumnType("int");
-
-                    b.HasKey("IdFondoMembresia");
-
-                    b.ToTable("FondosMembresias");
-                });
-
             modelBuilder.Entity("Entidades_SGBM.Localidades", b =>
                 {
-                    b.Property<int?>("IdLocalidad")
+                    b.Property<int>("IdLocalidad")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("IdLocalidad"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdLocalidad"));
 
                     b.Property<string>("CodPostal")
                         .HasMaxLength(20)
@@ -498,6 +509,15 @@ namespace EF_SGBM.Migrations
                     b.HasIndex("IdProvincia");
 
                     b.ToTable("Localidades");
+
+                    b.HasData(
+                        new
+                        {
+                            IdLocalidad = 1,
+                            CodPostal = "2820",
+                            IdProvincia = 1,
+                            Localidad = "Gualeguaychú"
+                        });
                 });
 
             modelBuilder.Entity("Entidades_SGBM.MediosPagos", b =>
@@ -522,61 +542,6 @@ namespace EF_SGBM.Migrations
                     b.ToTable("MediosPagos");
                 });
 
-            modelBuilder.Entity("Entidades_SGBM.Membresias", b =>
-                {
-                    b.Property<int?>("IdMembresia")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("IdMembresia"));
-
-                    b.Property<DateTime>("FechaAlta")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("IdCliente")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdEmpleado")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdEstado")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdTipo")
-                        .HasColumnType("int");
-
-                    b.HasKey("IdMembresia");
-
-                    b.HasIndex("IdCliente");
-
-                    b.HasIndex("IdEmpleado");
-
-                    b.HasIndex("IdEstado");
-
-                    b.HasIndex("IdTipo");
-
-                    b.ToTable("Membresias");
-                });
-
-            modelBuilder.Entity("Entidades_SGBM.MembresiasServicios", b =>
-                {
-                    b.Property<int?>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("Id"));
-
-                    b.Property<int>("IdServicio")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdTipoMembresia")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("MembresiasServicios");
-                });
-
             modelBuilder.Entity("Entidades_SGBM.Niveles", b =>
                 {
                     b.Property<int?>("IdNivel")
@@ -593,6 +558,33 @@ namespace EF_SGBM.Migrations
                     b.HasKey("IdNivel");
 
                     b.ToTable("Niveles");
+
+                    b.HasData(
+                        new
+                        {
+                            IdNivel = 1,
+                            Nivel = "Admin"
+                        },
+                        new
+                        {
+                            IdNivel = 2,
+                            Nivel = "Propietario"
+                        },
+                        new
+                        {
+                            IdNivel = 3,
+                            Nivel = "Responsable"
+                        },
+                        new
+                        {
+                            IdNivel = 4,
+                            Nivel = "Barbero"
+                        },
+                        new
+                        {
+                            IdNivel = 5,
+                            Nivel = "Invitado"
+                        });
                 });
 
             modelBuilder.Entity("Entidades_SGBM.Personas", b =>
@@ -714,11 +706,11 @@ namespace EF_SGBM.Migrations
 
             modelBuilder.Entity("Entidades_SGBM.Provincias", b =>
                 {
-                    b.Property<int?>("IdProvincia")
+                    b.Property<int>("IdProvincia")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("IdProvincia"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdProvincia"));
 
                     b.Property<string>("Provincia")
                         .IsRequired()
@@ -728,6 +720,123 @@ namespace EF_SGBM.Migrations
                     b.HasKey("IdProvincia");
 
                     b.ToTable("Provincias");
+
+                    b.HasData(
+                        new
+                        {
+                            IdProvincia = 1,
+                            Provincia = "Entre Ríos"
+                        },
+                        new
+                        {
+                            IdProvincia = 2,
+                            Provincia = "Buenos Aires"
+                        },
+                        new
+                        {
+                            IdProvincia = 3,
+                            Provincia = "Catamarca"
+                        },
+                        new
+                        {
+                            IdProvincia = 4,
+                            Provincia = "Chaco"
+                        },
+                        new
+                        {
+                            IdProvincia = 5,
+                            Provincia = "Chubut"
+                        },
+                        new
+                        {
+                            IdProvincia = 6,
+                            Provincia = "Córdoba"
+                        },
+                        new
+                        {
+                            IdProvincia = 7,
+                            Provincia = "Corrientes"
+                        },
+                        new
+                        {
+                            IdProvincia = 8,
+                            Provincia = "Formosa"
+                        },
+                        new
+                        {
+                            IdProvincia = 9,
+                            Provincia = "Jujuy"
+                        },
+                        new
+                        {
+                            IdProvincia = 10,
+                            Provincia = "La Pampa"
+                        },
+                        new
+                        {
+                            IdProvincia = 11,
+                            Provincia = "La Rioja"
+                        },
+                        new
+                        {
+                            IdProvincia = 12,
+                            Provincia = "Mendoza"
+                        },
+                        new
+                        {
+                            IdProvincia = 13,
+                            Provincia = "Misiones"
+                        },
+                        new
+                        {
+                            IdProvincia = 14,
+                            Provincia = "Neuquén"
+                        },
+                        new
+                        {
+                            IdProvincia = 15,
+                            Provincia = "Río Negro"
+                        },
+                        new
+                        {
+                            IdProvincia = 16,
+                            Provincia = "Salta"
+                        },
+                        new
+                        {
+                            IdProvincia = 17,
+                            Provincia = "San Juan"
+                        },
+                        new
+                        {
+                            IdProvincia = 18,
+                            Provincia = "San Luis"
+                        },
+                        new
+                        {
+                            IdProvincia = 19,
+                            Provincia = "Santa Cruz"
+                        },
+                        new
+                        {
+                            IdProvincia = 20,
+                            Provincia = "Santa Fe"
+                        },
+                        new
+                        {
+                            IdProvincia = 21,
+                            Provincia = "Santiago del Estero"
+                        },
+                        new
+                        {
+                            IdProvincia = 22,
+                            Provincia = "Tierra del Fuego"
+                        },
+                        new
+                        {
+                            IdProvincia = 23,
+                            Provincia = "Tucumán"
+                        });
                 });
 
             modelBuilder.Entity("Entidades_SGBM.Servicios", b =>
@@ -793,31 +902,18 @@ namespace EF_SGBM.Migrations
                     b.HasKey("IdTipo");
 
                     b.ToTable("TiposCajas");
-                });
 
-            modelBuilder.Entity("Entidades_SGBM.TiposMembresias", b =>
-                {
-                    b.Property<int?>("IdTipo")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("IdTipo"));
-
-                    b.Property<string>("Descripcion")
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("NombreTipo")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<decimal>("Precio")
-                        .HasColumnType("decimal(12,2)");
-
-                    b.HasKey("IdTipo");
-
-                    b.ToTable("TiposMembresias");
+                    b.HasData(
+                        new
+                        {
+                            IdTipo = 1,
+                            Tipo = "Productos"
+                        },
+                        new
+                        {
+                            IdTipo = 2,
+                            Tipo = "Servicios"
+                        });
                 });
 
             modelBuilder.Entity("Entidades_SGBM.TiposTransacciones", b =>
@@ -878,14 +974,44 @@ namespace EF_SGBM.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("IdUnidadMedida"));
 
-                    b.Property<string>("Unidad")
-                        .IsRequired()
+                    b.Property<string>("Descripcion")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Unidad")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.HasKey("IdUnidadMedida");
 
                     b.ToTable("UnidadesMedidas");
+
+                    b.HasData(
+                        new
+                        {
+                            IdUnidadMedida = 1,
+                            Descripcion = "Gramos",
+                            Unidad = "gr"
+                        },
+                        new
+                        {
+                            IdUnidadMedida = 2,
+                            Descripcion = "Mililitros",
+                            Unidad = "ml"
+                        },
+                        new
+                        {
+                            IdUnidadMedida = 3,
+                            Descripcion = "Centímetros Cúbicos",
+                            Unidad = "cc"
+                        },
+                        new
+                        {
+                            IdUnidadMedida = 4,
+                            Descripcion = "Litros",
+                            Unidad = "lt"
+                        });
                 });
 
             modelBuilder.Entity("Entidades_SGBM.Usuarios", b =>
@@ -1040,25 +1166,6 @@ namespace EF_SGBM.Migrations
                     b.Navigation("Niveles");
                 });
 
-            modelBuilder.Entity("Entidades_SGBM.CuotasMembresias", b =>
-                {
-                    b.HasOne("Entidades_SGBM.FondosMembresias", "FondosMembresias")
-                        .WithMany()
-                        .HasForeignKey("IdFondoMembresia")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Entidades_SGBM.Transacciones", "Transacciones")
-                        .WithMany()
-                        .HasForeignKey("IdTransaccion")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("FondosMembresias");
-
-                    b.Navigation("Transacciones");
-                });
-
             modelBuilder.Entity("Entidades_SGBM.DetallesFacturas", b =>
                 {
                     b.HasOne("Entidades_SGBM.DetallesVentas", "DetallesVentas")
@@ -1080,10 +1187,6 @@ namespace EF_SGBM.Migrations
 
             modelBuilder.Entity("Entidades_SGBM.DetallesVentas", b =>
                 {
-                    b.HasOne("Entidades_SGBM.FondosMembresias", "FondosMembresias")
-                        .WithMany()
-                        .HasForeignKey("IdFondoMembresia");
-
                     b.HasOne("Entidades_SGBM.Productos", "Productos")
                         .WithMany()
                         .HasForeignKey("IdProducto");
@@ -1092,11 +1195,17 @@ namespace EF_SGBM.Migrations
                         .WithMany()
                         .HasForeignKey("IdServicio");
 
-                    b.Navigation("FondosMembresias");
+                    b.HasOne("Entidades_SGBM.Ventas", "Ventas")
+                        .WithMany()
+                        .HasForeignKey("IdVenta")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Productos");
 
                     b.Navigation("Servicios");
+
+                    b.Navigation("Ventas");
                 });
 
             modelBuilder.Entity("Entidades_SGBM.Domicilios", b =>
@@ -1169,41 +1278,6 @@ namespace EF_SGBM.Migrations
                         .IsRequired();
 
                     b.Navigation("Provincias");
-                });
-
-            modelBuilder.Entity("Entidades_SGBM.Membresias", b =>
-                {
-                    b.HasOne("Entidades_SGBM.Clientes", "Clientes")
-                        .WithMany()
-                        .HasForeignKey("IdCliente")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Entidades_SGBM.Empleados", "Empleados")
-                        .WithMany()
-                        .HasForeignKey("IdEmpleado")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Entidades_SGBM.Estados", "Estados")
-                        .WithMany()
-                        .HasForeignKey("IdEstado")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Entidades_SGBM.TiposMembresias", "TiposMembresias")
-                        .WithMany()
-                        .HasForeignKey("IdTipo")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Clientes");
-
-                    b.Navigation("Empleados");
-
-                    b.Navigation("Estados");
-
-                    b.Navigation("TiposMembresias");
                 });
 
             modelBuilder.Entity("Entidades_SGBM.Personas", b =>

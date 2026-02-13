@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace EF_SGBM.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InicialSeed : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -40,22 +42,6 @@ namespace EF_SGBM.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "FondosMembresias",
-                columns: table => new
-                {
-                    IdFondoMembresia = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PeriodoDesde = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    PeriodoHasta = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    MontoAcumulado = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
-                    PuntajeAcumulado = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_FondosMembresias", x => x.IdFondoMembresia);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "MediosPagos",
                 columns: table => new
                 {
@@ -67,20 +53,6 @@ namespace EF_SGBM.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MediosPagos", x => x.IdMedioPago);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MembresiasServicios",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    IdTipoMembresia = table.Column<int>(type: "int", nullable: false),
-                    IdServicio = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MembresiasServicios", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -137,21 +109,6 @@ namespace EF_SGBM.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TiposMembresias",
-                columns: table => new
-                {
-                    IdTipo = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    NombreTipo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
-                    Precio = table.Column<decimal>(type: "decimal(12,2)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TiposMembresias", x => x.IdTipo);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "TiposTransacciones",
                 columns: table => new
                 {
@@ -170,7 +127,8 @@ namespace EF_SGBM.Migrations
                 {
                     IdUnidadMedida = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Unidad = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    Unidad = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -398,40 +356,6 @@ namespace EF_SGBM.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DetallesVentas",
-                columns: table => new
-                {
-                    IdDetalleVenta = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Cantidad = table.Column<int>(type: "int", nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    PrecioUnitario = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
-                    InteresDescuento = table.Column<decimal>(type: "decimal(6,2)", nullable: true),
-                    IdProducto = table.Column<int>(type: "int", nullable: true),
-                    IdServicio = table.Column<int>(type: "int", nullable: true),
-                    IdFondoMembresia = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DetallesVentas", x => x.IdDetalleVenta);
-                    table.ForeignKey(
-                        name: "FK_DetallesVentas_FondosMembresias_IdFondoMembresia",
-                        column: x => x.IdFondoMembresia,
-                        principalTable: "FondosMembresias",
-                        principalColumn: "IdFondoMembresia");
-                    table.ForeignKey(
-                        name: "FK_DetallesVentas_Productos_IdProducto",
-                        column: x => x.IdProducto,
-                        principalTable: "Productos",
-                        principalColumn: "IdProducto");
-                    table.ForeignKey(
-                        name: "FK_DetallesVentas_Servicios_IdServicio",
-                        column: x => x.IdServicio,
-                        principalTable: "Servicios",
-                        principalColumn: "IdServicio");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Personas",
                 columns: table => new
                 {
@@ -451,36 +375,6 @@ namespace EF_SGBM.Migrations
                         column: x => x.IdDomicilio,
                         principalTable: "Domicilios",
                         principalColumn: "IdDomicilio");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CuotasMembresias",
-                columns: table => new
-                {
-                    IdCuota = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Total = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
-                    FechaVencimiento = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FechaPago = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Recargo = table.Column<decimal>(type: "decimal(6,2)", nullable: false),
-                    IdTransaccion = table.Column<int>(type: "int", nullable: false),
-                    IdFondoMembresia = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CuotasMembresias", x => x.IdCuota);
-                    table.ForeignKey(
-                        name: "FK_CuotasMembresias_FondosMembresias_IdFondoMembresia",
-                        column: x => x.IdFondoMembresia,
-                        principalTable: "FondosMembresias",
-                        principalColumn: "IdFondoMembresia",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_CuotasMembresias_Transacciones_IdTransaccion",
-                        column: x => x.IdTransaccion,
-                        principalTable: "Transacciones",
-                        principalColumn: "IdTransaccion",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -569,47 +463,6 @@ namespace EF_SGBM.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Membresias",
-                columns: table => new
-                {
-                    IdMembresia = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FechaAlta = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IdTipo = table.Column<int>(type: "int", nullable: false),
-                    IdCliente = table.Column<int>(type: "int", nullable: false),
-                    IdEmpleado = table.Column<int>(type: "int", nullable: false),
-                    IdEstado = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Membresias", x => x.IdMembresia);
-                    table.ForeignKey(
-                        name: "FK_Membresias_Clientes_IdCliente",
-                        column: x => x.IdCliente,
-                        principalTable: "Clientes",
-                        principalColumn: "IdCliente",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Membresias_Empleados_IdEmpleado",
-                        column: x => x.IdEmpleado,
-                        principalTable: "Empleados",
-                        principalColumn: "IdEmpleado",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Membresias_Estados_IdEstado",
-                        column: x => x.IdEstado,
-                        principalTable: "Estados",
-                        principalColumn: "IdEstado",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Membresias_TiposMembresias_IdTipo",
-                        column: x => x.IdTipo,
-                        principalTable: "TiposMembresias",
-                        principalColumn: "IdTipo",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Usuarios",
                 columns: table => new
                 {
@@ -676,6 +529,42 @@ namespace EF_SGBM.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DetallesVentas",
+                columns: table => new
+                {
+                    IdDetalleVenta = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Cantidad = table.Column<int>(type: "int", nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    PrecioUnitario = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
+                    InteresDescuento = table.Column<decimal>(type: "decimal(6,2)", nullable: true),
+                    IdProducto = table.Column<int>(type: "int", nullable: true),
+                    IdServicio = table.Column<int>(type: "int", nullable: true),
+                    IdFondoMembresia = table.Column<int>(type: "int", nullable: true),
+                    IdVenta = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DetallesVentas", x => x.IdDetalleVenta);
+                    table.ForeignKey(
+                        name: "FK_DetallesVentas_Productos_IdProducto",
+                        column: x => x.IdProducto,
+                        principalTable: "Productos",
+                        principalColumn: "IdProducto");
+                    table.ForeignKey(
+                        name: "FK_DetallesVentas_Servicios_IdServicio",
+                        column: x => x.IdServicio,
+                        principalTable: "Servicios",
+                        principalColumn: "IdServicio");
+                    table.ForeignKey(
+                        name: "FK_DetallesVentas_Ventas_IdVenta",
+                        column: x => x.IdVenta,
+                        principalTable: "Ventas",
+                        principalColumn: "IdVenta",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Facturas",
                 columns: table => new
                 {
@@ -736,6 +625,91 @@ namespace EF_SGBM.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
+            migrationBuilder.InsertData(
+                table: "Estados",
+                columns: new[] { "IdEstado", "Estado", "Indole" },
+                values: new object[,]
+                {
+                    { 1, "Activo", "Empleados" },
+                    { 2, "Inactivo", "Empleados" },
+                    { 3, "Bloqueado", "Empleados" },
+                    { 4, "Desvinculado", "Empleados" },
+                    { 5, "Activo", "Clientes" },
+                    { 6, "Inactivo", "Clientes" },
+                    { 7, "Activo", "Servicios" },
+                    { 8, "Inactivo", "Servicios" },
+                    { 9, "En Curso", "Ventas" },
+                    { 10, "Finalizada", "Ventas" },
+                    { 11, "Anulada", "Ventas" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Niveles",
+                columns: new[] { "IdNivel", "Nivel" },
+                values: new object[,]
+                {
+                    { 1, "Admin" },
+                    { 2, "Propietario" },
+                    { 3, "Responsable" },
+                    { 4, "Barbero" },
+                    { 5, "Invitado" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Provincias",
+                columns: new[] { "IdProvincia", "Provincia" },
+                values: new object[,]
+                {
+                    { 1, "Entre Ríos" },
+                    { 2, "Buenos Aires" },
+                    { 3, "Catamarca" },
+                    { 4, "Chaco" },
+                    { 5, "Chubut" },
+                    { 6, "Córdoba" },
+                    { 7, "Corrientes" },
+                    { 8, "Formosa" },
+                    { 9, "Jujuy" },
+                    { 10, "La Pampa" },
+                    { 11, "La Rioja" },
+                    { 12, "Mendoza" },
+                    { 13, "Misiones" },
+                    { 14, "Neuquén" },
+                    { 15, "Río Negro" },
+                    { 16, "Salta" },
+                    { 17, "San Juan" },
+                    { 18, "San Luis" },
+                    { 19, "Santa Cruz" },
+                    { 20, "Santa Fe" },
+                    { 21, "Santiago del Estero" },
+                    { 22, "Tierra del Fuego" },
+                    { 23, "Tucumán" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "TiposCajas",
+                columns: new[] { "IdTipo", "Tipo" },
+                values: new object[,]
+                {
+                    { 1, "Productos" },
+                    { 2, "Servicios" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "UnidadesMedidas",
+                columns: new[] { "IdUnidadMedida", "Descripcion", "Unidad" },
+                values: new object[,]
+                {
+                    { 1, "Gramos", "gr" },
+                    { 2, "Mililitros", "ml" },
+                    { 3, "Centímetros Cúbicos", "cc" },
+                    { 4, "Litros", "lt" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Localidades",
+                columns: new[] { "IdLocalidad", "CodPostal", "IdProvincia", "Localidad" },
+                values: new object[] { 1, "2820", 1, "Gualeguaychú" });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Cajas_IdTipo",
                 table: "Cajas",
@@ -777,16 +751,6 @@ namespace EF_SGBM.Migrations
                 column: "IdNivel");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CuotasMembresias_IdFondoMembresia",
-                table: "CuotasMembresias",
-                column: "IdFondoMembresia");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CuotasMembresias_IdTransaccion",
-                table: "CuotasMembresias",
-                column: "IdTransaccion");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_DetallesFacturas_IdDetalleVenta",
                 table: "DetallesFacturas",
                 column: "IdDetalleVenta");
@@ -797,11 +761,6 @@ namespace EF_SGBM.Migrations
                 column: "IdFactura");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DetallesVentas_IdFondoMembresia",
-                table: "DetallesVentas",
-                column: "IdFondoMembresia");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_DetallesVentas_IdProducto",
                 table: "DetallesVentas",
                 column: "IdProducto");
@@ -810,6 +769,11 @@ namespace EF_SGBM.Migrations
                 name: "IX_DetallesVentas_IdServicio",
                 table: "DetallesVentas",
                 column: "IdServicio");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DetallesVentas_IdVenta",
+                table: "DetallesVentas",
+                column: "IdVenta");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Domicilios_IdLocalidad",
@@ -850,26 +814,6 @@ namespace EF_SGBM.Migrations
                 name: "IX_Localidades_IdProvincia",
                 table: "Localidades",
                 column: "IdProvincia");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Membresias_IdCliente",
-                table: "Membresias",
-                column: "IdCliente");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Membresias_IdEmpleado",
-                table: "Membresias",
-                column: "IdEmpleado");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Membresias_IdEstado",
-                table: "Membresias",
-                column: "IdEstado");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Membresias_IdTipo",
-                table: "Membresias",
-                column: "IdTipo");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Personas_IdDomicilio",
@@ -945,16 +889,7 @@ namespace EF_SGBM.Migrations
                 name: "Credenciales");
 
             migrationBuilder.DropTable(
-                name: "CuotasMembresias");
-
-            migrationBuilder.DropTable(
                 name: "DetallesFacturas");
-
-            migrationBuilder.DropTable(
-                name: "Membresias");
-
-            migrationBuilder.DropTable(
-                name: "MembresiasServicios");
 
             migrationBuilder.DropTable(
                 name: "Usuarios");
@@ -966,13 +901,7 @@ namespace EF_SGBM.Migrations
                 name: "Facturas");
 
             migrationBuilder.DropTable(
-                name: "TiposMembresias");
-
-            migrationBuilder.DropTable(
                 name: "Niveles");
-
-            migrationBuilder.DropTable(
-                name: "FondosMembresias");
 
             migrationBuilder.DropTable(
                 name: "Productos");

@@ -56,7 +56,7 @@ namespace Front_SGBM
 
         private void localidadOk(ref string mensaje)
         {
-            _localidad = DomiciliosNegocio.getLocalidadGenerica(_localidad, ref mensaje);
+            _localidad = DomiciliosNegocio.GetLocalidadGenerica(_localidad, ref mensaje);
             if (_localidad == null)
             {
                 _localidadOk = false;

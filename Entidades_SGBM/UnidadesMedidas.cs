@@ -12,12 +12,15 @@ namespace Entidades_SGBM
         [Key]
         public int? IdUnidadMedida { get; set; }
 
-        [MaxLength(50)]
+        [MaxLength(10)]
         public string Unidad { get; set; }
+
+        [MaxLength(50)]
+        public string? Descripcion { get; set; }
 
         public override string ToString()
         {
-            return Unidad;
+            return Unidad + (Descripcion == null ? "" : $" - {Descripcion}");
         }
     }
 }

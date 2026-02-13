@@ -407,7 +407,7 @@ namespace Negocio_SGBM
                     mensaje = string.Empty;
 
                 if (p.IdDomicilio != null && persona.IdDomicilio == null)
-                    return DomiciliosNegocio.eliminarDomicilio((int)p.IdDomicilio, ref mensaje);
+                    return DomiciliosNegocio.EliminarDomicilio((int)p.IdDomicilio, ref mensaje);
 
                 return modificada > 0;
             }
