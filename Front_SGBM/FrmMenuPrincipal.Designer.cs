@@ -40,6 +40,8 @@ namespace Front_SGBM
             nuevoServicioToolStripMenuItem = new ToolStripMenuItem();
             productosToolStripMenuItem = new ToolStripMenuItem();
             aBMProductosToolStripMenuItem = new ToolStripMenuItem();
+            colaboradoresToolStripMenuItem = new ToolStripMenuItem();
+            nuevoModificarToolStripMenuItem = new ToolStripMenuItem();
             contabilidadToolStripMenuItem = new ToolStripMenuItem();
             reporteríaToolStripMenuItem = new ToolStripMenuItem();
             ventasToolStripMenuItem = new ToolStripMenuItem();
@@ -51,7 +53,6 @@ namespace Front_SGBM
             pnlHeader = new Panel();
             flpMenu = new FlowLayoutPanel();
             btnVentas = new Button();
-            btnMembresias = new Button();
             btnClientes = new Button();
             btnCajas = new Button();
             btnServicios = new Button();
@@ -63,8 +64,6 @@ namespace Front_SGBM
             lblSubTitulo = new Label();
             lblTitulo = new Label();
             pnlContent = new Panel();
-            colaboradoresToolStripMenuItem = new ToolStripMenuItem();
-            nuevoModificarToolStripMenuItem = new ToolStripMenuItem();
             menuStrip.SuspendLayout();
             statusStrip.SuspendLayout();
             pnlHeader.SuspendLayout();
@@ -94,7 +93,7 @@ namespace Front_SGBM
             // 
             clientesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { abmClientesToolStripMenuItem, nuevoClienteToolStripMenuItem });
             clientesToolStripMenuItem.Name = "clientesToolStripMenuItem";
-            clientesToolStripMenuItem.Size = new Size(180, 22);
+            clientesToolStripMenuItem.Size = new Size(151, 22);
             clientesToolStripMenuItem.Text = "Clientes";
             // 
             // abmClientesToolStripMenuItem
@@ -115,7 +114,7 @@ namespace Front_SGBM
             // 
             serviciosToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aBMServiciosToolStripMenuItem, nuevoServicioToolStripMenuItem });
             serviciosToolStripMenuItem.Name = "serviciosToolStripMenuItem";
-            serviciosToolStripMenuItem.Size = new Size(180, 22);
+            serviciosToolStripMenuItem.Size = new Size(151, 22);
             serviciosToolStripMenuItem.Text = "Servicios";
             // 
             // aBMServiciosToolStripMenuItem
@@ -136,7 +135,7 @@ namespace Front_SGBM
             // 
             productosToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aBMProductosToolStripMenuItem });
             productosToolStripMenuItem.Name = "productosToolStripMenuItem";
-            productosToolStripMenuItem.Size = new Size(180, 22);
+            productosToolStripMenuItem.Size = new Size(151, 22);
             productosToolStripMenuItem.Text = "Productos";
             // 
             // aBMProductosToolStripMenuItem
@@ -145,6 +144,20 @@ namespace Front_SGBM
             aBMProductosToolStripMenuItem.Size = new Size(157, 22);
             aBMProductosToolStripMenuItem.Text = "ABM Productos";
             aBMProductosToolStripMenuItem.Click += ABMProductosToolStripMenuItem_Click;
+            // 
+            // colaboradoresToolStripMenuItem
+            // 
+            colaboradoresToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { nuevoModificarToolStripMenuItem });
+            colaboradoresToolStripMenuItem.Name = "colaboradoresToolStripMenuItem";
+            colaboradoresToolStripMenuItem.Size = new Size(151, 22);
+            colaboradoresToolStripMenuItem.Text = "Colaboradores";
+            // 
+            // nuevoModificarToolStripMenuItem
+            // 
+            nuevoModificarToolStripMenuItem.Name = "nuevoModificarToolStripMenuItem";
+            nuevoModificarToolStripMenuItem.Size = new Size(165, 22);
+            nuevoModificarToolStripMenuItem.Text = "Nuevo-Modificar";
+            nuevoModificarToolStripMenuItem.Click += nuevoModificarToolStripMenuItem_Click;
             // 
             // contabilidadToolStripMenuItem
             // 
@@ -206,12 +219,11 @@ namespace Front_SGBM
             // flpMenu
             // 
             flpMenu.Controls.Add(btnVentas);
-            flpMenu.Controls.Add(btnMembresias);
-            flpMenu.Controls.Add(btnClientes);
             flpMenu.Controls.Add(btnCajas);
             flpMenu.Controls.Add(btnServicios);
             flpMenu.Controls.Add(btnProductos);
             flpMenu.Controls.Add(btnReportes);
+            flpMenu.Controls.Add(btnClientes);
             flpMenu.Controls.Add(btnContabilidad);
             flpMenu.Controls.Add(btnSalir);
             flpMenu.Dock = DockStyle.Bottom;
@@ -230,18 +242,9 @@ namespace Front_SGBM
             btnVentas.UseVisualStyleBackColor = true;
             btnVentas.Click += BtnVentas_Click;
             // 
-            // btnMembresias
-            // 
-            btnMembresias.Location = new Point(115, 3);
-            btnMembresias.Name = "btnMembresias";
-            btnMembresias.Size = new Size(106, 34);
-            btnMembresias.TabIndex = 1;
-            btnMembresias.Text = "Membresias";
-            btnMembresias.UseVisualStyleBackColor = true;
-            // 
             // btnClientes
             // 
-            btnClientes.Location = new Point(227, 3);
+            btnClientes.Location = new Point(563, 3);
             btnClientes.Name = "btnClientes";
             btnClientes.Size = new Size(106, 34);
             btnClientes.TabIndex = 2;
@@ -251,7 +254,7 @@ namespace Front_SGBM
             // 
             // btnCajas
             // 
-            btnCajas.Location = new Point(339, 3);
+            btnCajas.Location = new Point(115, 3);
             btnCajas.Name = "btnCajas";
             btnCajas.Size = new Size(106, 34);
             btnCajas.TabIndex = 3;
@@ -260,7 +263,7 @@ namespace Front_SGBM
             // 
             // btnServicios
             // 
-            btnServicios.Location = new Point(451, 3);
+            btnServicios.Location = new Point(227, 3);
             btnServicios.Name = "btnServicios";
             btnServicios.Size = new Size(106, 34);
             btnServicios.TabIndex = 4;
@@ -270,7 +273,7 @@ namespace Front_SGBM
             // 
             // btnProductos
             // 
-            btnProductos.Location = new Point(563, 3);
+            btnProductos.Location = new Point(339, 3);
             btnProductos.Name = "btnProductos";
             btnProductos.Size = new Size(106, 34);
             btnProductos.TabIndex = 5;
@@ -280,7 +283,7 @@ namespace Front_SGBM
             // 
             // btnReportes
             // 
-            btnReportes.Location = new Point(675, 3);
+            btnReportes.Location = new Point(451, 3);
             btnReportes.Name = "btnReportes";
             btnReportes.Size = new Size(106, 34);
             btnReportes.TabIndex = 6;
@@ -289,7 +292,7 @@ namespace Front_SGBM
             // 
             // btnContabilidad
             // 
-            btnContabilidad.Location = new Point(787, 3);
+            btnContabilidad.Location = new Point(675, 3);
             btnContabilidad.Name = "btnContabilidad";
             btnContabilidad.Size = new Size(106, 34);
             btnContabilidad.TabIndex = 7;
@@ -298,7 +301,7 @@ namespace Front_SGBM
             // 
             // btnSalir
             // 
-            btnSalir.Location = new Point(899, 3);
+            btnSalir.Location = new Point(787, 3);
             btnSalir.Name = "btnSalir";
             btnSalir.Size = new Size(106, 34);
             btnSalir.TabIndex = 8;
@@ -344,20 +347,6 @@ namespace Front_SGBM
             pnlContent.Name = "pnlContent";
             pnlContent.Size = new Size(1165, 560);
             pnlContent.TabIndex = 5;
-            // 
-            // colaboradoresToolStripMenuItem
-            // 
-            colaboradoresToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { nuevoModificarToolStripMenuItem });
-            colaboradoresToolStripMenuItem.Name = "colaboradoresToolStripMenuItem";
-            colaboradoresToolStripMenuItem.Size = new Size(180, 22);
-            colaboradoresToolStripMenuItem.Text = "Colaboradores";
-            // 
-            // nuevoModificarToolStripMenuItem
-            // 
-            nuevoModificarToolStripMenuItem.Name = "nuevoModificarToolStripMenuItem";
-            nuevoModificarToolStripMenuItem.Size = new Size(180, 22);
-            nuevoModificarToolStripMenuItem.Text = "Nuevo-Modificar";
-            nuevoModificarToolStripMenuItem.Click += nuevoModificarToolStripMenuItem_Click;
             // 
             // FrmMenuPrincipal
             // 
@@ -415,7 +404,6 @@ namespace Front_SGBM
         private FlowLayoutPanel flpMenu;
         private Panel pnlContent;
         private Button btnVentas;
-        private Button btnMembresias;
         private Button btnClientes;
         private Button btnCajas;
         private Button btnServicios;

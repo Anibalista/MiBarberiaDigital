@@ -293,6 +293,5 @@ namespace Front_SGBM
 
             EstiloAplicacion.ToggleSubMenu(this, (Button)sender, opcionesClientes);
         }
-
     }
 }
