@@ -36,10 +36,10 @@
             btnAbrir = new Button();
             lblMonto = new Label();
             cbTipo = new ComboBox();
-            cbResponsable = new ComboBox();
-            txtMonto = new TextBox();
             bindingTipoCajas = new BindingSource(components);
+            cbResponsable = new ComboBox();
             bindingEmpleados = new BindingSource(components);
+            txtMonto = new TextBox();
             ((System.ComponentModel.ISupportInitialize)bindingTipoCajas).BeginInit();
             ((System.ComponentModel.ISupportInitialize)bindingEmpleados).BeginInit();
             SuspendLayout();
@@ -117,6 +117,10 @@
             cbTipo.TabIndex = 6;
             cbTipo.ValueMember = "IdTipo";
             // 
+            // bindingTipoCajas
+            // 
+            bindingTipoCajas.DataSource = typeof(Entidades_SGBM.TiposCajas);
+            // 
             // cbResponsable
             // 
             cbResponsable.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
@@ -130,6 +134,10 @@
             cbResponsable.TabIndex = 7;
             cbResponsable.ValueMember = "IdEmpleado";
             // 
+            // bindingEmpleados
+            // 
+            bindingEmpleados.DataSource = typeof(Entidades_SGBM.Empleados);
+            // 
             // txtMonto
             // 
             txtMonto.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
@@ -137,14 +145,6 @@
             txtMonto.Name = "txtMonto";
             txtMonto.Size = new Size(189, 23);
             txtMonto.TabIndex = 8;
-            // 
-            // bindingTipoCajas
-            // 
-            bindingTipoCajas.DataSource = typeof(Entidades_SGBM.TiposCajas);
-            // 
-            // bindingEmpleados
-            // 
-            bindingEmpleados.DataSource = typeof(Entidades_SGBM.Empleados);
             // 
             // FrmAbrirCaja
             // 
@@ -167,6 +167,7 @@
             SizeGripStyle = SizeGripStyle.Hide;
             StartPosition = FormStartPosition.CenterScreen;
             Text = "FrmAbrirCaja";
+            Load += FrmAbrirCaja_Load;
             ((System.ComponentModel.ISupportInitialize)bindingTipoCajas).EndInit();
             ((System.ComponentModel.ISupportInitialize)bindingEmpleados).EndInit();
             ResumeLayout(false);

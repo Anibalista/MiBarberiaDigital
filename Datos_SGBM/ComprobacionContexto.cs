@@ -1,5 +1,6 @@
 ﻿using EF_SGBM;
 using System.Runtime.CompilerServices;
+using Utilidades;
 
 namespace Datos_SGBM
 {
@@ -22,34 +23,31 @@ namespace Datos_SGBM
         }
 
         /// <summary>
-        /// Comprueba si la entidad existe en el contexto y genera el mensaje automáticamente.
+        /// Comprueba si la entidad existe en el contexto y devuelve un resultado tipado.
         /// </summary>
         /// <typeparam name="T">Tipo genérico de la entidad a comprobar.</typeparam>
         /// <param name="entidad">Entidad a validar (ejemplo: Productos, UnidadesMedidas).</param>
-        /// <param name="mensaje">Referencia a un mensaje de error en caso de fallo.</param>
-        /// <param name="nombreEntidad">Nombre de la entidad, capturado automáticamente por CallerArgumentExpression.</param>
-        /// <returns>True si la entidad existe, False si hay algún problema.</returns>
-        public bool ComprobarEntidad<T>(
+        /// <param name="nombreEntidad">
+        /// Nombre de la entidad, capturado automáticamente por CallerArgumentExpression.
+        /// </param>
+        /// <returns>
+        /// Resultado con Success = true si la entidad existe, 
+        /// o Success = false con un mensaje de error en caso contrario.
+        /// </returns>
+        public Resultado<T> ComprobarEntidad<T>(
             T entidad,
-            ref string mensaje,
             [CallerArgumentExpression("entidad")] string nombreEntidad = "")
         {
             // Si el contexto es nulo, significa que no hay conexión con la base de datos.
             if (contexto == null)
-            {
-                mensaje = "No se conecta a la BD";
-                return false;
-            }
+                return Resultado<T>.Fail("No se conecta a la BD");
 
             // Si la entidad es nula, significa que no se pudo acceder a esa tabla/colección.
             if (entidad == null)
-            {
-                mensaje = $"No se conecta al registro de {nombreEntidad}";
-                return false;
-            }
+                return Resultado<T>.Fail($"No se conecta al registro de {nombreEntidad}");
 
-            // Si pasa todas las validaciones, se devuelve true.
-            return true;
+            // Si pasa todas las validaciones, se devuelve éxito con la entidad.
+            return Resultado<T>.Ok(entidad);
         }
     }
 }
