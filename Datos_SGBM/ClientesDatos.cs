@@ -151,32 +151,39 @@ namespace Datos_SGBM
         /// <summary>
         /// Registra un nuevo cliente en la base de datos.
         /// </summary>
-        /// <param name="cliente">Cliente a registrar.</param>
-        /// <param name="mensaje">Mensaje de error si la operación falla.</param>
-        /// <returns>ID del cliente registrado o -1 si ocurre un error.</returns>
-        public static int RegistrarCliente(Clientes cliente, ref string mensaje)
+        /// <param name="cliente">Objeto Cliente a registrar.</param>
+        /// <returns>
+        /// Resultado con el Id del cliente registrado o mensaje de error.
+        /// </returns>
+        public static Resultado<int> RegistrarCliente(Clientes? cliente)
         {
-            cliente.IdCliente = null; // Reinicia el ID antes de registrar
+            // Validación previa al uso del contexto
+            if (cliente == null)
+                return Resultado<int>.Fail("El cliente no puede ser nulo.");
 
             try
             {
                 using (Contexto contexto = new Contexto())
                 {
-                    if (!ComprobarContexto(contexto, ref mensaje))
-                        return -1;
+                    var resultadoContexto = ComprobarContexto(contexto);
+                    if (!resultadoContexto.Success)
+                        return Resultado<int>.Fail(resultadoContexto.Mensaje);
 
-                    contexto.Add(cliente);
+                    // En Clientes seguimos con autoincremental → Id en null
+                    cliente.IdCliente = null;
+
+                    contexto.Clientes.Add(cliente);
                     contexto.SaveChanges();
 
-                    // Retorna el ID generado
-                    return cliente.IdCliente ?? 0;
+                    if (cliente.IdCliente != null && cliente.IdCliente > 0)
+                        return Resultado<int>.Ok((int)cliente.IdCliente);
+                    else
+                        return Resultado<int>.Fail("No se pudo obtener el Id del cliente registrado.");
                 }
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex.Message);
-                mensaje = ex.Message + " (Capa Datos)";
-                return -1;
+                return Resultado<int>.Fail($"Error al registrar el cliente:\n{ex.ToString()}");
             }
         }
 

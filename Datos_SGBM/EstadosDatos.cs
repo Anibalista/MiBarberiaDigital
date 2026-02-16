@@ -1,133 +1,142 @@
 ﻿using EF_SGBM;
 using Entidades_SGBM;
+using Utilidades;
 
 namespace Datos_SGBM
 {
     public class EstadosDatos
     {
-        static Contexto contexto;
 
-        //Control de BD
-        public static bool comprobarContexto(ref string mensaje)
+        /// <summary>
+        /// Comprueba que el contexto y la entidad Estados estén disponibles.
+        /// </summary>
+        /// <param name="contexto">Instancia del contexto de base de datos.</param>
+        /// <returns>
+        /// Resultado indicando éxito o fallo en la comprobación.
+        /// </returns>
+        public static Resultado<bool> ComprobarContexto(Contexto contexto)
         {
             if (contexto == null)
-            {
-                mensaje = "No se conecta a la BD";
-                return false;
-            }
+                return Resultado<bool>.Fail("No se conecta a la BD.");
+
             if (contexto.Estados == null)
-            {
-                mensaje = "No se conecta a la BD (Estados)";
-                return false;
-            }
-            return true;
+                return Resultado<bool>.Fail("No se conecta a la BD (Estados).");
+
+            return Resultado<bool>.Ok(true);
         }
 
-        //Control de null
-        public static bool comprobarEstado(Estados? estado , bool registro, ref string mensaje)
+        /// <summary>
+        /// Obtiene un estado a partir de su índole y descripción.
+        /// </summary>
+        /// <param name="indole">Texto de índole del estado.</param>
+        /// <param name="descripcion">Descripción del estado.</param>
+        /// <returns>
+        /// Resultado con el objeto Estado encontrado o mensaje de error.
+        /// </returns>
+        public static Resultado<Estados?> GetEstado(string? indole, string? descripcion)
         {
-            if (estado == null)
-            {
-                mensaje = "No llega la información de estado a la capa datos";
-                return false;
-            }
-            if (String.IsNullOrWhiteSpace(estado.Indole) || String.IsNullOrWhiteSpace(estado.Estado))
-            {
-                mensaje = "No llega la información de estado a la capa datos (valores de estado)";
-                return false;
-            }
-            if (estado.IdEstado == null)
-            {
-                mensaje += !registro ? "No llega la información de estado (ID) a la capa datos" : "";
-                return registro;
-            }
-            return true;
-        }
+            // Validación previa al uso del contexto
+            if (string.IsNullOrWhiteSpace(indole) || string.IsNullOrWhiteSpace(descripcion))
+                return Resultado<Estados?>.Fail("No llegan los datos de búsqueda de estados.");
 
-
-        //Consultas
-        public static Estados? getEstado(string? indole, string? descripcion, ref string mensaje)
-        {
-            if (String.IsNullOrWhiteSpace(indole) || String.IsNullOrWhiteSpace(descripcion))
-            {
-                mensaje = "No llega la información de estados a la capa de datos";
-                return null;
-            }
-            contexto = new Contexto();
-            if (!comprobarContexto(ref mensaje))
-            {
-                return null;
-            }
-
-            Estados? estado = null;
             try
             {
-                estado = contexto.Estados.FirstOrDefault(e => e.Indole.Equals(indole) && e.Estado.Equals(descripcion));
-            } catch (Exception ex)
-            {
-                mensaje = ex.Message + "EstadosDatos";
-                return null;
-            }
-            return estado;
-        }
+                using (var contexto = new Contexto())
+                {
+                    var resultadoContexto = ComprobarContexto(contexto);
+                    if (!resultadoContexto.Success)
+                        return Resultado<Estados?>.Fail(resultadoContexto.Mensaje);
 
-        public static List<Estados>? getEstadosPorIndole(string? indole, ref string mensaje)
-        {
-            if (String.IsNullOrWhiteSpace(indole))
-            {
-                mensaje = "No llega la información de estados a la capa de datos";
-                return null;
-            }
-            contexto = new Contexto();
-            if (!comprobarContexto(ref mensaje))
-            {
-                return null;
-            }
+                    var estado = contexto.Estados
+                        .FirstOrDefault(e => e.Indole.Equals(indole) && e.Estado.Equals(descripcion));
 
-            List<Estados>? estados = null;
-            try
-            {
-                estados = contexto.Estados.Where(e => e.Indole.Equals(indole)).ToList();
+                    if (estado == null)
+                        return Resultado<Estados?>.Fail($"No se encontró un estado con índole '{indole}' y descripción '{descripcion}'.");
+
+                    return Resultado<Estados?>.Ok(estado);
+                }
             }
             catch (Exception ex)
             {
-                mensaje = ex.Message + "EstadosDatos";
-                return null;
+                return Resultado<Estados?>.Fail($"Error al obtener el estado:\n{ex.ToString()}");
             }
-            if (estados == null || estados.Count < 1)
+        }
+
+        /// <summary>
+        /// Obtiene una lista de estados filtrados por índole.
+        /// </summary>
+        /// <param name="indole">Texto de índole para filtrar.</param>
+        /// <returns>
+        /// Resultado con la lista de estados encontrados o mensaje de error.
+        /// </returns>
+        public static Resultado<List<Estados>> GetEstadosPorIndole(string? indole)
+        {
+            // Validación previa al uso del contexto
+            if (string.IsNullOrWhiteSpace(indole))
+                return Resultado<List<Estados>>.Fail("No llega la información de índole a la capa de datos.");
+
+            try
             {
-                return null;
+                using (var contexto = new Contexto())
+                {
+                    var resultadoContexto = ComprobarContexto(contexto);
+                    if (!resultadoContexto.Success)
+                        return Resultado<List<Estados>>.Fail(resultadoContexto.Mensaje);
+
+                    var estados = contexto.Estados
+                        .Where(e => e.Indole.Equals(indole))
+                        .ToList();
+
+                    if (estados == null || estados.Count < 1)
+                        return Resultado<List<Estados>>.Fail($"No se encontraron estados con índole '{indole}'.");
+
+                    return Resultado<List<Estados>>.Ok(estados);
+                }
             }
-            return estados;
+            catch (Exception ex)
+            {
+                return Resultado<List<Estados>>.Fail($"Error al obtener estados por índole:\n{ex.ToString()}");
+            }
         }
 
         //Registros
-        public static int registrarEstado(Estados? estado, ref string mensaje)
+        /// <summary>
+        /// Registra un nuevo estado en la base de datos.
+        /// </summary>
+        /// <param name="estado">Objeto Estado a registrar.</param>
+        /// <returns>
+        /// Resultado con el Id del estado registrado o mensaje de error.
+        /// </returns>
+        public static Resultado<int> RegistrarEstado(Estados? estado)
         {
-            if (!comprobarEstado(estado, true, ref mensaje))
-            {
-                return -1;
-            }
-            contexto = new Contexto();
-            if (!comprobarContexto(ref mensaje))
-            {
-                return -1;
-            }
+            // Validación previa al uso del contexto
+            if (estado == null)
+                return Resultado<int>.Fail("El estado no puede ser nulo.");
+
             try
             {
-                contexto.Estados.Add(estado);
-                contexto.SaveChanges();
-            } catch (Exception ex)
-            {
-                mensaje = ex.Message + "EstadosDatos";
-                return -1;
+                using (var contexto = new Contexto())
+                {
+                    var resultadoContexto = ComprobarContexto(contexto);
+                    if (!resultadoContexto.Success)
+                        return Resultado<int>.Fail(resultadoContexto.Mensaje);
+
+                    // Estados es entidad sin autoincremental → IdEstado = 0 en registros nuevos
+                    estado.IdEstado = 0;
+
+                    contexto.Estados.Add(estado);
+                    int exito = contexto.SaveChanges();
+
+                    if (exito > 0 && estado.IdEstado > 0)
+                        return Resultado<int>.Ok(estado.IdEstado);
+
+                    return Resultado<int>.Fail("Problemas desconocidos en el registro de estados.");
+                }
             }
-            if (estado.IdEstado != null)
+            catch (Exception ex)
             {
-                return (int)estado.IdEstado;
+                return Resultado<int>.Fail($"Error al registrar el estado:\n{ex.ToString()}");
             }
-            mensaje = "Problemas desconocidos en el registro de estados";
-            return 0;
         }
     }
 }
