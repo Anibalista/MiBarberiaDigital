@@ -9,7 +9,6 @@ namespace Datos_SGBM
     /// </summary>
     public class ComprobacionContexto
     {
-        // Contexto de base de datos inyectado en la clase.
         private readonly Contexto contexto;
 
         /// <summary>
@@ -18,7 +17,6 @@ namespace Datos_SGBM
         /// <param name="contexto">Instancia del contexto a validar.</param>
         public ComprobacionContexto(Contexto contexto)
         {
-            // Se asigna el contexto recibido a la variable interna.
             this.contexto = contexto;
         }
 
@@ -31,23 +29,43 @@ namespace Datos_SGBM
         /// Nombre de la entidad, capturado automáticamente por CallerArgumentExpression.
         /// </param>
         /// <returns>
-        /// Resultado con Success = true si la entidad existe, 
+        /// Resultado con Success = true si la entidad existe,
         /// o Success = false con un mensaje de error en caso contrario.
         /// </returns>
         public Resultado<T> ComprobarEntidad<T>(
             T entidad,
             [CallerArgumentExpression("entidad")] string nombreEntidad = "")
         {
-            // Si el contexto es nulo, significa que no hay conexión con la base de datos.
             if (contexto == null)
                 return Resultado<T>.Fail("No se conecta a la BD");
 
-            // Si la entidad es nula, significa que no se pudo acceder a esa tabla/colección.
             if (entidad == null)
                 return Resultado<T>.Fail($"No se conecta al registro de {nombreEntidad}");
 
-            // Si pasa todas las validaciones, se devuelve éxito con la entidad.
             return Resultado<T>.Ok(entidad);
+        }
+
+        /// <summary>
+        /// Comprueba varias entidades a la vez. Recibe pares (entidad, nombre) y devuelve el primer fallo o Ok(true).
+        /// Uso recomendado: new ComprobacionContexto(contexto).ComprobarEntidades((contexto.Domicilios, nameof(contexto.Domicilios)), (contexto.Localidades, nameof(contexto.Localidades)));
+        /// </summary>
+        /// <param name="entidades">Lista de tuplas (entidad, nombreEntidad).</param>
+        /// <returns>Resultado con Ok(true) si todas las entidades existen, o Fail con el mensaje del primer error.</returns>
+        public Resultado<bool> ComprobarEntidades(params (object entidad, string nombre)[] entidades)
+        {
+            if (contexto == null)
+                return Resultado<bool>.Fail("No se conecta a la BD");
+
+            if (entidades == null || entidades.Length == 0)
+                return Resultado<bool>.Fail("No se especificaron entidades para comprobar.");
+
+            foreach (var (entidad, nombre) in entidades)
+            {
+                if (entidad == null)
+                    return Resultado<bool>.Fail($"No se conecta al registro de {nombre}");
+            }
+
+            return Resultado<bool>.Ok(true);
         }
     }
 }

@@ -25,6 +25,7 @@ namespace Datos_SGBM
             return Resultado<bool>.Ok(true);
         }
 
+        #region Consultas y listados
         /// <summary>
         /// Obtiene un estado a partir de su índole y descripción.
         /// </summary>
@@ -98,6 +99,8 @@ namespace Datos_SGBM
                 return Resultado<List<Estados>>.Fail($"Error al obtener estados por índole:\n{ex.ToString()}");
             }
         }
+
+        #endregion
 
         //Registros
         /// <summary>

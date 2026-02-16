@@ -27,7 +27,7 @@ namespace Negocio_SGBM
             List<Contactos>? contactos = null;
             try
             {
-                contactos = ContactosDatos.getContactosPorPersona(persona, ref mensaje);
+                contactos = ContactosDatos.GetContactosPorPersona(persona, ref mensaje);
             } catch (Exception ex)
             {
                 mensaje = ex.Message;
@@ -50,7 +50,7 @@ namespace Negocio_SGBM
             {
                 return null;
             }
-            List<Contactos>? contactos = ContactosDatos.getContactosPorNumero(fijo, whatsapp, ref mensaje);
+            List<Contactos>? contactos = ContactosDatos.GetContactosPorNumero(fijo, whatsapp, ref mensaje);
             return contactos;
         }
 
@@ -62,7 +62,7 @@ namespace Negocio_SGBM
                 mensaje = "La información de contacto no llega a la capa negocio";
                 return false;
             }
-            int id = ContactosDatos.registrarContacto(contacto, ref mensaje);
+            int id = ContactosDatos.RegistrarContacto(contacto, ref mensaje);
             
             return id > 0;
         }
@@ -83,7 +83,7 @@ namespace Negocio_SGBM
             bool exito = false;
             try
             {
-                exito = ContactosDatos.modificarContacto(contacto, ref mensaje);
+                exito = ContactosDatos.ModificarContacto(contacto, ref mensaje);
             } catch (Exception ex)
             {
                 mensaje += "\n" + ex.Message;
@@ -108,7 +108,7 @@ namespace Negocio_SGBM
             bool exito = false;
             try
             {
-                exito = ContactosDatos.eliminarContacto(contacto, ref mensaje);
+                exito = ContactosDatos.EliminarContacto(contacto, ref mensaje);
             }
             catch (Exception ex)
             {
