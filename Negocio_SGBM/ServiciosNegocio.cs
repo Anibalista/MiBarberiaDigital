@@ -1,5 +1,6 @@
-﻿using Entidades_SGBM;
-using Datos_SGBM;
+﻿using Datos_SGBM;
+using Entidades_SGBM;
+using Utilidades;
 
 namespace Negocio_SGBM
 {
@@ -155,18 +156,40 @@ namespace Negocio_SGBM
             }
         }
 
-        //Este método tiene la lógica en datos para usar helpers genéricos de filtros por campos y criterios
-        public static List<Servicios>? BuscarAvanzado(string campo, string criterio, string valor, int idCategoria, ref string mensaje)
+        /// <summary>
+        /// Orquesta la búsqueda avanzada de servicios: valida parámetros, normaliza y delega a la capa de datos.
+        /// Aquí se pueden añadir reglas de negocio (p. ej. límites, permisos, logging de auditoría).
+        /// </summary>
+        public static Resultado<List<Servicios>> BuscarServiciosAvanzado(string campo, string criterio, string valor, int idCategoria)
         {
-            try
-            {
-                return ServiciosDatos.BuscarAvanzado(campo, criterio, valor, idCategoria, ref mensaje);
-            }
-            catch (Exception ex)
-            {
-                mensaje = "Error inesperado capa negocios" + ex.Message;
-                return null;
-            }
+            // Validaciones y normalizaciones de negocio
+            if (string.IsNullOrWhiteSpace(campo))
+                return Resultado<List<Servicios>>.Fail("El campo de búsqueda es obligatorio.");
+
+            if (string.IsNullOrWhiteSpace(criterio))
+                return Resultado<List<Servicios>>.Fail("El criterio de búsqueda es obligatorio.");
+
+            // Normalizar criterio conocido
+            criterio = criterio.Trim();
+
+            // Normalizar valor según tipo de campo: si el campo es texto, aplicar Trim y ToLowerInvariant en la capa de datos si corresponde.
+            valor = valor?.Trim() ?? string.Empty;
+
+            // Reglas de negocio adicionales (ejemplos):
+            // - Limitar longitud de valor para evitar consultas costosas
+            if (valor.Length > 149)
+                return Resultado<List<Servicios>>.Fail("El valor de búsqueda es demasiado largo.");
+
+            // Delegar a la capa de datos
+            var resultadoDatos = ServiciosDatos.BuscarAvanzado(campo, criterio, valor, idCategoria);
+            if (!resultadoDatos.Success)
+                return Resultado<List<Servicios>>.Fail(resultadoDatos.Mensaje);
+
+            // Posible post-procesado de negocio (orden, filtrado adicional, mapeo DTO)
+            var lista = resultadoDatos.Data ?? new List<Servicios>();
+
+            return Resultado<List<Servicios>>.Ok(lista);
         }
+
     }
 }

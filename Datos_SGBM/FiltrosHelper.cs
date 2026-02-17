@@ -59,7 +59,6 @@ namespace Datos_SGBM
             {
                 var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
 
-                // s => s.Prop == null || !s.Prop.Contains(valor)
                 var nullCheck = Expression.Equal(property, Expression.Constant(null, typeof(string)));
                 var call = Expression.Call(property, containsMethod!, Expression.Constant(valor));
                 var notCall = Expression.Not(call);

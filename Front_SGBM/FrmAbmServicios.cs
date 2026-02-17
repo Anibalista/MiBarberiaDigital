@@ -436,7 +436,7 @@ namespace Front_SGBM
                 string valor = txtBusqueda.Text.Trim().ToLower();
                 int idCategoria = _categoriaSeleccionada?.IdCategoria ?? 0;
 
-                _servicios = ServiciosNegocio.BuscarAvanzado(campo, criterio, valor, idCategoria, ref mensaje);
+                _servicios = ServiciosNegocio.BuscarServiciosAvanzado(campo, criterio, valor, idCategoria, ref mensaje);
 
                 if (!string.IsNullOrWhiteSpace(mensaje))
                     Mensajes.mensajeError("Error al buscar" + mensaje);
