@@ -11,50 +11,51 @@ namespace Datos_SGBM
     public class CategoriasDatos
     {
         /// <summary>
-        /// Comprueba que el contexto y la entidad Categorias estén disponibles.
-        /// </summary>
-        /// <param name="contexto">Instancia del contexto de base de datos.</param>
-        /// <returns>
-        /// Resultado indicando éxito o fallo en la comprobación.
-        /// </returns>
-        public static Resultado<bool> ComprobarContexto(Contexto contexto)
-        {
-            ComprobacionContexto comprobacion = new ComprobacionContexto(contexto);
-            var resultado = comprobacion.ComprobarEntidad(contexto.Categorias);
-            if (!resultado.Success)
-                return Resultado<bool>.Fail(resultado.Mensaje);
-            return Resultado<bool>.Ok(true);
-        }
-
-        /// <summary>
         /// Obtiene una lista de categorías filtradas por índole.
         /// </summary>
-        /// <param name="indole">Texto de índole para filtrar. Si está vacío, devuelve todas.</param>
-        /// <param name="mensaje">Mensaje de error en caso de fallo.</param>
-        /// <returns>
-        /// Resultado con la lista de categorías o mensaje de error.
-        /// </returns>
-        public static Resultado<List<Categorias>> ListaCategoriasPorIndole(string indole, ref string mensaje)
+        /// <param name="indole">Texto de índole para filtrar. Si está vacío o null, devuelve todas.</param>
+        /// <returns>Resultado con la lista de categorías o mensaje de error.</returns>
+        public static Resultado<List<Categorias>> ListaCategoriasPorIndole(string? indole)
         {
             try
             {
-                using (Contexto contexto = new Contexto())
+                using (var contexto = new Contexto())
                 {
-                    var resultadoContexto = ComprobarContexto(contexto);
-                    if (!resultadoContexto.Success)
-                        return Resultado<List<Categorias>>.Fail(resultadoContexto.Mensaje);
+                    var comprobacion = new ComprobacionContexto(contexto);
+                    var rc = comprobacion.ComprobarEntidad(contexto.Categorias, nameof(contexto.Categorias));
+                    if (!rc.Success)
+                    {
+                        Logger.LogError(rc.Mensaje);
+                        return Resultado<List<Categorias>>.Fail(rc.Mensaje);
+                    }
 
-                    var query = contexto.Categorias
-                                        .Where(c => c.Indole.ToLower() == indole.ToLower()
-                                                 || string.IsNullOrWhiteSpace(indole))
-                                        .OrderBy(c => c.Descripcion);
+                    var indoleCrit = string.IsNullOrWhiteSpace(indole) ? null : indole.Trim().ToLowerInvariant();
 
-                    return Resultado<List<Categorias>>.Ok(query.ToList());
+                    IQueryable<Categorias> query = contexto.Categorias.AsQueryable();
+
+                    if (!string.IsNullOrWhiteSpace(indoleCrit))
+                    {
+                        query = query.Where(c => c.Indole != null && c.Indole.ToLowerInvariant() == indoleCrit);
+                    }
+
+                    var lista = query.OrderBy(c => c.Descripcion).ToList();
+
+                    if (lista == null || lista.Count == 0)
+                    {
+                        var msg = string.IsNullOrWhiteSpace(indoleCrit)
+                            ? "No se encontraron categorías."
+                            : $"No se encontraron categorías con índole '{indole}'.";
+                        return Resultado<List<Categorias>>.Fail(msg);
+                    }
+
+                    return Resultado<List<Categorias>>.Ok(lista);
                 }
             }
             catch (Exception ex)
             {
-                return Resultado<List<Categorias>>.Fail($"Error al obtener categorías:\n{ex.ToString()}");
+                var msg = $"Error al obtener categorías:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<List<Categorias>>.Fail(msg);
             }
         }
 
@@ -62,35 +63,48 @@ namespace Datos_SGBM
         /// Registra una nueva categoría en la base de datos.
         /// </summary>
         /// <param name="categoria">Objeto Categorias a registrar.</param>
-        /// <returns>
-        /// Resultado con el Id de la categoría registrada o mensaje de error.
-        /// </returns>
+        /// <returns>Resultado con el Id de la categoría registrada o mensaje de error.</returns>
         public static Resultado<int> RegistrarCategoria(Categorias? categoria)
         {
+            if (categoria == null)
+                return Resultado<int>.Fail("La categoría no puede ser nula.");
+
+            if (string.IsNullOrWhiteSpace(categoria.Descripcion))
+                return Resultado<int>.Fail("El campo Descripción es obligatorio.");
+
             try
             {
-                using (Contexto contexto = new Contexto())
+                using (var contexto = new Contexto())
                 {
-                    var resultadoContexto = ComprobarContexto(contexto);
-                    if (!resultadoContexto.Success)
-                        return Resultado<int>.Fail(resultadoContexto.Mensaje);
+                    var comprobacion = new ComprobacionContexto(contexto);
+                    var rc = comprobacion.ComprobarEntidad(contexto.Categorias, nameof(contexto.Categorias));
+                    if (!rc.Success)
+                    {
+                        Logger.LogError(rc.Mensaje);
+                        return Resultado<int>.Fail(rc.Mensaje);
+                    }
 
-                    if (categoria == null)
-                        return Resultado<int>.Fail("La categoría no puede ser nula.");
-
+                    // Preparar entidad para inserción
                     categoria.IdCategoria = null;
+                    categoria.Descripcion = categoria.Descripcion.Trim();
+                    categoria.Indole = string.IsNullOrWhiteSpace(categoria.Indole) ? null : categoria.Indole.Trim();
+
                     contexto.Categorias.Add(categoria);
                     contexto.SaveChanges();
 
-                    if (categoria.IdCategoria != null)
-                        return Resultado<int>.Ok((int)categoria.IdCategoria);
-                    else
-                        return Resultado<int>.Fail("No se pudo obtener el Id de la categoría registrada.");
+                    if (categoria.IdCategoria != null && categoria.IdCategoria > 0)
+                        return Resultado<int>.Ok(categoria.IdCategoria.Value);
+
+                    var msg = "No se pudo obtener el Id de la categoría registrada.";
+                    Logger.LogError(msg);
+                    return Resultado<int>.Fail(msg);
                 }
             }
             catch (Exception ex)
             {
-                return Resultado<int>.Fail($"Error al registrar la categoría:\n{ex.ToString()}");
+                var msg = $"Error al registrar la categoría:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<int>.Fail(msg);
             }
         }
     }

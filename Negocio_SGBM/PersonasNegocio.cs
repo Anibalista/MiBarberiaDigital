@@ -401,7 +401,7 @@ namespace Negocio_SGBM
 
             try
             {
-                int modificada = PersonasDatos.ActualizarPersona(persona, ref mensaje);
+                int modificada = PersonasDatos.ModificarPersona(persona, ref mensaje);
 
                 if (modificada >= 0)
                     mensaje = string.Empty;
