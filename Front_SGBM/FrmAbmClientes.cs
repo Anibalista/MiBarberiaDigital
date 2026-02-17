@@ -30,7 +30,7 @@ namespace Front_SGBM
         {
             cargarFormulario();
             btnBuscar_Click(sender, e);
-            btnSeleccionar.Text = modo == EnumModoForm.Venta ? "Seleccionar" : "Modificar Cliente";
+            btnSeleccionar.Text = modo == EnumModoForm.Venta ? "Seleccionar" : "ModificarCosto Cliente";
         }
 
         private void cargarFormulario()

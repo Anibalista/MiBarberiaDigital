@@ -83,7 +83,7 @@ namespace Negocio_SGBM
                     if (costo.IdProducto != null)
                         costo.Productos = null;
 
-                    costo.IdCostoServicio = CostosDatos.Registrar(costo, ref errores);
+                    costo.IdCostoServicio = CostosDatos.RegistrarCosto(costo, ref errores);
                     if (costo.IdCostoServicio <= 0)
                         mensaje += "\n" + errores;
                 }
@@ -119,7 +119,7 @@ namespace Negocio_SGBM
                 if (costo.IdProducto != null)
                     costo.Productos = null;
 
-                if (!CostosDatos.Modificar(costo, ref error))
+                if (!CostosDatos.ModificarCosto(costo, ref error))
                     mensaje += "\n" + error;
 
                 bool exito = string.IsNullOrWhiteSpace(mensaje);

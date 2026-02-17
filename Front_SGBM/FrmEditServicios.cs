@@ -494,7 +494,7 @@ namespace Front_SGBM
 
         private void btnGuardar_Click(object sender, EventArgs e)
         {
-            string accion = modo == EnumModoForm.Alta ? "Registrar" : "Modificar";
+            string accion = modo == EnumModoForm.Alta ? "RegistrarCosto" : "ModificarCosto";
             DialogResult respuesta = Mensajes.respuesta($"¿Confirma que desea {accion} el servicio?");
             if (respuesta == DialogResult.No)
                 return;

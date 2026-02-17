@@ -190,7 +190,7 @@
             linkContactos.Size = new Size(139, 19);
             linkContactos.TabIndex = 6;
             linkContactos.TabStop = true;
-            linkContactos.Text = "Modificar Contactos";
+            linkContactos.Text = "ModificarCosto Contactos";
             linkContactos.VisitedLinkColor = Color.Blue;
             linkContactos.LinkClicked += linkContactos_LinkClicked;
             // 

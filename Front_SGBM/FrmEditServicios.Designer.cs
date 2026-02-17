@@ -419,7 +419,7 @@
             btnModificar.Size = new Size(108, 23);
             btnModificar.TabIndex = 6;
             btnModificar.Tag = "btnNormal";
-            btnModificar.Text = "Modificar";
+            btnModificar.Text = "ModificarCosto";
             btnModificar.UseVisualStyleBackColor = true;
             btnModificar.Click += btnModificar_Click;
             // 

@@ -139,7 +139,7 @@
             btnModificar.Name = "btnModificar";
             btnModificar.Size = new Size(91, 23);
             btnModificar.TabIndex = 4;
-            btnModificar.Text = "Modificar";
+            btnModificar.Text = "ModificarCosto";
             btnModificar.UseVisualStyleBackColor = true;
             btnModificar.Click += btnModificar_Click;
             // 
@@ -543,7 +543,7 @@
             btnNuevo.Size = new Size(266, 45);
             btnNuevo.TabIndex = 0;
             btnNuevo.Tag = "btnPrincipalV";
-            btnNuevo.Text = "Registrar Nuevo";
+            btnNuevo.Text = "RegistrarCosto Nuevo";
             btnNuevo.UseVisualStyleBackColor = true;
             btnNuevo.Click += btnNuevo_Click;
             // 

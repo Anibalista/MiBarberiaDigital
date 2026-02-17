@@ -31,7 +31,7 @@ namespace Front_SGBM
 
         private void FrmAbmServicios_Load(object sender, EventArgs e)
         {
-            btnSeleccionar.Text = modo == EnumModoForm.Venta ? "Seleccionar" : "Modificar Servicio";
+            btnSeleccionar.Text = modo == EnumModoForm.Venta ? "Seleccionar" : "ModificarCosto Servicio";
             cargarFormulario();
         }
 

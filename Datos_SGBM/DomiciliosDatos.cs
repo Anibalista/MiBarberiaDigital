@@ -36,7 +36,6 @@ namespace Datos_SGBM
     /// - Métodos auxiliares internos (p. ej. para obtener el siguiente Id) devuelven <c>Resultado&lt;int&gt;</c>
     ///   para un manejo de errores consistente.
     /// </summary>
-
     public class DomiciliosDatos
     {
 

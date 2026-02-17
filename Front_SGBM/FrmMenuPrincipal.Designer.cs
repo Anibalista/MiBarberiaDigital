@@ -156,7 +156,7 @@ namespace Front_SGBM
             // 
             nuevoModificarToolStripMenuItem.Name = "nuevoModificarToolStripMenuItem";
             nuevoModificarToolStripMenuItem.Size = new Size(165, 22);
-            nuevoModificarToolStripMenuItem.Text = "Nuevo-Modificar";
+            nuevoModificarToolStripMenuItem.Text = "Nuevo-ModificarCosto";
             nuevoModificarToolStripMenuItem.Click += nuevoModificarToolStripMenuItem_Click;
             // 
             // contabilidadToolStripMenuItem
