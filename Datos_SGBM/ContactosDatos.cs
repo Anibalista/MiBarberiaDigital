@@ -4,25 +4,39 @@ using Utilidades;
 
 namespace Datos_SGBM
 {
+    /// <summary>
+    /// Clase de acceso a datos para la entidad Contactos.
+    /// 
+    /// Responsabilidades:
+    /// - Proveer operaciones CRUD y consultas específicas relacionadas con contactos.
+    /// - Gestionar la persistencia y resolución de referencias a entidades relacionadas (Personas, Proveedores)
+    ///   evitando inserciones o actualizaciones accidentales de navegaciones.
+    /// - Validar la disponibilidad del <see cref="Contexto"/> y de los <see cref="DbSet"/> usados
+    ///   mediante <see cref="ComprobacionContexto"/> antes de ejecutar consultas o escrituras.
+    /// - Devolver resultados uniformes usando el patrón <c>Resultado&lt;T&gt;</c> para transportar
+    ///   tanto los datos como mensajes de error y facilitar el manejo en capas superiores.
+    ///
+    /// Diseño y buenas prácticas:
+    /// - No contiene reglas de negocio; solo validaciones técnicas (nulls, ids válidos, existencia de DbSet).
+    /// - Evita exponer excepciones crudas: registra detalles técnicos con <c>Logger</c> y devuelve mensajes
+    ///   claros en <c>Resultado&lt;T&gt;</c>.
+    /// - Al modificar entidades, recupera la entidad existente y asigna solo los campos permitidos
+    ///   para evitar sobrescribir relaciones o provocar inserciones accidentales.
+    /// - Usa <see cref="ComprobacionContexto.ComprobarEntidad"/> o <see cref="ComprobacionContexto.ComprobarEntidades"/>
+    ///   según corresponda, para centralizar la comprobación del contexto y mantener mensajes consistentes.
+    /// - Cada método crea y dispone su propio <see cref="Contexto"/> salvo que se diseñe explícitamente
+    ///   para recibir uno (por ejemplo, para transacciones coordinadas en la capa de negocio).
+    ///
+    /// Consideraciones operativas:
+    /// - Las operaciones que requieren atomicidad entre varias tablas deben orquestarse en la capa de negocio
+    ///   con transacciones explícitas.
+    /// - Para búsquedas por texto, preferir la collation de la base de datos o normalizar con
+    ///   <c>ToLowerInvariant()</c> solo cuando sea necesario y no afecte el uso de índices.
+    /// - Validaciones de formato (teléfono, email) y control de concurrencia (RowVersion) se implementan
+    ///   en la capa de negocio o en iteraciones posteriores según necesidad.
+    /// </summary>
     public class ContactosDatos
     {
-        /// <summary>
-        /// Comprueba que el contexto y la entidad Contactos estén disponibles.
-        /// </summary>
-        /// <param name="contexto">Instancia del contexto de base de datos.</param>
-        /// <returns>
-        /// Resultado indicando éxito o fallo en la comprobación.
-        /// </returns>
-        public static Resultado<bool> ComprobarContexto(Contexto contexto)
-        {
-            if (contexto == null)
-                return Resultado<bool>.Fail("Problemas al conectar a la BD.");
-
-            if (contexto.Contactos == null)
-                return Resultado<bool>.Fail("Problemas al conectar a la BD (Contactos).");
-
-            return Resultado<bool>.Ok(true);
-        }
 
         #region Consultas y Listados
 
@@ -43,9 +57,13 @@ namespace Datos_SGBM
             {
                 using (var contexto = new Contexto())
                 {
-                    var resultadoContexto = ComprobarContexto(contexto);
-                    if (!resultadoContexto.Success)
-                        return Resultado<List<Contactos>>.Fail(resultadoContexto.Mensaje);
+                    var comprobacion = new ComprobacionContexto(contexto);
+                    var rc = comprobacion.ComprobarEntidad(contexto.Contactos, nameof(contexto.Contactos));
+                    if (!rc.Success)
+                    {
+                        Logger.LogError(rc.Mensaje);
+                        return Resultado<List<Contactos>>.Fail(rc.Mensaje);
+                    }
 
                     var contactos = contexto.Contactos
                         .Where(c => c.IdPersona == persona.IdPersona)
@@ -59,7 +77,9 @@ namespace Datos_SGBM
             }
             catch (Exception ex)
             {
-                return Resultado<List<Contactos>>.Fail($"Error al obtener contactos de la persona:\n{ex.ToString()}");
+                var msg = $"Error al obtener contactos de la persona:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<List<Contactos>>.Fail(msg);
             }
         }
 
@@ -81,16 +101,23 @@ namespace Datos_SGBM
             {
                 using (var contexto = new Contexto())
                 {
-                    var resultadoContexto = ComprobarContexto(contexto);
-                    if (!resultadoContexto.Success)
-                        return Resultado<List<Contactos>>.Fail(resultadoContexto.Mensaje);
+                    var comprobacion = new ComprobacionContexto(contexto);
+                    var rc = comprobacion.ComprobarEntidad(contexto.Contactos, nameof(contexto.Contactos));
+                    if (!rc.Success)
+                    {
+                        Logger.LogError(rc.Mensaje);
+                        return Resultado<List<Contactos>>.Fail(rc.Mensaje);
+                    }
 
-                    var contactos = contexto.Contactos
-                        .Where(c =>
-                            (!string.IsNullOrWhiteSpace(fijo) && c.Telefono != null && c.Telefono.Contains(fijo))
-                            || (!string.IsNullOrWhiteSpace(whatsapp) && c.Whatsapp != null && c.Whatsapp.Contains(whatsapp))
-                        )
-                        .ToList();
+                    var query = contexto.Contactos.AsQueryable();
+
+                    // Aplicar filtros solo si vienen criterios
+                    query = query.Where(c =>
+                        (!string.IsNullOrWhiteSpace(fijo) && c.Telefono != null && c.Telefono.Contains(fijo!))
+                        || (!string.IsNullOrWhiteSpace(whatsapp) && c.Whatsapp != null && c.Whatsapp.Contains(whatsapp!))
+                    );
+
+                    var contactos = query.ToList();
 
                     if (contactos == null || contactos.Count < 1)
                         return Resultado<List<Contactos>>.Fail("No se encontraron contactos con los criterios de búsqueda.");
@@ -100,14 +127,16 @@ namespace Datos_SGBM
             }
             catch (Exception ex)
             {
-                return Resultado<List<Contactos>>.Fail($"Error al obtener contactos por número:\n{ex.ToString()}");
+                var msg = $"Error al obtener contactos por número:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<List<Contactos>>.Fail(msg);
             }
         }
 
         #endregion
 
         #region Interacción con BD (registro, modificación, etc)
-        
+
         /// <summary>
         /// Registra un nuevo contacto en la base de datos.
         /// </summary>
@@ -117,7 +146,6 @@ namespace Datos_SGBM
         /// </returns>
         public static Resultado<int> RegistrarContacto(Contactos? contacto)
         {
-            // Validación previa al uso del contexto
             if (contacto == null)
                 return Resultado<int>.Fail("El contacto no puede ser nulo.");
 
@@ -125,9 +153,13 @@ namespace Datos_SGBM
             {
                 using (var contexto = new Contexto())
                 {
-                    var resultadoContexto = ComprobarContexto(contexto);
-                    if (!resultadoContexto.Success)
-                        return Resultado<int>.Fail(resultadoContexto.Mensaje);
+                    var comprobacion = new ComprobacionContexto(contexto);
+                    var rc = comprobacion.ComprobarEntidad(contexto.Contactos, nameof(contexto.Contactos));
+                    if (!rc.Success)
+                    {
+                        Logger.LogError(rc.Mensaje);
+                        return Resultado<int>.Fail(rc.Mensaje);
+                    }
 
                     // Evitamos referencias circulares al registrar
                     contacto.Personas = null;
@@ -140,14 +172,18 @@ namespace Datos_SGBM
                     int exito = contexto.SaveChanges();
 
                     if (exito > 0 && contacto.IdContacto != null && contacto.IdContacto > 0)
-                        return Resultado<int>.Ok((int)contacto.IdContacto);
+                        return Resultado<int>.Ok(contacto.IdContacto.Value);
 
-                    return Resultado<int>.Fail("Problemas desconocidos en el registro de contactos.");
+                    var msg = "Problemas desconocidos en el registro de contactos.";
+                    Logger.LogError(msg);
+                    return Resultado<int>.Fail(msg);
                 }
             }
             catch (Exception ex)
             {
-                return Resultado<int>.Fail($"Error al registrar el contacto:\n{ex.ToString()}");
+                var msg = $"Error al registrar el contacto:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<int>.Fail(msg);
             }
         }
 
@@ -155,12 +191,9 @@ namespace Datos_SGBM
         /// Modifica los datos de un contacto existente.
         /// </summary>
         /// <param name="contacto">Objeto Contacto con los datos actualizados.</param>
-        /// <returns>
-        /// Resultado indicando éxito o fallo en la modificación.
-        /// </returns>
+        /// <returns>Resultado indicando éxito o fallo en la modificación.</returns>
         public static Resultado<bool> ModificarContacto(Contactos? contacto)
         {
-            // Validación previa al uso del contexto
             if (contacto == null || contacto.IdContacto == null || contacto.IdContacto <= 0)
                 return Resultado<bool>.Fail("Debe indicar un contacto válido con IdContacto.");
 
@@ -168,16 +201,20 @@ namespace Datos_SGBM
             {
                 using (var contexto = new Contexto())
                 {
-                    var resultadoContexto = ComprobarContexto(contexto);
-                    if (!resultadoContexto.Success)
-                        return Resultado<bool>.Fail(resultadoContexto.Mensaje);
+                    var comprobacion = new ComprobacionContexto(contexto);
+                    var rc = comprobacion.ComprobarEntidad(contexto.Contactos, nameof(contexto.Contactos));
+                    if (!rc.Success)
+                    {
+                        Logger.LogError(rc.Mensaje);
+                        return Resultado<bool>.Fail(rc.Mensaje);
+                    }
 
                     // Buscar el contacto existente
                     var cont = contexto.Contactos.FirstOrDefault(c => c.IdContacto == contacto.IdContacto);
                     if (cont == null)
                         return Resultado<bool>.Fail($"No se encontró el contacto con Id {contacto.IdContacto}.");
 
-                    // Actualizar campos
+                    // Actualizar campos permitidos (evitar sobrescribir navegaciones completas)
                     cont.Whatsapp = contacto.Whatsapp;
                     cont.Telefono = contacto.Telefono;
                     cont.Email = contacto.Email;
@@ -195,7 +232,9 @@ namespace Datos_SGBM
             }
             catch (Exception ex)
             {
-                return Resultado<bool>.Fail($"Error al modificar el contacto:\n{ex.ToString()}");
+                var msg = $"Error al modificar el contacto:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
             }
         }
 
@@ -203,12 +242,9 @@ namespace Datos_SGBM
         /// Elimina un contacto existente de la base de datos.
         /// </summary>
         /// <param name="contacto">Objeto Contacto con IdContacto válido.</param>
-        /// <returns>
-        /// Resultado indicando éxito o fallo en la eliminación.
-        /// </returns>
+        /// <returns>Resultado indicando éxito o fallo en la eliminación.</returns>
         public static Resultado<bool> EliminarContacto(Contactos? contacto)
         {
-            // Validación previa al uso del contexto
             if (contacto == null || contacto.IdContacto == null || contacto.IdContacto <= 0)
                 return Resultado<bool>.Fail("Debe indicar un contacto válido con IdContacto.");
 
@@ -216,25 +252,31 @@ namespace Datos_SGBM
             {
                 using (var contexto = new Contexto())
                 {
-                    var resultadoContexto = ComprobarContexto(contexto);
-                    if (!resultadoContexto.Success)
-                        return Resultado<bool>.Fail(resultadoContexto.Mensaje);
+                    var comprobacion = new ComprobacionContexto(contexto);
+                    var rc = comprobacion.ComprobarEntidad(contexto.Contactos, nameof(contexto.Contactos));
+                    if (!rc.Success)
+                    {
+                        Logger.LogError(rc.Mensaje);
+                        return Resultado<bool>.Fail(rc.Mensaje);
+                    }
 
                     var cont = contexto.Contactos.FirstOrDefault(c => c.IdContacto == contacto.IdContacto);
                     if (cont == null)
                         return Resultado<bool>.Fail($"No se encontró el contacto con Id {contacto.IdContacto} para eliminar.");
 
                     contexto.Contactos.Remove(cont);
-                    int exito = contexto.SaveChanges();
+                    int cambios = contexto.SaveChanges();
 
-                    return exito > 0
+                    return cambios > 0
                         ? Resultado<bool>.Ok(true)
                         : Resultado<bool>.Fail("No se pudo eliminar el contacto.");
                 }
             }
             catch (Exception ex)
             {
-                return Resultado<bool>.Fail($"Error al eliminar el contacto:\n{ex.ToString()}");
+                var msg = $"Error al eliminar el contacto:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
             }
         }
 
