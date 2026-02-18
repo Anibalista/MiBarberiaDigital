@@ -1,289 +1,377 @@
-﻿
-
-using Datos_SGBM;
+﻿using Datos_SGBM;
 using Entidades_SGBM;
+using Utilidades;
 
 namespace Negocio_SGBM
 {
     public class EmpleadosNegocio
     {
-        public static Empleados? ComprobarEmpleado(Empleados? Empleado, bool registro, ref string mensaje)
+        /// <summary>
+        /// Valida la información de un empleado antes de registrar o modificar.
+        /// </summary>
+        private static Resultado<Empleados?> ComprobarEmpleado(Empleados? empleado, bool registro)
         {
-            if (Empleado == null)
-            {
-                mensaje = "Problema al enviar datos de Empleado entre capas";
-                return null;
-            }
-            if (Empleado.Personas == null)
-            {
-                mensaje = "Problema al enviar datos de la persona relacionada al Empleado entre capas";
-                return null;
-            }
-            if (Empleado.IdEstado > 0)
-                Empleado.Estados = null;
-            if (Empleado.Estados != null)
-                Empleado.IdEstado = Empleado.Estados.IdEstado ?? 0;
-            if (Empleado.IdEstado < 1 && !registro)
-            {
-                mensaje = "Error al asignar un estado al Empleado en la capa negocio";
-                return null;
-            }
-            if (!registro && Empleado.IdEmpleado == null)
-            {
-                mensaje = "Error al mover el Id del Empleado a la capa negocio";
-                return null;
-            }
+            if (empleado == null)
+                return Resultado<Empleados?>.Fail("Problema al enviar datos de empleado entre capas.");
+
+            if (empleado.Personas == null)
+                return Resultado<Empleados?>.Fail("Problema al enviar datos de la persona relacionada al empleado entre capas.");
+
+            if (empleado.IdEstado > 0)
+                empleado.Estados = null;
+
+            if (empleado.Estados != null)
+                empleado.IdEstado = empleado.Estados.IdEstado;
+
+            if (empleado.IdEstado < 1 && !registro)
+                return Resultado<Empleados?>.Fail("Error al asignar un estado al empleado en la capa negocio.");
+
+            if (!registro && empleado.IdEmpleado == null)
+                return Resultado<Empleados?>.Fail("Error al mover el Id del empleado a la capa negocio.");
             else if (registro)
-                Empleado.IdEmpleado = null;
+                empleado.IdEmpleado = null;
 
-            return Empleado;
+            return Resultado<Empleados?>.Ok(empleado);
         }
 
-        public static bool ImportarEmpleado(Empleados? Empleado, Contactos? contacto, ref string mensaje)
+        /// <summary>
+        /// Importa un empleado: valida persona, registra o modifica según corresponda,
+        /// y registra contacto si se proporciona.
+        /// </summary>
+        public static Resultado<bool> ImportarEmpleado(Empleados? empleado, Contactos? contacto)
         {
-            Empleado = ComprobarEmpleado(Empleado, true, ref mensaje);
-            if (Empleado == null)
-                return false;
+            var validacion = ComprobarEmpleado(empleado, true);
+            if (!validacion.Success)
+                return Resultado<bool>.Fail(validacion.Mensaje);
 
-            Personas? persona = PersonasNegocio.GetPersonaPorDni(Empleado.Personas.Dni, ref mensaje);
-            if (persona == null)
-                Empleado.IdPersona = PersonasNegocio.RegistrarPersona(Empleado.Personas, ref mensaje);
-            else
+            empleado = validacion.Data!;
+            try
             {
-                Empleado.IdPersona = (int)persona.IdPersona;
-                Empleado.Personas.IdPersona = persona.IdPersona;
-                if (!PersonasNegocio.modificarPersona(Empleado.Personas, ref mensaje))
-                    return false;
+                var resultadoPersona = PersonasNegocio.GetPersonaPorDni(empleado.Personas!.Dni);
+                Personas? persona = resultadoPersona.Data;
 
-            }
-            if (Empleado.IdPersona < 1)
-                return false;
-
-            Empleados? emp = null;
-            emp = GetEmpleadoPorDni(Empleado.Personas.Dni, ref mensaje);
-            Empleado.Personas = null;
-            if (emp == null)
-            {
-                if (!RegistrarEmpleadoBasico(Empleado, ref mensaje))
-                    return false;
-            }
-            if (contacto != null)
-            {
-                contacto.IdPersona = Empleado.IdPersona;
-                if (!ContactosNegocio.registrarContacto(contacto, ref mensaje))
-                    mensaje += "\nNo se pudo registrar contactos para el dni " + Empleado.Personas.Dni;
-            }
-            return true;
-        }
-
-        public static Empleados? GetEmpleadoPorDni(string? dni, ref string mensaje)
-        {
-            Personas? persona = null;
-            persona = PersonasNegocio.GetPersonaPorDni(dni, ref mensaje);
-            if (persona?.IdPersona == null)
-                return null;
-            
-            Empleados? Empleado = EmpleadosDatos.GetEmpleadoPorIdPersona((int)persona.IdPersona, ref mensaje);
-            if (Empleado == null)
-                Empleado = new();
-            Empleado.Personas = persona;
-            Empleado.IdPersona = persona.IdPersona ?? 0;
-            return Empleado;
-        }
-
-        public static List<Empleados>? GetEmpleadosPorDomicilio(string? calle, string? barrio, Localidades? localidad, bool incluirAnulados, ref string mensaje)
-        {
-            if (string.IsNullOrWhiteSpace(calle) && string.IsNullOrWhiteSpace(barrio) && localidad == null)
-            {
-                mensaje = "No se han enviado datos de búsqueda";
-                return null;
-            }
-            List<Domicilios>? domicilios = DomiciliosDatos.GetDomiciliosPorCampos(calle, barrio, localidad, ref mensaje);
-            if (domicilios == null)
-            {
-                return null;
-            }
-            List<int> IdDomicilios = domicilios.Select(d => (int)d.IdDomicilio).ToList();
-            List<Empleados>? EmpleadosTodos = EmpleadosDatos.GetEmpleados(ref mensaje);
-            if (EmpleadosTodos == null)
-            {
-                return null;
-            }
-            List<Empleados>? Empleados = EmpleadosTodos.Where(e => e.Personas != null && e.Personas.Domicilios != null &&
-                                                        IdDomicilios.Contains((int)e.Personas.IdDomicilio)).ToList();
-            return Empleados;
-        }
-
-        public static List<Empleados>? GetEmpleadosPorContactos(string? telefono, string? whatsapp, ref string mensaje)
-        {
-            if (string.IsNullOrWhiteSpace(telefono) && string.IsNullOrWhiteSpace(whatsapp))
-            {
-                mensaje = "No se han enviado datos de búsqueda";
-                return null;
-            }
-            List<Contactos>? contactos = ContactosNegocio.getContactosPorNumero(telefono, whatsapp, ref mensaje);
-            if (contactos == null)
-            {
-                return null;
-            }
-            List<int> IdPersonas = contactos.Where(e => e.IdPersona != null).Select(e => (int)e.IdPersona).ToList();
-            List<Empleados>? EmpleadosTodos = EmpleadosDatos.GetEmpleados(ref mensaje);
-            if (EmpleadosTodos == null)
-            {
-                return null;
-            }
-            List<Empleados>? Empleados = EmpleadosTodos.Where(e => e.Personas != null && IdPersonas.Contains((int)e.IdPersona)).ToList();
-            return Empleados;
-        }
-
-        public static bool RegistrarEmpleado(Empleados? Empleado, List<Contactos>? contactos, ref string mensaje)
-        {
-            Empleado = ComprobarEmpleado(Empleado, true, ref mensaje);
-            if (Empleado == null)
-                return false;
-
-            Personas? persona = PersonasNegocio.GetPersonaPorDni(Empleado.Personas.Dni, ref mensaje);
-            if (persona != null)
-            {
-                Empleado.Personas.IdPersona = persona.IdPersona;
-                if (persona.IdPersona == null)
+                if (persona == null)
                 {
-                    mensaje = "Problemas con el id de la persona en la BD";
-                    return false;
+                    var resultadoRegistro = PersonasNegocio.RegistrarPersona(empleado.Personas);
+                    if (!resultadoRegistro.Success || resultadoRegistro.Data <= 0)
+                        return Resultado<bool>.Fail(resultadoRegistro.Mensaje);
+
+                    empleado.IdPersona = resultadoRegistro.Data;
                 }
-                if (!PersonasNegocio.modificarPersona(Empleado.Personas, ref mensaje))
-                    return false;
                 else
                 {
-                    Empleado.Personas = null;
-                    Empleado.IdPersona = (int)persona.IdPersona;
+                    empleado.IdPersona = persona.IdPersona ?? 0;
+                    empleado.Personas.IdPersona = persona.IdPersona;
+
+                    var resultadoModPersona = PersonasNegocio.ModificarPersona(empleado.Personas);
+                    if (!resultadoModPersona.Success)
+                        return Resultado<bool>.Fail(resultadoModPersona.Mensaje);
                 }
-            }
-            else
-            {
-                Empleado.IdPersona = PersonasNegocio.RegistrarPersona(Empleado.Personas, ref mensaje);
-                persona = Empleado.Personas;
-                persona.IdPersona = Empleado.IdPersona;
-            }
-            if (Empleado.IdPersona < 1)
-                return false;
 
-            Estados? estado = EstadosNegocio.getEstado("Empleados", "Activo", ref mensaje);
-            if (estado == null)
-                estado = new Estados { Indole = "Empleados", Estado = "Activo" };
+                if (empleado.IdPersona < 1)
+                    return Resultado<bool>.Fail("No se pudo asignar persona al empleado.");
 
-            if (estado.IdEstado == null)
-                Empleado.IdEstado = EstadosNegocio.registrarEstado(estado, ref mensaje);
+                var resultadoEmpleado = GetEmpleadoPorDni(empleado.Personas.Dni);
+                if (resultadoEmpleado.Data == null)
+                {
+                    empleado.Personas = null;
+                    var resultadoRegistroEmpleado = RegistrarEmpleadoBasico(empleado);
+                    if (!resultadoRegistroEmpleado.Success)
+                        return Resultado<bool>.Fail(resultadoRegistroEmpleado.Mensaje);
+                }
 
-            if (Empleado.IdEstado < 1)
-                return false;
+                if (contacto != null)
+                {
+                    contacto.IdPersona = empleado.IdPersona;
+                    var resultadoContacto = ContactosNegocio.RegistrarContacto(contacto);
+                    if (!resultadoContacto.Success)
+                        Logger.LogError($"No se pudo registrar contacto para el DNI {empleado.Personas.Dni}: {resultadoContacto.Mensaje}");
+                }
 
-            Empleado.Estados = null;
-            Empleado.Personas = null;
-
-            int idEmpleado = 0;
-
-            try
-            {
-                idEmpleado = EmpleadosDatos.RegistrarEmpleado(Empleado, ref mensaje);
+                return Resultado<bool>.Ok(true, "Empleado importado correctamente.");
             }
             catch (Exception ex)
             {
-                mensaje = ex.Message;
-                return false;
+                var msg = $"Error inesperado al importar empleado:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
             }
-            string mensajeContactos = "";
-            if (!PersonasNegocio.GestionarContactosPorPersona(persona, contactos, ref mensajeContactos))
-                mensaje += mensajeContactos;
-
-            return idEmpleado > 0;
         }
 
-        public static bool RegistrarEmpleadoBasico(Empleados? Empleado, ref string mensaje)
+        /// <summary>
+        /// Obtiene un empleado a partir de su DNI.
+        /// </summary>
+        public static Resultado<Empleados?> GetEmpleadoPorDni(string? dni)
         {
-            Empleado = ComprobarEmpleado(Empleado, true, ref mensaje);
-            if (Empleado == null)
-                return false;
-
-            Empleado.Estados = EstadosNegocio.getEstado("Empleados", "Activo", ref mensaje);
-            if (Empleado.Estados != null)
-                Empleado.IdEstado = Empleado.Estados.IdEstado ?? 0;
-
-            if (Empleado.IdEstado < 1)
-                Empleado.IdEstado = EstadosNegocio.registrarEstado(new Estados { Indole = "Empleados", Estado = "Activo" }, ref mensaje);
-
-            if (Empleado.IdEstado < 1)
-                return false;
-
-            Empleado.Estados = null;
-            Empleado.Personas = null;
-
-            int idEmpleado = 0;
+            var resultadoPersona = PersonasNegocio.GetPersonaPorDni(dni);
+            var persona = resultadoPersona.Data;
+            if (persona?.IdPersona == null)
+                return Resultado<Empleados?>.Fail("No se encontró persona con el DNI proporcionado.");
 
             try
             {
-                idEmpleado = EmpleadosDatos.RegistrarEmpleado(Empleado, ref mensaje);
+                var resultadoEmpleado = EmpleadosDatos.GetEmpleadoPorIdPersona(persona.IdPersona.Value);
+                if (!resultadoEmpleado.Success)
+                    return Resultado<Empleados?>.Fail(resultadoEmpleado.Mensaje);
+
+                var empleado = resultadoEmpleado.Data ?? new Empleados();
+                empleado.Personas = persona;
+                empleado.IdPersona = persona.IdPersona.Value;
+
+                return Resultado<Empleados?>.Ok(empleado);
             }
             catch (Exception ex)
             {
-                mensaje = "Error inesperado en la capa de negocio " + ex.Message;
-                return false;
+                var msg = $"Error inesperado al obtener empleado por DNI:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<Empleados?>.Fail(msg);
             }
-            return idEmpleado > 0;
         }
 
-        public static bool modificarEmpleado(Empleados? Empleado, List<Contactos>? contactos, ref string mensaje)
+        /// <summary>
+        /// Obtiene empleados filtrados por domicilio (calle, barrio, localidad).
+        /// </summary>
+        public static Resultado<List<Empleados>> GetEmpleadosPorDomicilio(string? calle, string? barrio, Localidades? localidad, bool incluirAnulados)
         {
-            Empleado = ComprobarEmpleado(Empleado, false, ref mensaje);
-
-            if (Empleado == null)
-                return false;
-
-            if (Empleado.IdEstado < 1)
-            {
-                mensaje = "El estado del Empleado no se ha podido encontrar";
-                return false;
-            }
-
-            Personas? persona = PersonasNegocio.GetPersonaPorDni(Empleado.Personas.Dni, ref mensaje);
-            if (persona == null)
-            {
-                mensaje = "No se pudo encontrar información de la persona a modificar";
-                return false;
-            }
-            if (persona.IdPersona == null)
-            {
-                mensaje = "Problemas con el id de la persona en la BD";
-                return false;
-            }
-
-            Empleado.Personas.IdPersona = persona.IdPersona;
-
-            if (!PersonasNegocio.modificarPersona(Empleado.Personas, ref mensaje))
-            {
-                return false;
-            }
-            Empleado.Personas = null;
-            Empleado.IdPersona = (int)persona.IdPersona;
-            Empleado.Estados = null;
-
-            bool exito = false;
+            if (string.IsNullOrWhiteSpace(calle) && string.IsNullOrWhiteSpace(barrio) && localidad == null)
+                return Resultado<List<Empleados>>.Fail("No se han enviado datos de búsqueda.");
 
             try
             {
-                exito = EmpleadosDatos.ModificarEmpleado(Empleado, ref mensaje);
+                var resultadoDomicilios = DomiciliosDatos.GetDomiciliosPorCampos(calle, barrio, localidad);
+                if (!resultadoDomicilios.Success || resultadoDomicilios.Data == null)
+                    return Resultado<List<Empleados>>.Fail(resultadoDomicilios.Mensaje);
+
+                var idsDomicilios = resultadoDomicilios.Data.Select(d => d.IdDomicilio ?? 0).ToList();
+
+                var resultadoEmpleados = EmpleadosDatos.GetEmpleados();
+                if (!resultadoEmpleados.Success || resultadoEmpleados.Data == null)
+                    return Resultado<List<Empleados>>.Fail(resultadoEmpleados.Mensaje);
+
+                var empleados = resultadoEmpleados.Data
+                    .Where(e => e.Personas != null && e.Personas.Domicilios != null && idsDomicilios.Contains(e.Personas.IdDomicilio ?? 0))
+                    .ToList();
+
+                return Resultado<List<Empleados>>.Ok(empleados);
             }
             catch (Exception ex)
             {
-                mensaje = ex.Message;
-                return false;
+                var msg = $"Error inesperado al obtener empleados por domicilio:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<List<Empleados>>.Fail(msg);
             }
-            string mensajeContactos = "";
-            if (!PersonasNegocio.GestionarContactosPorPersona(persona, contactos, ref mensajeContactos))
+        }
+
+        /// <summary>
+        /// Obtiene empleados filtrados por contactos (teléfono, WhatsApp).
+        /// </summary>
+        public static Resultado<List<Empleados>> GetEmpleadosPorContactos(string? telefono, string? whatsapp)
+        {
+            if (string.IsNullOrWhiteSpace(telefono) && string.IsNullOrWhiteSpace(whatsapp))
+                return Resultado<List<Empleados>>.Fail("No se han enviado datos de búsqueda.");
+
+            try
             {
-                mensaje += mensajeContactos;
+                var resultadoContactos = ContactosNegocio.GetContactosPorNumero(telefono, whatsapp);
+                if (!resultadoContactos.Success || resultadoContactos.Data == null)
+                    return Resultado<List<Empleados>>.Fail(resultadoContactos.Mensaje);
+
+                var idsPersonas = resultadoContactos.Data
+                    .Where(c => c.IdPersona != null)
+                    .Select(c => c.IdPersona!.Value)
+                    .ToList();
+
+                var resultadoEmpleados = EmpleadosDatos.GetEmpleados();
+                if (!resultadoEmpleados.Success || resultadoEmpleados.Data == null)
+                    return Resultado<List<Empleados>>.Fail(resultadoEmpleados.Mensaje);
+
+                var empleados = resultadoEmpleados.Data
+                    .Where(e => e.Personas != null && idsPersonas.Contains(e.IdPersona))
+                    .ToList();
+
+                return Resultado<List<Empleados>>.Ok(empleados);
             }
-            return exito;
+            catch (Exception ex)
+            {
+                var msg = $"Error inesperado al obtener empleados por contactos:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<List<Empleados>>.Fail(msg);
+            }
+        }
+
+        /// <summary>
+        /// Registra un nuevo empleado junto con sus contactos asociados.
+        /// </summary>
+        public static Resultado<int> RegistrarEmpleado(Empleados? empleado, List<Contactos>? contactos)
+        {
+            var validacion = ComprobarEmpleado(empleado, true);
+            if (!validacion.Success)
+                return Resultado<int>.Fail(validacion.Mensaje);
+
+            empleado = validacion.Data!;
+            try
+            {
+                // Validar persona
+                var resultadoPersona = PersonasNegocio.GetPersonaPorDni(empleado.Personas!.Dni);
+                Personas? persona = resultadoPersona.Data;
+
+                if (persona != null)
+                {
+                    empleado.Personas.IdPersona = persona.IdPersona;
+                    if (persona.IdPersona == null)
+                        return Resultado<int>.Fail("Problemas con el Id de la persona en la BD.");
+
+                    var resultadoModPersona = PersonasNegocio.ModificarPersona(empleado.Personas);
+                    if (!resultadoModPersona.Success)
+                        return Resultado<int>.Fail(resultadoModPersona.Mensaje);
+
+                    empleado.Personas = null;
+                    empleado.IdPersona = persona.IdPersona!.Value;
+                }
+                else
+                {
+                    var resultadoRegistroPersona = PersonasNegocio.RegistrarPersona(empleado.Personas);
+                    if (!resultadoRegistroPersona.Success || resultadoRegistroPersona.Data <= 0)
+                        return Resultado<int>.Fail(resultadoRegistroPersona.Mensaje);
+
+                    empleado.IdPersona = resultadoRegistroPersona.Data;
+                    persona = empleado.Personas;
+                    persona.IdPersona = empleado.IdPersona;
+                }
+
+                if (empleado.IdPersona < 1)
+                    return Resultado<int>.Fail("No se pudo asignar persona al empleado.");
+
+                // Estado
+                var resultadoEstado = EstadosNegocio.GetEstado("Empleados", "Activo");
+                var estado = resultadoEstado.Data ?? new Estados { Indole = "Empleados", Estado = "Activo" };
+
+                if (estado.IdEstado == null || estado.IdEstado < 1)
+                {
+                    var resultadoRegistroEstado = EstadosNegocio.RegistrarEstado(estado);
+                    if (!resultadoRegistroEstado.Success || resultadoRegistroEstado.Data < 1)
+                        return Resultado<int>.Fail(resultadoRegistroEstado.Mensaje);
+
+                    empleado.IdEstado = resultadoRegistroEstado.Data;
+                }
+                else
+                {
+                    empleado.IdEstado = estado.IdEstado!;
+                }
+
+                empleado.Estados = null;
+                empleado.Personas = null;
+
+                var resultadoEmpleado = EmpleadosDatos.RegistrarEmpleado(empleado);
+                if (!resultadoEmpleado.Success || resultadoEmpleado.Data < 1)
+                    return Resultado<int>.Fail(resultadoEmpleado.Mensaje);
+
+                // Gestionar contactos
+                var resultadoContactos = PersonasNegocio.GestionarContactosPorPersona(persona, contactos);
+                if (!resultadoContactos.Success)
+                    Logger.LogError($"Problemas al gestionar contactos del empleado: {resultadoContactos.Mensaje}");
+
+                return Resultado<int>.Ok(resultadoEmpleado.Data, "Empleado registrado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error inesperado al registrar empleado:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<int>.Fail(msg);
+            }
+        }
+
+        /// <summary>
+        /// Registra un empleado básico (sin contactos).
+        /// </summary>
+        public static Resultado<int> RegistrarEmpleadoBasico(Empleados? empleado)
+        {
+            var validacion = ComprobarEmpleado(empleado, true);
+            if (!validacion.Success)
+                return Resultado<int>.Fail(validacion.Mensaje);
+
+            empleado = validacion.Data!;
+            try
+            {
+                var resultadoEstado = EstadosNegocio.GetEstado("Empleados", "Activo");
+                var estado = resultadoEstado.Data ?? new Estados { Indole = "Empleados", Estado = "Activo" };
+
+                if (estado.IdEstado == null || estado.IdEstado < 1)
+                {
+                    var resultadoRegistroEstado = EstadosNegocio.RegistrarEstado(estado);
+                    if (!resultadoRegistroEstado.Success || resultadoRegistroEstado.Data < 1)
+                        return Resultado<int>.Fail(resultadoRegistroEstado.Mensaje);
+
+                    empleado.IdEstado = resultadoRegistroEstado.Data;
+                }
+                else
+                {
+                    empleado.IdEstado = estado.IdEstado!;
+                }
+
+                empleado.Estados = null;
+                empleado.Personas = null;
+
+                var resultadoEmpleado = EmpleadosDatos.RegistrarEmpleado(empleado);
+                if (!resultadoEmpleado.Success || resultadoEmpleado.Data < 1)
+                    return Resultado<int>.Fail(resultadoEmpleado.Mensaje);
+
+                return Resultado<int>.Ok(resultadoEmpleado.Data, "Empleado básico registrado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error inesperado al registrar empleado básico:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<int>.Fail(msg);
+            }
+        }
+
+        /// <summary>
+        /// Modifica un empleado existente junto con sus contactos asociados.
+        /// </summary>
+        public static Resultado<bool> ModificarEmpleado(Empleados? empleado, List<Contactos>? contactos)
+        {
+            var validacion = ComprobarEmpleado(empleado, false);
+            if (!validacion.Success)
+                return Resultado<bool>.Fail(validacion.Mensaje);
+
+            empleado = validacion.Data!;
+            try
+            {
+                if (empleado.IdEstado < 1)
+                    return Resultado<bool>.Fail("El estado del empleado no se ha podido encontrar.");
+
+                var resultadoPersona = PersonasNegocio.GetPersonaPorDni(empleado.Personas!.Dni);
+                var persona = resultadoPersona.Data;
+                if (persona == null || persona.IdPersona == null)
+                    return Resultado<bool>.Fail("No se pudo encontrar información de la persona a modificar.");
+
+                empleado.Personas.IdPersona = persona.IdPersona;
+
+                var resultadoModPersona = PersonasNegocio.ModificarPersona(empleado.Personas);
+                if (!resultadoModPersona.Success)
+                    return Resultado<bool>.Fail(resultadoModPersona.Mensaje);
+
+                empleado.Personas = null;
+                empleado.IdPersona = persona.IdPersona!.Value;
+                empleado.Estados = null;
+
+                var resultadoEmpleado = EmpleadosDatos.ModificarEmpleado(empleado);
+                if (!resultadoEmpleado.Success)
+                    return Resultado<bool>.Fail(resultadoEmpleado.Mensaje);
+
+                var resultadoContactos = PersonasNegocio.GestionarContactosPorPersona(persona, contactos);
+                if (!resultadoContactos.Success)
+                    Logger.LogError($"Problemas al gestionar contactos del empleado: {resultadoContactos.Mensaje}");
+
+                return Resultado<bool>.Ok(true, "Empleado modificado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error inesperado al modificar empleado:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
+            }
         }
     }
 }

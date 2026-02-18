@@ -1,58 +1,92 @@
 ﻿using Datos_SGBM;
 using Entidades_SGBM;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Utilidades;
 
 namespace Negocio_SGBM
 {
+    /// <summary>
+    /// Capa de negocio para la gestión de Estados.
+    /// 
+    /// Responsabilidades:
+    /// - Validar la información de estados antes de operar en la capa de datos.
+    /// - Delegar operaciones CRUD a <see cref="EstadosDatos"/>.
+    /// - Devolver resultados uniformes mediante <see cref="Resultado{T}"/>.
+    /// 
+    /// Nota importante:
+    /// - La entidad Estados no es autoincremental, por lo que el IdEstado debe
+    ///   asignarse y controlarse explícitamente en la capa de datos.
+    /// </summary>
     public class EstadosNegocio
     {
-        //Consultas
-        public static Estados? getEstado(string? indole, string? descripcion, ref string mensaje)
-        {
-            if (String.IsNullOrWhiteSpace(indole) || String.IsNullOrWhiteSpace(descripcion))
-            {
-                mensaje = "Problemas con la información de estados en la capa negocio";
-                return null;
-            }
-            Estados? estado = EstadosDatos.getEstado(indole, descripcion, ref mensaje);
-            return estado;
-        }
+        #region Consultas
 
-        public static List<Estados>? getEstadosPorIndole(string? indole, ref string mensaje)
+        /// <summary>
+        /// Obtiene un estado según índole y descripción.
+        /// </summary>
+        public static Resultado<Estados?> GetEstado(string? indole, string? descripcion)
         {
-            if (String.IsNullOrWhiteSpace(indole))
-            {
-                mensaje = "Problemas con la información de estados en la capa negocio";
-                return null;
-            }
+            if (string.IsNullOrWhiteSpace(indole) || string.IsNullOrWhiteSpace(descripcion))
+                return Resultado<Estados?>.Fail("Problemas con la información de estados en la capa negocio.");
 
-            List<Estados>? estados = EstadosDatos.getEstadosPorIndole(indole, ref mensaje);
-            return estados;
-        }
-
-        //Registros
-        public static int registrarEstado(Estados? estado, ref string mensaje)
-        {
-            if (estado == null)
-            {
-                mensaje = "Problemas al enviar información de estado a la capa negocio";
-                return -1;
-            }
-            estado.IdEstado = null;
-            int idEstado = 0;
             try
             {
-                idEstado = EstadosDatos.registrarEstado(estado, ref mensaje);
-            }  catch (Exception ex)
-            {
-                mensaje = ex.Message;
-                return -1;
+                return EstadosDatos.GetEstado(indole, descripcion);
             }
-            return idEstado;
+            catch (Exception ex)
+            {
+                var msg = $"Error inesperado al obtener estado:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<Estados?>.Fail(msg);
+            }
         }
+
+        /// <summary>
+        /// Obtiene todos los estados de una índole específica.
+        /// </summary>
+        public static Resultado<List<Estados>> GetEstadosPorIndole(string? indole)
+        {
+            if (string.IsNullOrWhiteSpace(indole))
+                return Resultado<List<Estados>>.Fail("Problemas con la información de estados en la capa negocio.");
+
+            try
+            {
+                return EstadosDatos.GetEstadosPorIndole(indole);
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error inesperado al obtener estados por índole:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<List<Estados>>.Fail(msg);
+            }
+        }
+
+        #endregion
+
+        #region Registros
+
+        /// <summary>
+        /// Registra un nuevo estado en la base de datos.
+        /// </summary>
+        /// <remarks>
+        /// - El IdEstado no es autoincremental, por lo que debe ser asignado explícitamente.
+        /// </remarks>
+        public static Resultado<int> RegistrarEstado(Estados? estado)
+        {
+            if (estado == null)
+                return Resultado<int>.Fail("Problemas al enviar información de estado a la capa negocio.");
+
+            try
+            {
+                return EstadosDatos.RegistrarEstado(estado);
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error inesperado al registrar estado:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<int>.Fail(msg);
+            }
+        }
+
+        #endregion
     }
 }

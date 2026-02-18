@@ -1,122 +1,125 @@
 ﻿using Datos_SGBM;
 using Entidades_SGBM;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Utilidades;
 
 namespace Negocio_SGBM
 {
+    /// <summary>
+    /// Capa de negocio para la gestión de contactos.
+    /// Contiene validaciones y preparación de datos antes de acceder a la capa de datos.
+    /// </summary>
     public class ContactosNegocio
     {
-        //Consultas
-        public static List<Contactos>? getContactosPorPersona(Personas? persona, ref string mensaje)
+        /// <summary>
+        /// Obtiene los contactos asociados a una persona.
+        /// </summary>
+        public static Resultado<List<Contactos>> GetContactosPorPersona(Personas? persona)
         {
             if (persona == null)
-            {
-                mensaje = "La información de la persona no llega a la capa negocio de contactos";
-                return null;
-            }
-            if (persona.IdPersona == null)
-            {
-                mensaje = "La información de la persona (Id) no llega a la capa negocio de contactos";
-                return null;
-            }
+                return Resultado<List<Contactos>>.Fail("La información de la persona no llega a la capa negocio de contactos.");
 
-            List<Contactos>? contactos = null;
+            if (persona.IdPersona == null || persona.IdPersona <= 0)
+                return Resultado<List<Contactos>>.Fail("El Id de la persona no es válido.");
+
             try
             {
-                contactos = ContactosDatos.GetContactosPorPersona(persona, ref mensaje);
-            } catch (Exception ex)
-            {
-                mensaje = ex.Message;
-                return null;
-            }
-            return contactos;
-        }
-
-        public static List<Contactos>? getContactosPorNumero(string? fijo, string? whatsapp, ref string mensaje)
-        {
-            if (String.IsNullOrWhiteSpace(fijo))
-            {
-                fijo = null;
-            }
-            if (String.IsNullOrWhiteSpace(whatsapp))
-            {
-                whatsapp = null;
-            }
-            if (fijo == null && whatsapp == null)
-            {
-                return null;
-            }
-            List<Contactos>? contactos = ContactosDatos.GetContactosPorNumero(fijo, whatsapp, ref mensaje);
-            return contactos;
-        }
-
-        //Registros
-        public static bool registrarContacto(Contactos? contacto, ref string mensaje)
-        {
-            if (contacto == null)
-            {
-                mensaje = "La información de contacto no llega a la capa negocio";
-                return false;
-            }
-            int id = ContactosDatos.RegistrarContacto(contacto, ref mensaje);
-            
-            return id > 0;
-        }
-
-        //Modificaciones
-        public static bool modificarContacto(Contactos? contacto, ref string mensaje)
-        {
-            if (contacto == null)
-            {
-                mensaje = "La información de contacto no llega a la capa negocio";
-                return false;
-            }
-            if (contacto.IdContacto == null)
-            {
-                mensaje = "La información de contacto (Id) no llega a la capa negocio";
-                return false;
-            }
-            bool exito = false;
-            try
-            {
-                exito = ContactosDatos.ModificarContacto(contacto, ref mensaje);
-            } catch (Exception ex)
-            {
-                mensaje += "\n" + ex.Message;
-                return false;
-            }
-            return exito;
-        }
-
-        //Eliminaciones
-        public static bool eliminarContacto(Contactos? contacto, ref string mensaje)
-        {
-            if (contacto == null)
-            {
-                mensaje = "La información de contacto no llega a la capa negocio";
-                return false;
-            }
-            if (contacto.IdContacto == null)
-            {
-                mensaje = "La información de contacto (Id) no llega a la capa negocio";
-                return false;
-            }
-            bool exito = false;
-            try
-            {
-                exito = ContactosDatos.EliminarContacto(contacto, ref mensaje);
+                return ContactosDatos.GetContactosPorPersona(persona);
             }
             catch (Exception ex)
             {
-                mensaje += "\n" + ex.Message;
-                return false;
+                var msg = $"Error al obtener contactos por persona:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<List<Contactos>>.Fail(msg);
             }
-            return exito;
         }
 
+        /// <summary>
+        /// Obtiene contactos filtrados por número fijo y/o WhatsApp.
+        /// </summary>
+        public static Resultado<List<Contactos>> GetContactosPorNumero(string? fijo, string? whatsapp)
+        {
+            if (string.IsNullOrWhiteSpace(fijo)) fijo = null;
+            if (string.IsNullOrWhiteSpace(whatsapp)) whatsapp = null;
+
+            if (fijo == null && whatsapp == null)
+                return Resultado<List<Contactos>>.Fail("Debe especificar al menos un número para la búsqueda.");
+
+            try
+            {
+                return ContactosDatos.GetContactosPorNumero(fijo, whatsapp);
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error al obtener contactos por número:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<List<Contactos>>.Fail(msg);
+            }
+        }
+
+        /// <summary>
+        /// Registra un nuevo contacto en la base de datos.
+        /// </summary>
+        public static Resultado<int> RegistrarContacto(Contactos? contacto)
+        {
+            if (contacto == null)
+                return Resultado<int>.Fail("La información de contacto no llega a la capa negocio.");
+
+            try
+            {
+                return ContactosDatos.RegistrarContacto(contacto);
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error al registrar contacto:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<int>.Fail(msg);
+            }
+        }
+
+        /// <summary>
+        /// Modifica un contacto existente en la base de datos.
+        /// </summary>
+        public static Resultado<bool> ModificarContacto(Contactos? contacto)
+        {
+            if (contacto == null)
+                return Resultado<bool>.Fail("La información de contacto no llega a la capa negocio.");
+
+            if (contacto.IdContacto == null || contacto.IdContacto <= 0)
+                return Resultado<bool>.Fail("El Id del contacto no es válido.");
+
+            try
+            {
+                return ContactosDatos.ModificarContacto(contacto);
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error al modificar contacto:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
+            }
+        }
+
+        /// <summary>
+        /// Elimina un contacto existente en la base de datos.
+        /// </summary>
+        public static Resultado<bool> EliminarContacto(Contactos? contacto)
+        {
+            if (contacto == null)
+                return Resultado<bool>.Fail("La información de contacto no llega a la capa negocio.");
+
+            if (contacto.IdContacto == null || contacto.IdContacto <= 0)
+                return Resultado<bool>.Fail("El Id del contacto no es válido.");
+
+            try
+            {
+                return ContactosDatos.EliminarContacto(contacto);
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error al eliminar contacto:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
+            }
+        }
     }
 }

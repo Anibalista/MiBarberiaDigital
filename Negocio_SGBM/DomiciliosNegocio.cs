@@ -1,15 +1,12 @@
 ﻿using Datos_SGBM;
 using Entidades_SGBM;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Utilidades;
 
 namespace Negocio_SGBM
 {
     /// <summary>
     /// Capa de negocio para la gestión de domicilios, localidades y provincias.
+    /// Contiene validaciones y preparación de datos antes de acceder a la capa de datos.
     /// </summary>
     public class DomiciliosNegocio
     {
@@ -18,11 +15,18 @@ namespace Negocio_SGBM
         /// <summary>
         /// Obtiene todas las provincias disponibles.
         /// </summary>
-        /// <returns>Lista de provincias o null si ocurre un error.</returns>
-        public static List<Provincias>? GetProvincias()
+        public static Resultado<List<Provincias>> GetProvincias()
         {
-            List<Provincias>? provincias = DomiciliosDatos.GetProvincias();
-            return provincias;
+            try
+            {
+                return DomiciliosDatos.GetProvincias();
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error al obtener provincias:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<List<Provincias>>.Fail(msg);
+            }
         }
 
         #endregion
@@ -33,32 +37,30 @@ namespace Negocio_SGBM
         /// Obtiene una localidad genérica (por defecto Gualeguaychú).
         /// Si no existe, la registra junto con su provincia.
         /// </summary>
-        /// <param name="localidad">Localidad a validar o registrar.</param>
-        /// <param name="mensaje">Mensaje de error en caso de fallo.</param>
-        /// <returns>Localidad válida o registrada.</returns>
-        public static Localidades? GetLocalidadGenerica(Localidades? localidad, ref string mensaje)
+        public static Resultado<Localidades> GetLocalidadGenerica(Localidades? localidad)
         {
             if (localidad != null)
             {
                 if (localidad.IdLocalidad < 1 || localidad.IdProvincia < 1)
-                {
-                    mensaje = String.IsNullOrWhiteSpace(mensaje) ?
-                              "No se podrá registrar el domicilio ingresado (problemas con localidad)" : "";
-                }
-                return localidad;
+                    return Resultado<Localidades>.Fail("No se podrá registrar el domicilio ingresado (problemas con localidad).");
+
+                return Resultado<Localidades>.Ok(localidad);
             }
 
             // Si no llega localidad, se busca por nombre o se crea nueva
-            localidad ??= GetLocalidadPorNombre("Gualeguaychú", ref mensaje)
-                          ?? new Localidades { Localidad = "Gualeguaychú" };
+            var resultadoLocalidad = GetLocalidadPorNombre("Gualeguaychú");
+            localidad = resultadoLocalidad.Success
+                ? resultadoLocalidad.Data
+                : new Localidades { Localidad = "Gualeguaychú" };
 
             if (localidad.IdProvincia > 0)
             {
                 localidad.Provincias = null;
-                return localidad;
+                return Resultado<Localidades>.Ok(localidad);
             }
 
-            localidad.Provincias = GetProvincias()?.FirstOrDefault(p => p.Provincia == "Entre Ríos")
+            var resultadoProvincias = GetProvincias();
+            localidad.Provincias = resultadoProvincias.Data?.FirstOrDefault(p => p.Provincia == "Entre Ríos")
                                    ?? new Provincias { Provincia = "Entre Ríos" };
 
             if (localidad.Provincias.IdProvincia > 0)
@@ -67,67 +69,92 @@ namespace Negocio_SGBM
                 localidad.Provincias = null;
             }
 
-            int id = RegistrarLocalidad(localidad, ref mensaje);
-            if (id > 0)
-            {
-                localidad.IdLocalidad = id;
-            }
-            return localidad;
+            var resultadoRegistro = RegistrarLocalidad(localidad);
+            if (!resultadoRegistro.Success)
+                return Resultado<Localidades>.Fail(resultadoRegistro.Mensaje);
+
+            localidad.IdLocalidad = resultadoRegistro.Data;
+            return Resultado<Localidades>.Ok(localidad);
         }
 
         /// <summary>
         /// Obtiene las localidades de una provincia.
         /// </summary>
-        public static List<Localidades>? GetLocalidadesPorProvincia(Provincias? provincia)
+        public static Resultado<List<Localidades>> GetLocalidadesPorProvincia(Provincias? provincia)
         {
-            List<Localidades>? localidades = DomiciliosDatos.GetLocalidadesPorProvincia(provincia);
-            return localidades;
+            if (provincia == null || provincia.IdProvincia <= 0)
+                return Resultado<List<Localidades>>.Fail("La provincia no es válida.");
+
+            try
+            {
+                return DomiciliosDatos.GetLocalidadesPorProvincia(provincia);
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error al obtener localidades por provincia:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<List<Localidades>>.Fail(msg);
+            }
         }
 
         /// <summary>
         /// Obtiene todas las localidades.
         /// </summary>
-        public static List<Localidades>? GetLocalidades(ref string mensaje)
+        public static Resultado<List<Localidades>> GetLocalidades()
         {
-            List<Localidades>? localidades = DomiciliosDatos.GetLocalidades(ref mensaje);
-            return localidades;
+            try
+            {
+                return DomiciliosDatos.GetLocalidades();
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error al obtener localidades:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<List<Localidades>>.Fail(msg);
+            }
         }
 
         /// <summary>
         /// Obtiene una localidad por nombre.
         /// </summary>
-        public static Localidades? GetLocalidadPorNombre(string? nombre, ref string mensaje)
+        public static Resultado<Localidades?> GetLocalidadPorNombre(string? nombre)
         {
             if (string.IsNullOrWhiteSpace(nombre))
+                return Resultado<Localidades?>.Fail("El nombre de la localidad no puede estar vacío.");
+
+            try
             {
-                mensaje = "No viaja el nombre de la localidad a consultar (capa negocio)";
-                return null;
+                return DomiciliosDatos.GetLocalidadPorNombre(nombre);
             }
-            Localidades? localidad = DomiciliosDatos.GetLocalidadPorNombre(nombre, ref mensaje);
-            return localidad;
+            catch (Exception ex)
+            {
+                var msg = $"Error al obtener localidad por nombre:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<Localidades?>.Fail(msg);
+            }
         }
 
         /// <summary>
         /// Registra una nueva localidad.
         /// </summary>
-        public static int RegistrarLocalidad(Localidades? localidad, ref string mensaje)
+        public static Resultado<int> RegistrarLocalidad(Localidades? localidad)
         {
             if (localidad == null)
-            {
-                mensaje = "No llega información de la localidad a la capa negocio";
-                return -1;
-            }
+                return Resultado<int>.Fail("No llega información de la localidad a la capa negocio.");
+
             if (localidad.IdProvincia < 1 && localidad.Provincias == null)
+                return Resultado<int>.Fail("No llega información de la provincia a la capa negocio.");
+
+            try
             {
-                mensaje = "No llega información de la provincia a la capa negocio";
-                return -1;
+                return DomiciliosDatos.RegistrarLocalidad(localidad);
             }
-            int id = DomiciliosDatos.RegistrarLocalidad(localidad, ref mensaje);
-            if (id < 1)
+            catch (Exception ex)
             {
-                mensaje = "\nNo se pudo registrar la localidad para el domicilio";
+                var msg = $"Error al registrar localidad:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<int>.Fail(msg);
             }
-            return id;
         }
 
         #endregion
@@ -137,73 +164,90 @@ namespace Negocio_SGBM
         /// <summary>
         /// Registra un nuevo domicilio.
         /// </summary>
-        public static int RegistrarDomicilio(Domicilios? domicilio, ref string mensaje)
+        public static Resultado<int> RegistrarDomicilio(Domicilios? domicilio)
         {
             if (domicilio == null)
+                return Resultado<int>.Fail("El domicilio no llega a la capa de negocio.");
+
+            if (domicilio.IdDomicilio > 0)
+                return Resultado<int>.Fail("No es posible registrar un domicilio existente.");
+
+            try
             {
-                mensaje = "El domicilio no llega a la capa de negocio";
-                return -1;
+                return DomiciliosDatos.RegistrarDomicilio(domicilio);
             }
-            if (domicilio?.IdDomicilio > 0)
+            catch (Exception ex)
             {
-                mensaje = "No es posible registrar un domicilio existente";
-                return -1;
+                var msg = $"Error al registrar domicilio:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<int>.Fail(msg);
             }
-            int idDomicilio = DomiciliosDatos.RegistrarDomicilio(domicilio, ref mensaje);
-            return idDomicilio;
         }
 
         /// <summary>
         /// Modifica un domicilio existente.
         /// </summary>
-        public static bool ModificarDomicilio(Domicilios? domicilio, ref string mensaje)
+        public static Resultado<bool> ModificarDomicilio(Domicilios? domicilio)
         {
             if (domicilio == null)
+                return Resultado<bool>.Fail("El domicilio no llega a la capa de negocio.");
+
+            if (domicilio.IdDomicilio == null || domicilio.IdDomicilio < 1)
+                return Resultado<bool>.Fail("El Id del domicilio no es válido.");
+
+            try
             {
-                mensaje = "El domicilio no llega a la capa de negocio";
-                return false;
+                return DomiciliosDatos.ModificarDomicilio(domicilio);
             }
-            if (domicilio?.IdDomicilio < 1)
+            catch (Exception ex)
             {
-                mensaje = "El id del domicilio no llega a la capa de negocio";
-                return false;
+                var msg = $"Error al modificar domicilio:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
             }
-            return DomiciliosDatos.ModificarDomicilio(domicilio, ref mensaje);
         }
 
         /// <summary>
         /// Elimina un domicilio por entidad.
         /// </summary>
-        public static bool EliminarDomicilio(Domicilios? domicilio, ref string mensaje)
+        public static Resultado<bool> EliminarDomicilio(Domicilios? domicilio)
         {
             if (domicilio == null)
-            {
-                mensaje = "El domicilio no llega a la capa de negocio";
-                return false;
-            }
+                return Resultado<bool>.Fail("El domicilio no llega a la capa de negocio.");
 
-            if (domicilio?.IdDomicilio == null)
-            {
-                mensaje = "El id del domicilio no llega a la capa de negocio";
-                return false;
-            }
+            if (domicilio.IdDomicilio == null || domicilio.IdDomicilio < 1)
+                return Resultado<bool>.Fail("El Id del domicilio no es válido.");
 
-            bool exito = DomiciliosDatos.EliminarDomicilioPorId((int)domicilio.IdDomicilio, ref mensaje);
-            return exito;
+            try
+            {
+                return DomiciliosDatos.EliminarDomicilioPorId(domicilio.IdDomicilio.Value);
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error al eliminar domicilio:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
+            }
         }
 
         /// <summary>
         /// Elimina un domicilio por Id.
         /// </summary>
-        public static bool EliminarDomicilio(int idDomicilio, ref string mensaje)
+        public static Resultado<bool> EliminarDomicilio(int idDomicilio)
         {
             if (idDomicilio < 1)
+                return Resultado<bool>.Fail("El Id del domicilio no es válido.");
+
+            try
             {
-                mensaje = "El id del domicilio no llega a la capa de negocio";
-                return false;
+                return DomiciliosDatos.EliminarDomicilioPorId(idDomicilio);
             }
-            bool exito = DomiciliosDatos.EliminarDomicilioPorId(idDomicilio, ref mensaje);
-            return exito;
+            catch (Exception ex)
+            {
+                var msg = $"Error al eliminar domicilio:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
+            }
         }
 
         #endregion

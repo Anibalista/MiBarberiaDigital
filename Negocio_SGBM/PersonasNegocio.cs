@@ -5,11 +5,33 @@ using Utilidades;
 namespace Negocio_SGBM
 {
     /// <summary>
-    /// Clase de capa negocio para la entidad Personas.
-    /// Contiene métodos de validación, gestión de contactos,
-    /// consultas específicas y edición de registros.
+    /// Capa de negocio para la gestión de Personas.
+    /// 
+    /// Responsabilidades:
+    /// - Validar la información de las personas antes de operar en la capa de datos.
+    /// - Ajustar referencias de entidades relacionadas (domicilios, localidades, provincias, contactos).
+    /// - Delegar operaciones CRUD a <see cref="PersonasDatos"/> y coordinar con otras capas de negocio
+    ///   como <see cref="DomiciliosNegocio"/> y <see cref="ContactosNegocio"/>.
+    /// - Devolver resultados uniformes mediante <see cref="Resultado{T}"/> para simplificar el manejo de errores.
+    /// 
+    /// Buenas prácticas:
+    /// - No usar parámetros por referencia para mensajes; todos los mensajes de error o éxito
+    ///   se devuelven dentro de <see cref="Resultado{T}"/>.
+    /// - Mantener validaciones simples en esta capa; reglas más complejas pueden residir en una
+    ///   capa superior de servicios si el proyecto escala.
+    /// - Registrar mensajes técnicos en <c>Logger</c> en la capa de datos; aquí solo se devuelven
+    ///   mensajes amigables.
+    /// 
+    /// Métodos principales:
+    /// - Registro y modificación de personas, incluyendo validación de datos obligatorios.
+    /// - Consultas por DNI, Id y otros criterios.
+    /// - Validación y normalización de referencias de domicilio, localidad y provincia.
+    /// - Gestión de contactos asociados a una persona (registrar, modificar, eliminar).
+    /// 
+    /// Extensibilidad:
+    /// - Permite añadir reglas de negocio adicionales (ej. auditoría, permisos, validaciones cruzadas).
+    /// - Puede integrarse con servicios externos en el futuro (ej. verificación de identidad).
     /// </summary>
-
     public class PersonasNegocio
     {
         #region Validaciones
@@ -19,43 +41,27 @@ namespace Negocio_SGBM
         /// Comprueba que los datos obligatorios estén presentes y ajusta las referencias
         /// de domicilio, localidad y provincia según corresponda.
         /// </summary>
-        /// <param name="persona">Objeto Persona a comprobar.</param>
-        /// <param name="idNull">Indica si el IdPersona debe inicializarse en null.</param>
-        /// <param name="mensaje">Mensaje de error en caso de fallo.</param>
-        /// <returns>Objeto Persona validado o null si ocurre un error.</returns>
-        static Personas? ComprobarPersona(Personas? persona, bool idNull, ref string mensaje)
+        private static Resultado<Personas?> ComprobarPersona(Personas? persona, bool idNull)
         {
             if (persona == null)
-            {
-                mensaje = "La información de la persona no llega a la capa negocio";
-                return null;
-            }
+                return Resultado<Personas?>.Fail("La información de la persona no llega a la capa negocio.");
+
             if (string.IsNullOrWhiteSpace(persona.Dni))
-            {
-                mensaje = "El Dni de la persona no llega a la capa negocio";
-                return null;
-            }
+                return Resultado<Personas?>.Fail("El DNI de la persona no puede estar vacío.");
             if (string.IsNullOrWhiteSpace(persona.Nombres))
-            {
-                mensaje = "El Nombre/s de la persona no llega a la capa negocio";
-                return null;
-            }
+                return Resultado<Personas?>.Fail("El nombre de la persona no puede estar vacío.");
             if (string.IsNullOrWhiteSpace(persona.Apellidos))
-            {
-                mensaje = "El Apellido/s de la persona no llega a la capa negocio";
-                return null;
-            }
+                return Resultado<Personas?>.Fail("El apellido de la persona no puede estar vacío.");
 
             try
             {
                 // Ajusta referencias de domicilio, localidad y provincia.
-                
                 if (persona.Domicilios != null)
                 {
                     persona.Domicilios.IdDomicilio = null;
                     persona.IdDomicilio = null;
-                    persona.Domicilios.IdLocalidad = persona.Domicilios.IdLocalidad > 0 
-                        ? persona.Domicilios.IdLocalidad 
+                    persona.Domicilios.IdLocalidad = persona.Domicilios.IdLocalidad > 0
+                        ? persona.Domicilios.IdLocalidad
                         : (persona.Domicilios.Localidades?.IdLocalidad ?? 0);
 
                     if (persona.Domicilios.IdLocalidad > 0)
@@ -74,243 +80,143 @@ namespace Negocio_SGBM
                 if (idNull)
                     persona.IdPersona = null;
                 else if (persona.IdPersona == null || persona.IdPersona < 1)
-                {
-                    mensaje = "El id de registro de la persona no llega a la capa negocio";
-                    return null;
-                }
+                    return Resultado<Personas?>.Fail("El Id de la persona no es válido.");
 
-                return persona;
+                return Resultado<Personas?>.Ok(persona);
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex.Message);
-                mensaje = "Error inesperado: " + ex.Message;
-                return null;
+                var msg = $"Error inesperado al comprobar persona:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<Personas?>.Fail(msg);
             }
         }
 
         #endregion
 
         #region Métodos Mixtos
+
         /// <summary>
         /// Gestiona los contactos asociados a una persona.
         /// Método principal que orquesta las operaciones delegando en helpers más pequeños.
         /// </summary>
-        public static bool GestionarContactosPorPersona(Personas? p, List<Contactos>? contactosEntrantes, ref string mensaje)
+        public static Resultado<bool> GestionarContactosPorPersona(Personas? p, List<Contactos>? contactosEntrantes)
         {
-            // Valida que la persona no sea nula.
             if (p == null)
-            {
-                mensaje += "\nNo se pudo gestionar los contactos por errores al obtener la información de la persona";
-                return false;
-            }
+                return Resultado<bool>.Fail("No se pudo gestionar los contactos: la persona no llega a la capa negocio.");
 
-            // Obtiene la persona según Id o DNI.
-            Personas? persona = p.IdPersona == null ? GetPersonaPorDni(p.Dni, ref mensaje) : p;
+            // Obtiene la persona según Id o DNI
+            Personas? persona = p.IdPersona == null
+                ? GetPersonaPorDni(p.Dni).Data
+                : p;
 
-            // Valida que la persona exista.
             if (persona == null)
-            {
-                mensaje += "\nNo se pudo gestionar los contactos por errores al obtener la información de la persona";
-                return false;
-            }
+                return Resultado<bool>.Fail("No se pudo gestionar los contactos: la persona no existe.");
 
-            // Obtiene los contactos actuales de la persona.
-            string errores = string.Empty;
-            List<Contactos>? contactosPersona = null;
             try
             {
-                contactosPersona = ContactosNegocio.getContactosPorPersona(persona, ref errores);
+                var resultadoContactos = ContactosNegocio.GetContactosPorPersona(persona);
+                var contactosPersona = resultadoContactos.Data;
+
+                // Caso 1: no se reciben contactos entrantes -> eliminar todos los existentes
+                if (contactosEntrantes == null)
+                    return EliminarTodosContactos(contactosPersona);
+
+                // Asigna el IdPersona a los contactos entrantes
+                foreach (var c in contactosEntrantes)
+                    c.IdPersona = persona.IdPersona;
+
+                // Caso 2: no hay contactos previos -> registrar todos los entrantes
+                if (contactosPersona == null)
+                    return RegistrarTodosContactos(contactosEntrantes);
+
+                // Caso 3: existen contactos previos -> actualizar, registrar y eliminar sobrantes
+                return ActualizarRegistrarYEliminar(contactosPersona, contactosEntrantes);
             }
             catch (Exception ex)
             {
-                errores = ex.Message;
+                var msg = $"Error inesperado al gestionar contactos:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
             }
-
-            // Caso 1: no se reciben contactos entrantes -> eliminar todos los existentes.
-            if (contactosEntrantes == null)
-            {
-                return EliminarTodosContactos(contactosPersona, ref mensaje, ref errores);
-            }
-
-            // Asigna el IdPersona a los contactos entrantes.
-            foreach (Contactos c in contactosEntrantes)
-                c.IdPersona = persona.IdPersona;
-
-            // Caso 2: no hay contactos previos -> registrar todos los entrantes.
-            if (contactosPersona == null)
-            {
-                return RegistrarTodosContactos(contactosEntrantes, ref mensaje, ref errores);
-            }
-
-            // Caso 3: existen contactos previos -> actualizar o registrar según corresponda,
-            // y luego eliminar los que quedaron sin coincidencia.
-            bool resultado = ActualizarRegistrarYEliminar(contactosPersona, contactosEntrantes, ref mensaje);
-            return resultado;
         }
 
-        #region Helpers privados para gestionarContactosPorPersona
+        #region Helpers privados
 
-        /// <summary>
-        /// Elimina todos los contactos de la lista proporcionada.
-        /// </summary>
-        private static bool EliminarTodosContactos(List<Contactos>? contactosPersona, ref string mensaje, ref string errores)
+        private static Resultado<bool> EliminarTodosContactos(List<Contactos>? contactosPersona)
         {
-            // Valida que existan contactos a eliminar.
             if (contactosPersona == null)
+                return Resultado<bool>.Fail("No hay contactos para eliminar.");
+
+            int eliminados = 0, errores = 0;
+
+            foreach (var c in contactosPersona)
             {
-                mensaje += errores;
-                return false;
+                var resultado = ContactosNegocio.EliminarContacto(c);
+                if (resultado.Success) eliminados++;
+                else errores++;
             }
 
-            int contadorExitos = 0;
-            int contadorErrores = 0;
+            if (errores > 0)
+                return Resultado<bool>.Fail($"Se eliminaron {eliminados} contactos, pero {errores} no pudieron eliminarse.");
 
-            // Itera y elimina cada contacto.
-            foreach (Contactos c in contactosPersona)
-            {
-                if (ContactosNegocio.eliminarContacto(c, ref errores))
-                    contadorExitos++;
-                else
-                    contadorErrores++;
-            }
-
-            // Construye el mensaje de resultado.
-            mensaje += $"\nSe eliminaron {contadorExitos} contactos";
-            if (contadorExitos != contactosPersona.Count)
-            {
-                mensaje += $"\nNo se pudieron eliminar {contadorErrores} contactos";
-                return false;
-            }
-
-            return true;
+            return Resultado<bool>.Ok(true, $"Se eliminaron {eliminados} contactos.");
         }
 
-        /// <summary>
-        /// Registra todos los contactos entrantes cuando no existen contactos previos.
-        /// </summary>
-        private static bool RegistrarTodosContactos(List<Contactos> contactosEntrantes, ref string mensaje, ref string errores)
+        private static Resultado<bool> RegistrarTodosContactos(List<Contactos> contactosEntrantes)
         {
-            int contadorExitos = 0;
-            int contadorErrores = 0;
+            int registrados = 0, errores = 0;
 
-            // Itera y registra cada contacto entrante.
-            foreach (Contactos c in contactosEntrantes)
+            foreach (var c in contactosEntrantes)
             {
                 c.IdContacto = null;
-                if (ContactosNegocio.registrarContacto(c, ref errores))
-                    contadorExitos++;
-                else
-                    contadorErrores++;
+                var resultado = ContactosNegocio.RegistrarContacto(c);
+                if (resultado.Success) registrados++;
+                else errores++;
             }
 
-            // Construye el mensaje de resultado.
-            mensaje = $"\nSe registraron {contadorExitos} contactos";
-            if (contadorExitos != contactosEntrantes.Count)
-            {
-                mensaje += $"\nNo se pudieron registrar {contadorErrores} contactos";
-                return false;
-            }
+            if (errores > 0)
+                return Resultado<bool>.Fail($"Se registraron {registrados} contactos, pero {errores} no pudieron registrarse.");
 
-            return true;
+            return Resultado<bool>.Ok(true, $"Se registraron {registrados} contactos.");
         }
 
-        /// <summary>
-        /// Actualiza los contactos existentes, registra los nuevos y elimina los sobrantes.
-        /// Devuelve true si la operación global fue exitosa.
-        /// </summary>
-        private static bool ActualizarRegistrarYEliminar(List<Contactos> contactosPersona, List<Contactos> contactosEntrantes, ref string mensaje)
+        private static Resultado<bool> ActualizarRegistrarYEliminar(List<Contactos> contactosPersona, List<Contactos> contactosEntrantes)
         {
-            string errores = string.Empty;
-            int contadorExitosMod = 0;
-            int contadorErroresMod = 0;
-            int exitosRegistros = 0;
-            int erroresRegistro = 0;
+            int modificados = 0, erroresMod = 0, registrados = 0, erroresReg = 0, eliminados = 0, erroresElim = 0;
 
-            // Recorre los entrantes y decide modificar o registrar.
-            foreach (Contactos contacto in contactosEntrantes)
+            foreach (var contacto in contactosEntrantes)
             {
-                Contactos? cont = contactosPersona.FirstOrDefault(c => c.IdContacto == contacto.IdContacto);
+                var existente = contactosPersona.FirstOrDefault(c => c.IdContacto == contacto.IdContacto);
 
-                if (cont != null)
+                if (existente != null)
                 {
-                    // Si existe, se elimina de la lista de previos y se intenta modificar.
-                    contactosPersona.Remove(cont);
-                    if (!ContactosNegocio.modificarContacto(contacto, ref errores))
-                        contadorErroresMod++;
-                    else
-                        contadorExitosMod++;
+                    contactosPersona.Remove(existente);
+                    var resultado = ContactosNegocio.ModificarContacto(contacto);
+                    if (resultado.Success) modificados++;
+                    else erroresMod++;
                 }
                 else
                 {
-                    // Si no existe, se registra como nuevo.
                     contacto.IdContacto = null;
-                    if (!ContactosNegocio.registrarContacto(contacto, ref errores))
-                        erroresRegistro++;
-                    else
-                        exitosRegistros++;
-                }
-
-                // Loguea errores parciales sin interrumpir el flujo.
-                if (!String.IsNullOrWhiteSpace(errores))
-                {
-                    Logger.LogError(errores);
-                    errores = string.Empty;
+                    var resultado = ContactosNegocio.RegistrarContacto(contacto);
+                    if (resultado.Success) registrados++;
+                    else erroresReg++;
                 }
             }
 
-            // Construye resumen de modificaciones y registros.
-            string resumen = string.Empty;
-            bool exito = true;
-
-            if (contadorExitosMod > 0)
-                resumen += $"\nSe modificaron {contadorExitosMod} contactos";
-            if (contadorErroresMod > 0)
+            foreach (var contacto in contactosPersona)
             {
-                exito = false;
-                resumen += $"\nNo se pudieron modificar {contadorErroresMod} contactos";
-            }
-            if (exitosRegistros > 0)
-                resumen += $"\nSe registraron {exitosRegistros} contactos";
-            if (erroresRegistro > 0)
-            {
-                exito = false;
-                resumen += $"\nNo se pudieron registrar {erroresRegistro} contactos";
+                var resultado = ContactosNegocio.EliminarContacto(contacto);
+                if (resultado.Success) eliminados++;
+                else erroresElim++;
             }
 
-            // Si quedaron contactos previos sin coincidencia, eliminarlos.
-            int contadorExitosElim = 0;
-            int contadorErroresElim = 0;
-            if (contactosPersona.Count > 0)
-            {
-                foreach (Contactos contacto in contactosPersona)
-                {
-                    if (!ContactosNegocio.eliminarContacto(contacto, ref errores))
-                        contadorErroresElim++;
-                    else
-                        contadorExitosElim++;
+            var resumen = $"Modificados: {modificados}, Registrados: {registrados}, Eliminados: {eliminados}";
+            if (erroresMod + erroresReg + erroresElim > 0)
+                return Resultado<bool>.Fail($"Errores al gestionar contactos. {resumen}");
 
-                    if (!String.IsNullOrWhiteSpace(errores))
-                    {
-                        Logger.LogError(errores);
-                        errores = string.Empty;
-                    }
-                }
-            }
-
-            if (contadorExitosElim > 0)
-                resumen += $"\nSe eliminaron {contadorExitosElim} contactos";
-            if (contadorErroresElim > 0)
-            {
-                exito = false;
-                resumen += $"\nNo se pudieron eliminar {contadorErroresElim} contactos";
-            }
-
-            // Agrega el resumen al mensaje final.
-            if (!String.IsNullOrWhiteSpace(resumen))
-                mensaje += resumen;
-
-            return exito;
+            return Resultado<bool>.Ok(true, $"Gestión de contactos exitosa. {resumen}");
         }
 
         #endregion
@@ -323,25 +229,24 @@ namespace Negocio_SGBM
         /// Obtiene una persona a partir de su DNI desde la capa negocio.
         /// </summary>
         /// <param name="dni">Número de documento de la persona.</param>
-        /// <param name="mensaje">Mensaje de error en caso de fallo.</param>
-        /// <returns>Objeto Persona o null si ocurre un error.</returns>
-        public static Personas? GetPersonaPorDni(string? dni, ref string mensaje)
+        /// <returns>
+        /// <see cref="Resultado{T}"/> con la persona encontrada en caso de éxito,
+        /// o con el mensaje de error en caso contrario.
+        /// </returns>
+        public static Resultado<Personas?> GetPersonaPorDni(string? dni)
         {
             if (string.IsNullOrWhiteSpace(dni))
-            {
-                mensaje = "El Dni ingresado no llega a la consulta (Capa Negocio)";
-                return null;
-            }
+                return Resultado<Personas?>.Fail("El DNI ingresado no llega a la consulta (capa negocio).");
 
             try
             {
-                return PersonasDatos.GetPersonaPorDni(dni, ref mensaje);
+                return PersonasDatos.GetPersonaPorDni(dni);
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex.Message);
-                mensaje = "Error inesperado: " + ex.Message;
-                return null;
+                var msg = $"Error inesperado al obtener persona por DNI:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<Personas?>.Fail(msg);
             }
         }
 
@@ -353,23 +258,25 @@ namespace Negocio_SGBM
         /// Registra una nueva persona en la base de datos desde la capa negocio.
         /// </summary>
         /// <param name="persona">Objeto Persona a registrar.</param>
-        /// <param name="mensaje">Mensaje de error en caso de fallo.</param>
-        /// <returns>Id de la persona registrada, -1 si ocurre un error.</returns>
-        public static int RegistrarPersona(Personas? persona, ref string mensaje)
+        /// <returns>
+        /// <see cref="Resultado{T}"/> con el Id de la persona registrada en caso de éxito,
+        /// o con el mensaje de error en caso contrario.
+        /// </returns>
+        public static Resultado<int> RegistrarPersona(Personas? persona)
         {
-            persona = ComprobarPersona(persona, true, ref mensaje);
-            if (persona == null)
-                return -1;
+            var validacion = ComprobarPersona(persona, true);
+            if (!validacion.Success)
+                return Resultado<int>.Fail(validacion.Mensaje);
 
             try
             {
-                return PersonasDatos.RegistrarPersona(persona, ref mensaje);
+                return PersonasDatos.RegistrarPersona(persona!);
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex.Message);
-                mensaje = ex.Message;
-                return -1;
+                var msg = $"Error al registrar persona:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<int>.Fail(msg);
             }
         }
 
@@ -377,44 +284,48 @@ namespace Negocio_SGBM
         /// Modifica los datos de una persona existente desde la capa negocio.
         /// </summary>
         /// <param name="persona">Objeto Persona con datos actualizados.</param>
-        /// <param name="mensaje">Mensaje de error en caso de fallo.</param>
-        /// <returns>true si la modificación fue exitosa; false en caso contrario.</returns>
-        public static bool modificarPersona(Personas? persona, ref string mensaje)
+        /// <returns>
+        /// <see cref="Resultado{T}"/> con true si la modificación fue exitosa,
+        /// o con el mensaje de error en caso contrario.
+        /// </returns>
+        public static Resultado<bool> ModificarPersona(Personas? persona)
         {
-            persona = ComprobarPersona(persona, false, ref mensaje);
+            var validacion = ComprobarPersona(persona, false);
+            if (!validacion.Success)
+                return Resultado<bool>.Fail(validacion.Mensaje);
 
-            if (persona == null)
-                return false;
-
-            if (persona.IdPersona < 1)
-            {
-                mensaje = "No llega el Id de la persona a la capa negocio";
-                return false;
-            }
-
-            Personas? p = PersonasDatos.GetPersonaPorDni(persona.Dni, ref mensaje);
-            if (p == null)
-            {
-                mensaje = "Problemas al obtener los datos de la persona";
-                return false;
-            }
+            if (persona!.IdPersona == null || persona.IdPersona < 1)
+                return Resultado<bool>.Fail("No llega el Id de la persona a la capa negocio.");
 
             try
             {
-                int modificada = PersonasDatos.ModificarPersona(persona, ref mensaje);
+                // Verificar existencia por DNI
+                var resultadoExistente = PersonasDatos.GetPersonaPorDni(persona.Dni);
+                if (!resultadoExistente.Success || resultadoExistente.Data == null)
+                    return Resultado<bool>.Fail("Problemas al obtener los datos de la persona.");
 
-                if (modificada >= 0)
-                    mensaje = string.Empty;
+                var existente = resultadoExistente.Data;
 
-                if (p.IdDomicilio != null && persona.IdDomicilio == null)
-                    return DomiciliosNegocio.EliminarDomicilio((int)p.IdDomicilio, ref mensaje);
+                // Modificar persona
+                var resultadoModificar = PersonasDatos.ModificarPersona(persona);
+                if (!resultadoModificar.Success)
+                    return Resultado<bool>.Fail(resultadoModificar.Mensaje);
 
-                return modificada > 0;
+                // Si tenía domicilio y ahora se eliminó, borrarlo
+                if (existente.IdDomicilio != null && persona.IdDomicilio == null)
+                {
+                    var resultadoEliminar = DomiciliosNegocio.EliminarDomicilio(existente.IdDomicilio.Value);
+                    if (!resultadoEliminar.Success)
+                        return Resultado<bool>.Fail(resultadoEliminar.Mensaje);
+                }
+
+                return Resultado<bool>.Ok(true, "Persona modificada correctamente.");
             }
             catch (Exception ex)
             {
-                mensaje = ex.Message;
-                return false;
+                var msg = $"Error al modificar persona:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
             }
         }
 
