@@ -4,155 +4,164 @@ using Utilidades;
 
 namespace Negocio_SGBM
 {
+    /// <summary>
+    /// Capa de negocio para la gestión de Servicios.
+    /// 
+    /// Responsabilidades:
+    /// - Validar datos de entrada antes de invocar la capa de datos.
+    /// - Centralizar reglas mínimas de negocio (ej. precios, márgenes, duración).
+    /// - Delegar operaciones CRUD a <see cref="ServiciosDatos"/>.
+    /// - Devolver resultados uniformes mediante <see cref="Resultado{T}"/>.
+    /// 
+    /// Buenas prácticas:
+    /// - No usar parámetros por referencia para mensajes; todos los mensajes de error o éxito
+    ///   se devuelven dentro de <see cref="Resultado{T}"/>.
+    /// - Mantener validaciones simples en esta capa; reglas más complejas pueden residir en una
+    ///   capa superior de servicios si el proyecto escala.
+    /// - Registrar mensajes técnicos en <c>Logger</c> en la capa de datos; aquí solo se devuelven
+    ///   mensajes amigables.
+    /// </summary>
     public class ServiciosNegocio
     {
-        static bool ComprobarServicio(Servicios? servicio, bool registro, ref string mensaje)
+        /// <summary>
+        /// Valida un servicio antes de registrar o modificar.
+        /// </summary>
+        private static Resultado<bool> ComprobarServicio(Servicios? servicio, bool registro)
         {
             if (servicio == null)
-            {
-                mensaje = "La información del servicio no llega a la consulta";
-                return false;
-            }
+                return Resultado<bool>.Fail("La información del servicio no llega a la consulta.");
+
             if (servicio.PrecioVenta < 0)
-            {
-                mensaje = "El precio del servicio no puede ser negativo";
-                return false;
-            }
+                return Resultado<bool>.Fail("El precio del servicio no puede ser negativo.");
             if (servicio.Costos < 0)
-            {
-                mensaje = "El costo del servicio no puede ser negativo";
-                return false;
-            }
+                return Resultado<bool>.Fail("El costo del servicio no puede ser negativo.");
             if (servicio.Margen < 0)
-            {
-                mensaje = "El margen del servicio no puede ser negativo";
-                return false;
-            }
+                return Resultado<bool>.Fail("El margen del servicio no puede ser negativo.");
             if (servicio.Comision < 0)
-            {
-                mensaje = "La comisión del servicio no puede ser negativa";
-                return false;
-            }
+                return Resultado<bool>.Fail("La comisión del servicio no puede ser negativa.");
             if (servicio.DuracionMinutos < 0)
-            {
-                mensaje = "La duración del servicio no puede ser negativa";
-                return false;
-            }
+                return Resultado<bool>.Fail("La duración del servicio no puede ser negativa.");
             if (servicio.Puntaje < 0)
-            {
-                mensaje = "El puntaje del servicio no puede ser negativo";
-                return false;
-            }
+                return Resultado<bool>.Fail("El puntaje del servicio no puede ser negativo.");
+
             if (servicio.IdCategoria < 0)
             {
                 if (servicio.Categorias == null)
-                {
-                    mensaje = "Error con el Id de la Categoría del Servicio";
-                    return false;
-                }
+                    return Resultado<bool>.Fail("Error con el Id de la Categoría del Servicio.");
                 if (string.IsNullOrWhiteSpace(servicio.Categorias.Descripcion))
-                {
-                    mensaje = "Error con la Categoría del Servicio a registrar";
-                    return false;
-                }
+                    return Resultado<bool>.Fail("Error con la Categoría del Servicio a registrar.");
             }
-            if (!registro)
-            {
-                if (servicio.IdServicio == null || servicio.IdServicio < 1)
-                {
-                    mensaje = "Error con el Id del Servicio a manipular";
-                    return false;
-                }
-                Servicios? existe = ServiciosDatos.ObtenerServicioPorId((int)servicio.IdServicio, ref mensaje);
-                if (existe == null)
-                {
-                    mensaje = "El Servicio a modificar no existe en los registros";
-                    return false;
-                }
-            }
-            return true;
+
+            if (!registro && (servicio.IdServicio == null || servicio.IdServicio < 1))
+                return Resultado<bool>.Fail("Error con el Id del Servicio a manipular.");
+
+            return Resultado<bool>.Ok(true);
         }
 
-        public static List<Servicios>? Listar(ref string mensaje)
+        /// <summary>
+        /// Lista todos los servicios.
+        /// </summary>
+        public static Resultado<List<Servicios>> Listar()
         {
             try
             {
-                List<Servicios>? lista = ServiciosDatos.ListaServicios(ref mensaje);
-                return lista;
+                return ServiciosDatos.ListaServicios();
             }
             catch (Exception ex)
             {
-                mensaje = $"Error en la búsqueda de Servicios:\n{ex.Message}";
-                return null;
+                var msg = $"Error en la búsqueda de Servicios:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<List<Servicios>>.Fail(msg);
             }
         }
 
-        public static Servicios? NombreExiste(string nombreServicio, ref string mensaje)
+        /// <summary>
+        /// Verifica si existe un servicio por nombre.
+        /// </summary>
+        public static Resultado<Servicios?> NombreExiste(string nombreServicio)
         {
+            if (string.IsNullOrWhiteSpace(nombreServicio))
+                return Resultado<Servicios?>.Fail("El nombre del servicio no puede estar vacío.");
+
             try
             {
-                Servicios? servicio = ServiciosDatos.ObtenerServicioPorNombre(nombreServicio, ref mensaje);
-                return servicio;
+                return ServiciosDatos.ObtenerServicioPorNombre(nombreServicio);
             }
             catch (Exception ex)
             {
-                mensaje = $"Error al verificar el nombre del servicio:\n{ex.Message}";
-                return null;
+                var msg = $"Error al verificar el nombre del servicio:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<Servicios?>.Fail(msg);
             }
         }
 
-        public static bool Registrar(Servicios? servicio, List<CostosServicios>? costos, ref string mensaje)
+        /// <summary>
+        /// Registra un nuevo servicio junto con sus costos asociados.
+        /// </summary>
+        public static Resultado<bool> Registrar(Servicios? servicio, List<CostosServicios>? costos)
         {
-            if (!ComprobarServicio(servicio, true, ref mensaje))
-                return false;
+            var validacion = ComprobarServicio(servicio, true);
+            if (!validacion.Success)
+                return Resultado<bool>.Fail(validacion.Mensaje);
+
             try
             {
-                if (servicio.Categorias != null)
+                // Normalizar categoría
+                if (servicio!.Categorias != null)
                 {
-                    if (servicio.Categorias.IdCategoria == null)
-                        servicio.IdCategoria = 0;
-                    else
-                    {
-                        servicio.IdCategoria = (int)servicio.Categorias.IdCategoria;
-                        servicio.Categorias = null;
-                    }
+                    servicio.IdCategoria = servicio.Categorias.IdCategoria ?? 0;
+                    servicio.Categorias = null;
                 }
-                string mensajeDatos = "";
-                int exito = ServiciosDatos.RegistrarServicio(servicio, ref mensajeDatos);
-                if (exito <= 0)
-                {
-                    mensaje = $"Servicio No Registrado\n{mensajeDatos}";
-                    return false;
-                }
+
+                var resultadoDatos = ServiciosDatos.RegistrarServicio(servicio);
+                if (!resultadoDatos.Success)
+                    return Resultado<bool>.Fail($"Servicio no registrado.\n{resultadoDatos.Mensaje}");
+
+                var idServicio = resultadoDatos.Data;
                 bool errorRegistroCostos = false;
+
                 if (costos != null)
-                    errorRegistroCostos = !CostosNegocio.RegistrarListaCostos(costos, exito, ref mensaje);
-                
-                mensaje = errorRegistroCostos ? $"Servicio Registrado (errores en insumos-costos)\n{mensaje}" : "Servicio Registrado Correctamente";
-                return true;
+                {
+                    var resultadoCostos = CostosNegocio.RegistrarListaCostos(costos, idServicio);
+                    if (!resultadoCostos.Success)
+                        errorRegistroCostos = true;
+                }
+
+                if (errorRegistroCostos)
+                    return Resultado<bool>.Ok(true, "Servicio registrado con errores en insumos-costos.");
+
+                return Resultado<bool>.Ok(true, "Servicio registrado correctamente.");
             }
             catch (Exception ex)
             {
-                mensaje = $"Error al registrar el servicio:\n{ex.Message}";
-                return false;
+                var msg = $"Error al registrar el servicio:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
             }
         }
 
-        public static bool Modificar(Servicios? servicio, ref string mensaje)
+        /// <summary>
+        /// Modifica un servicio existente.
+        /// </summary>
+        public static Resultado<bool> Modificar(Servicios? servicio)
         {
-            if (!ComprobarServicio(servicio, false, ref mensaje))
-                return false;
+            var validacion = ComprobarServicio(servicio, false);
+            if (!validacion.Success)
+                return Resultado<bool>.Fail(validacion.Mensaje);
+
             try
             {
-                string mensajeDatos = "";
-                bool exito = ServiciosDatos.ModificarServicio(servicio, ref mensajeDatos);
-                mensaje = exito ? "Servicio Modificado Correctamente" : $"Servicio No Modificado\n{mensajeDatos}";
-                return exito;
+                var resultadoDatos = ServiciosDatos.ModificarServicio(servicio!);
+                if (!resultadoDatos.Success)
+                    return Resultado<bool>.Fail($"Servicio no modificado.\n{resultadoDatos.Mensaje}");
+
+                return Resultado<bool>.Ok(true, "Servicio modificado correctamente.");
             }
             catch (Exception ex)
             {
-                mensaje = $"Error al modificar el servicio:\n{ex.Message}";
-                return false;
+                var msg = $"Error al modificar el servicio:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
             }
         }
 
@@ -162,34 +171,28 @@ namespace Negocio_SGBM
         /// </summary>
         public static Resultado<List<Servicios>> BuscarServiciosAvanzado(string campo, string criterio, string valor, int idCategoria)
         {
-            // Validaciones y normalizaciones de negocio
             if (string.IsNullOrWhiteSpace(campo))
                 return Resultado<List<Servicios>>.Fail("El campo de búsqueda es obligatorio.");
 
             if (string.IsNullOrWhiteSpace(criterio))
                 return Resultado<List<Servicios>>.Fail("El criterio de búsqueda es obligatorio.");
 
-            // Normalizar criterio conocido
             criterio = criterio.Trim();
-
-            // Normalizar valor según tipo de campo: si el campo es texto, aplicar Trim y ToLowerInvariant en la capa de datos si corresponde.
             valor = valor?.Trim() ?? string.Empty;
 
-            // Reglas de negocio adicionales (ejemplos):
-            // - Limitar longitud de valor para evitar consultas costosas
             if (valor.Length > 149)
                 return Resultado<List<Servicios>>.Fail("El valor de búsqueda es demasiado largo.");
 
-            // Delegar a la capa de datos
-            var resultadoDatos = ServiciosDatos.BuscarAvanzado(campo, criterio, valor, idCategoria);
-            if (!resultadoDatos.Success)
-                return Resultado<List<Servicios>>.Fail(resultadoDatos.Mensaje);
-
-            // Posible post-procesado de negocio (orden, filtrado adicional, mapeo DTO)
-            var lista = resultadoDatos.Data ?? new List<Servicios>();
-
-            return Resultado<List<Servicios>>.Ok(lista);
+            try
+            {
+                return ServiciosDatos.BuscarAvanzado(campo, criterio, valor, idCategoria);
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error en la búsqueda avanzada de servicios:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<List<Servicios>>.Fail(msg);
+            }
         }
-
     }
 }

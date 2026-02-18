@@ -1,80 +1,92 @@
 ﻿using Datos_SGBM;
 using Entidades_SGBM;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using Utilidades;
 
 namespace Negocio_SGBM
 {
+    /// <summary>
+    /// Capa de negocio para la gestión de Costos/Insumos de los Servicios.
+    /// 
+    /// Responsabilidades:
+    /// - Validar datos de entrada antes de invocar la capa de datos.
+    /// - Centralizar reglas mínimas de negocio (ej. monto positivo, descripción obligatoria).
+    /// - Delegar operaciones CRUD a <see cref="CostosDatos"/>.
+    /// - Devolver resultados uniformes mediante <see cref="Resultado{T}"/>.
+    /// 
+    /// Buenas prácticas:
+    /// - No usar parámetros por referencia para mensajes; todos los mensajes de error o éxito
+    ///   se devuelven dentro de <see cref="Resultado{T}"/>.
+    /// - Mantener validaciones simples en esta capa; reglas más complejas pueden residir en una
+    ///   capa superior de servicios si el proyecto escala.
+    /// - Registrar mensajes técnicos en <c>Logger</c> en la capa de datos; aquí solo se devuelven
+    ///   mensajes amigables.
+    /// </summary>
     public class CostosNegocio
     {
-        static bool comprobarCosto(CostosServicios? costo, bool registro, ref string mensaje)
+        /// <summary>
+        /// Valida un costo antes de registrar o modificar.
+        /// </summary>
+        private static Resultado<bool> ComprobarCosto(CostosServicios? costo, bool registro)
         {
             if (costo == null)
-            {
-                mensaje = "No llega el costo del servicio a la consulta";
-                return false;
-            }
+                return Resultado<bool>.Fail("No llega el costo del servicio a la consulta.");
+
             if (costo.Costo <= 0)
-            {
-                mensaje = "No llega el monto del costo del servicio a la consulta";
-                return false;
-            }
+                return Resultado<bool>.Fail("El monto del costo del servicio debe ser mayor a cero.");
+
             if (string.IsNullOrWhiteSpace(costo.Descripcion))
-            {
-                mensaje = "No llega la descipción del costo del servicio a la consulta";
-                return false;
-            }
-            if (costo.IdCostoServicio == null && !registro)
-            {
-                mensaje = "Error al ligar el costo al servicio";
-                return false;
-            }
-            return true;
+                return Resultado<bool>.Fail("La descripción del costo del servicio no puede estar vacía.");
+
+            if (!registro && (costo.IdCostoServicio == null || costo.IdCostoServicio < 1))
+                return Resultado<bool>.Fail("Error al ligar el costo al servicio.");
+
+            return Resultado<bool>.Ok(true);
         }
 
-        public static List<CostosServicios>? ObtenerInsumosPorIdServicio(int id, ref string mensaje)
+        /// <summary>
+        /// Obtiene los insumos/costos asociados a un servicio.
+        /// </summary>
+        public static Resultado<List<CostosServicios>> ObtenerInsumosPorIdServicio(int idServicio)
         {
-            if (id < 1) 
-                return null;
+            if (idServicio < 1)
+                return Resultado<List<CostosServicios>>.Fail("El Id del servicio no es válido.");
+
             try
             {
-                List<CostosServicios>? lista = CostosDatos.ObtenerCostosPorIdServicio(id, ref mensaje);
-                return lista;
+                return CostosDatos.ObtenerCostosPorIdServicio(idServicio);
             }
             catch (Exception ex)
             {
-                mensaje = "Error al obtener los insumos-costos:\n" + ex.Message;
-                return null;
+                var msg = $"Error al obtener los insumos-costos:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<List<CostosServicios>>.Fail(msg);
             }
         }
 
-        public static bool RegistrarListaCostos(List<CostosServicios>? costos, int idServicio, ref string mensaje)
+        /// <summary>
+        /// Registra una lista de costos asociados a un servicio.
+        /// </summary>
+        public static Resultado<bool> RegistrarListaCostos(List<CostosServicios>? costos, int idServicio)
         {
             if (costos == null)
-            {
-                mensaje = "no llegan los costos-insumos a registrar a la capa negocio";
-                return false;
-            }
+                return Resultado<bool>.Fail("No llegan los costos-insumos a registrar.");
+
             if (idServicio <= 0)
-            {
-                mensaje = "no llega el id del servicio a registrar a la capa negocio";
-                return false;
-            }
+                return Resultado<bool>.Fail("El Id del servicio no es válido.");
+
             try
             {
-                mensaje = string.Empty;
-                foreach (CostosServicios costo in costos)
+                var errores = new List<string>();
+
+                foreach (var costo in costos)
                 {
-                    string errores = string.Empty;
                     costo.IdCostoServicio = null;
                     costo.IdServicio = idServicio;
-                    if (!comprobarCosto(costo, true, ref errores))
+
+                    var validacion = ComprobarCosto(costo, true);
+                    if (!validacion.Success)
                     {
-                        mensaje += "\n" + errores;
+                        errores.Add(validacion.Mensaje);
                         continue;
                     }
 
@@ -83,167 +95,148 @@ namespace Negocio_SGBM
                     if (costo.IdProducto != null)
                         costo.Productos = null;
 
-                    costo.IdCostoServicio = CostosDatos.RegistrarCosto(costo, ref errores);
-                    if (costo.IdCostoServicio <= 0)
-                        mensaje += "\n" + errores;
+                    var resultadoDatos = CostosDatos.RegistrarCosto(costo);
+                    if (!resultadoDatos.Success || resultadoDatos.Data <= 0)
+                        errores.Add(resultadoDatos.Mensaje);
                 }
-                bool exito = string.IsNullOrWhiteSpace(mensaje);
-                if (!exito)
-                    mensaje = $"Problemas al registrar los costos insumos";
-                return exito;
+
+                if (errores.Any())
+                    return Resultado<bool>.Fail("Problemas al registrar los costos-insumos:\n" + string.Join("\n", errores));
+
+                return Resultado<bool>.Ok(true, "Costos-insumos registrados correctamente.");
             }
             catch (Exception ex)
             {
-                mensaje = $"Error inesperado al registrar costos-insumo\n{ex.Message}";
-                return false;
+                var msg = $"Error inesperado al registrar costos-insumos:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
             }
         }
 
-        public static bool ModificarCosto(CostosServicios? costo, ref string mensaje)
+        /// <summary>
+        /// Modifica un costo existente.
+        /// </summary>
+        public static Resultado<bool> ModificarCosto(CostosServicios? costo)
         {
-            if (costo == null)
-            {
-                mensaje = "no llega el costo-insumo a modificar a la capa negocio";
-                return false;
-            }
+            var validacion = ComprobarCosto(costo, false);
+            if (!validacion.Success)
+                return Resultado<bool>.Fail(validacion.Mensaje);
+
             try
             {
-                string error = string.Empty;
-                mensaje = string.Empty;
-                if (!comprobarCosto(costo, false, ref error))
-                {
-                    mensaje += "\n" + error;
-                }
-                if (costo.Productos != null)
+                if (costo!.Productos != null)
                     costo.IdProducto = costo.Productos.IdProducto;
                 if (costo.IdProducto != null)
                     costo.Productos = null;
 
-                if (!CostosDatos.ModificarCosto(costo, ref error))
-                    mensaje += "\n" + error;
+                var resultadoDatos = CostosDatos.ModificarCosto(costo);
+                if (!resultadoDatos.Success)
+                    return Resultado<bool>.Fail($"Costo no modificado.\n{resultadoDatos.Mensaje}");
 
-                bool exito = string.IsNullOrWhiteSpace(mensaje);
-                if (!exito)
-                    mensaje = $"Problemas al eliminar el costo-insumo";
-                return exito;
+                return Resultado<bool>.Ok(true, "Costo modificado correctamente.");
             }
             catch (Exception ex)
             {
-                mensaje = $"Error inesperado al eliminar el costo-insumo\n{ex.Message}";
-                return false;
+                var msg = $"Error inesperado al modificar costo-insumo:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
             }
         }
 
-        public static bool EliminarCosto(CostosServicios? costo, ref string mensaje)
+        /// <summary>
+        /// Elimina un costo existente.
+        /// </summary>
+        public static Resultado<bool> EliminarCosto(CostosServicios? costo)
         {
-            if (costo == null)
-            {
-                mensaje = "no llega el costo-insumo a eliminar a la capa negocio";
-                return false;
-            }
+            var validacion = ComprobarCosto(costo, false);
+            if (!validacion.Success)
+                return Resultado<bool>.Fail(validacion.Mensaje);
+
             try
             {
-                string error = string.Empty;
-                mensaje = string.Empty;
-                if (!comprobarCosto(costo, false, ref error))
-                {
-                    mensaje += "\n" + error;
-                }
-                if (costo.Productos != null)
+                if (costo!.Productos != null)
                     costo.IdProducto = costo.Productos.IdProducto;
                 if (costo.IdProducto != null)
                     costo.Productos = null;
 
-                if (!CostosDatos.EliminarFisico(costo, ref error))
-                    mensaje += "\n" + error;
+                var resultadoDatos = CostosDatos.EliminarFisico(costo);
+                if (!resultadoDatos.Success)
+                    return Resultado<bool>.Fail($"Costo no eliminado.\n{resultadoDatos.Mensaje}");
 
-                bool exito = string.IsNullOrWhiteSpace(mensaje);
-                if (!exito)
-                    mensaje = $"Problemas al eliminar el costo-insumo";
-                return exito;
+                return Resultado<bool>.Ok(true, "Costo eliminado correctamente.");
             }
             catch (Exception ex)
             {
-                mensaje = $"Error inesperado al eliminar el costo-insumo\n{ex.Message}";
-                return false;
+                var msg = $"Error inesperado al eliminar costo-insumo:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
             }
         }
 
-        public static bool GestionarCostosServicios(List<CostosServicios>? costos, int idServicio, ref string mensaje)
+        /// <summary>
+        /// Gestiona los costos de un servicio: registra nuevos, modifica existentes y elimina los que ya no están.
+        /// </summary>
+        public static Resultado<bool> GestionarCostosServicios(List<CostosServicios>? costos, int idServicio)
         {
             if (costos == null)
-            {
-                mensaje = "No llegan los costos-insumos a gestionar en la capa negocio";
-                return false;
-            }
-            if (idServicio == 0)
-            {
-                mensaje = "No llega el id del servicio a gestionar en la capa negocio de costos-insumos";
-                return false;
-            }
+                return Resultado<bool>.Fail("No llegan los costos-insumos a gestionar.");
+
+            if (idServicio <= 0)
+                return Resultado<bool>.Fail("El Id del servicio no es válido.");
 
             try
             {
-                bool exito = true;
-                string error = string.Empty;
-                mensaje = string.Empty;
-
                 var registrar = costos.Where(c => c.IdCostoServicio == null || c.IdCostoServicio <= 0).ToList();
-                List<CostosServicios>? anteriores = null;
+                var anteriores = registrar.Count != costos.Count
+                    ? ObtenerInsumosPorIdServicio(idServicio).Data
+                    : null;
 
-                // Solo traigo anteriores si no son todos nuevos
-                if (registrar.Count != costos.Count)
-                {
-                    anteriores = ObtenerInsumosPorIdServicio(idServicio, ref error);
-                }
+                var errores = new List<string>();
+                var exito = true;
 
                 if (anteriores != null)
                 {
                     var ids = costos.Select(c => c.IdCostoServicio).ToList();
 
-                    foreach (var costo in anteriores)
+                    foreach (var costoAnterior in anteriores)
                     {
-                        error = string.Empty;
-                        bool correcto = false;
-
-                        if (!ids.Contains(costo.IdCostoServicio))
+                        if (!ids.Contains(costoAnterior.IdCostoServicio))
                         {
-                            correcto = EliminarCosto(costo, ref error);
+                            var resultadoEliminar = EliminarCosto(costoAnterior);
+                            exito = exito && resultadoEliminar.Success;
+                            if (!resultadoEliminar.Success) errores.Add(resultadoEliminar.Mensaje);
                         }
                         else
                         {
-                            var modificar = costos.FirstOrDefault(c => c.IdCostoServicio == costo.IdCostoServicio);
+                            var modificar = costos.FirstOrDefault(c => c.IdCostoServicio == costoAnterior.IdCostoServicio);
                             if (modificar != null)
                             {
                                 modificar.IdServicio = idServicio;
-                                correcto = ModificarCosto(modificar, ref error);
+                                var resultadoModificar = ModificarCosto(modificar);
+                                exito = exito && resultadoModificar.Success;
+                                if (!resultadoModificar.Success) errores.Add(resultadoModificar.Mensaje);
                             }
                         }
-
-                        exito = exito && correcto;
-
-                        if (!string.IsNullOrWhiteSpace(error))
-                            mensaje += "\n" + error;
                     }
                 }
 
                 if (registrar.Any())
                 {
-                    error = string.Empty;
-                    bool correcto = RegistrarListaCostos(registrar, idServicio, ref error);
-
-                    if (!string.IsNullOrWhiteSpace(error))
-                        mensaje += "\n" + error;
-
-                    exito = exito && correcto;
+                    var resultadoRegistrar = RegistrarListaCostos(registrar, idServicio);
+                    exito = exito && resultadoRegistrar.Success;
+                    if (!resultadoRegistrar.Success) errores.Add(resultadoRegistrar.Mensaje);
                 }
 
-                return exito;
+                if (errores.Any())
+                    return Resultado<bool>.Fail("Problemas al gestionar costos-insumos:\n" + string.Join("\n", errores));
+
+                return Resultado<bool>.Ok(exito, "Costos-insumos gestionados correctamente.");
             }
             catch (Exception ex)
             {
-                mensaje = $"Error inesperado al gestionar costos-insumos\n{ex.Message}";
-                return false;
+                var msg = $"Error inesperado al gestionar costos-insumos:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
             }
         }
     }
