@@ -187,7 +187,7 @@ namespace Datos_SGBM
                     existente.DuracionMinutos = servicio.DuracionMinutos;
                     existente.Puntaje = servicio.Puntaje;
                     existente.IdCategoria = servicio.IdCategoria;
-                    existente.activo = servicio.activo;
+                    existente.Activo = servicio.Activo;
 
                     int cambios = contexto.SaveChanges();
 

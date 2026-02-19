@@ -39,7 +39,7 @@ namespace Entidades_SGBM
         public int IdCategoria { get; set; }
 
         [Column(TypeName = "bit")]
-        public bool activo {  get; set; }
+        public bool Activo {  get; set; }
 
         public Categorias? Categorias { get; set; }
 

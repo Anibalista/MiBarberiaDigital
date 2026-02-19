@@ -874,7 +874,7 @@ namespace EF_SGBM.Migrations
                     b.Property<int>("Puntaje")
                         .HasColumnType("int");
 
-                    b.Property<bool>("activo")
+                    b.Property<bool>("Activo")
                         .HasColumnType("bit");
 
                     b.HasKey("IdServicio");

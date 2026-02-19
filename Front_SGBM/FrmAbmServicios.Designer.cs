@@ -113,7 +113,7 @@
             checkAnulados.TabIndex = 14;
             checkAnulados.Text = "Incluir Anulados";
             checkAnulados.UseVisualStyleBackColor = true;
-            checkAnulados.CheckedChanged += checkAnulados_CheckedChanged;
+            checkAnulados.CheckedChanged += CheckAnulados_CheckedChanged;
             // 
             // btnLimpiar
             // 
@@ -133,7 +133,7 @@
             btnBuscar.TabIndex = 12;
             btnBuscar.Text = "Búsqueda Avanzada";
             btnBuscar.UseVisualStyleBackColor = true;
-            btnBuscar.Click += btnBuscar_Click;
+            btnBuscar.Click += BtnBuscar_Click;
             // 
             // cbCategorias
             // 
@@ -146,7 +146,7 @@
             cbCategorias.Size = new Size(181, 23);
             cbCategorias.TabIndex = 11;
             cbCategorias.ValueMember = "IdCategoria";
-            cbCategorias.SelectedIndexChanged += cbCategorias_SelectedIndexChanged;
+            cbCategorias.SelectedIndexChanged += CbCategorias_SelectedIndexChanged;
             // 
             // bindingSourceCategorias
             // 
@@ -177,7 +177,7 @@
             txtBusqueda.Name = "txtBusqueda";
             txtBusqueda.Size = new Size(181, 23);
             txtBusqueda.TabIndex = 8;
-            txtBusqueda.KeyPress += txtBusqueda_KeyPress;
+            txtBusqueda.KeyPress += TxtBusqueda_KeyPress;
             // 
             // cbCriterios
             // 
@@ -187,7 +187,7 @@
             cbCriterios.Name = "cbCriterios";
             cbCriterios.Size = new Size(181, 23);
             cbCriterios.TabIndex = 7;
-            cbCriterios.SelectedIndexChanged += cbCriterios_SelectedIndexChanged;
+            cbCriterios.SelectedIndexChanged += CbCriterios_SelectedIndexChanged;
             // 
             // label1
             // 
@@ -206,7 +206,7 @@
             cbCampos.Name = "cbCampos";
             cbCampos.Size = new Size(181, 23);
             cbCampos.TabIndex = 5;
-            cbCampos.SelectedIndexChanged += cbCampos_SelectedIndexChanged;
+            cbCampos.SelectedIndexChanged += CbCampos_SelectedIndexChanged;
             // 
             // txtFiltroRapido
             // 
@@ -216,7 +216,7 @@
             txtFiltroRapido.PlaceholderText = "Filtro Rápido Por Nombre";
             txtFiltroRapido.Size = new Size(269, 23);
             txtFiltroRapido.TabIndex = 0;
-            txtFiltroRapido.TextChanged += txtFiltroRapido_TextChanged;
+            txtFiltroRapido.TextChanged += TxtFiltroRapido_TextChanged;
             // 
             // label2
             // 
@@ -317,7 +317,7 @@
             dataGridServicios.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridServicios.Size = new Size(752, 387);
             dataGridServicios.TabIndex = 2;
-            dataGridServicios.SelectionChanged += dataGridServicios_SelectionChanged;
+            dataGridServicios.SelectionChanged += DataGridServicios_SelectionChanged;
             // 
             // nombreServicioDataGridViewTextBoxColumn
             // 
@@ -438,7 +438,7 @@
             btnConsultar.Tag = "btnPrincipal";
             btnConsultar.Text = "Ver Detalles";
             btnConsultar.UseVisualStyleBackColor = true;
-            btnConsultar.Click += btnConsultar_Click;
+            btnConsultar.Click += BtnConsultar_Click;
             // 
             // btnSeleccionar
             // 
@@ -451,7 +451,7 @@
             btnSeleccionar.Tag = "btnPrincipalV";
             btnSeleccionar.Text = "Seleccionar";
             btnSeleccionar.UseVisualStyleBackColor = true;
-            btnSeleccionar.Click += btnSeleccionar_Click;
+            btnSeleccionar.Click += BtnSeleccionar_Click;
             // 
             // btnSalir
             // 
@@ -464,7 +464,7 @@
             btnSalir.Tag = "btnPrincipalR";
             btnSalir.Text = "Salir";
             btnSalir.UseVisualStyleBackColor = true;
-            btnSalir.Click += btnSalir_Click;
+            btnSalir.Click += BtnSalir_Click;
             // 
             // btnRegistrar
             // 
@@ -477,7 +477,7 @@
             btnRegistrar.Tag = "btnPrincipalV";
             btnRegistrar.Text = "Nuevo Servicio";
             btnRegistrar.UseVisualStyleBackColor = true;
-            btnRegistrar.Click += btnRegistrar_Click;
+            btnRegistrar.Click += BtnRegistrar_Click;
             // 
             // groupBoxBtnNuevo
             // 

@@ -71,7 +71,7 @@ namespace Front_SGBM
                 txtPuntaje.Text = _servicio.Puntaje.ToString("0.00") ?? "";
                 txtPrecio.Text = _servicio.PrecioVenta.ToString("0.00");
                 txtComision.Text = _servicio.Comision.ToString("0.00");
-                checkActivo.Checked = _servicio.activo;
+                checkActivo.Checked = _servicio.Activo;
                 seleccionarCategoria();
             }
             catch (Exception ex)
@@ -594,7 +594,7 @@ namespace Front_SGBM
                         _servicio.IdCategoria = (int)seleccionada.IdCategoria;
                 }
 
-                _servicio.activo = checkActivo.Checked;
+                _servicio.Activo = checkActivo.Checked;
 
                 ////ver costos
                 return correcto;
@@ -626,9 +626,9 @@ namespace Front_SGBM
             {
                 //Obtengo el texto del campo
                 string texto = campo.Text.Trim();
-                if (Validaciones.textoCorrecto(texto, ref mensajeError)) // compruebo si está bien
+                if (Validaciones.TextoCorrecto(texto, ref mensajeError)) // compruebo si está bien
                 {
-                    campo.Text = Validaciones.capitalizarTexto(texto, !capitalizarTodo); //Lo capitalizo
+                    campo.Text = Validaciones.CapitalizarTexto(texto, !capitalizarTodo); //Lo capitalizo
                 }
                 else if (obligatorio) //Si es obligatorio lo marco con el provider
                 {
@@ -829,13 +829,13 @@ namespace Front_SGBM
         {
             try
             {
-                if (!Validaciones.textoCorrecto(cbCategoria.Text.Trim(), ref mensaje))
+                if (!Validaciones.TextoCorrecto(cbCategoria.Text.Trim(), ref mensaje))
                     return null;
                 Categorias? seleccionada = _categorias.FirstOrDefault(c => c.Descripcion.ToLower() == cbCategoria.Text.Trim().ToLower());
                 if (seleccionada == null)
                 {
                     seleccionada = new Categorias();
-                    seleccionada.Descripcion = Validaciones.capitalizarTexto(cbCategoria.Text.Trim());
+                    seleccionada.Descripcion = Validaciones.CapitalizarTexto(cbCategoria.Text.Trim());
                     seleccionada.Indole = "Servicios";
                 }
                 return seleccionada;
@@ -1125,18 +1125,18 @@ namespace Front_SGBM
         //Validaciones numéricas
         private bool esnumeroDecimal(string numero, ref string mensaje)
         {
-            return Validaciones.esNumeroDecimal(numero, ref mensaje);
+            return Validaciones.EsNumeroDecimal(numero, ref mensaje);
         }
 
         //Eventos de validación de campos numéricos
         private void validarSoloNumeros_KeyPress(object sender, KeyPressEventArgs e)
         {
-            e.Handled = !Validaciones.esDigitoNumerico(e.KeyChar);
+            e.Handled = !Validaciones.EsDigitoNumerico(e.KeyChar);
         }
 
         private void validarSoloDecimales_KeyPress(object sender, KeyPressEventArgs e)
         {
-            e.Handled = !Validaciones.esDigitoDecimal(e.KeyChar);
+            e.Handled = !Validaciones.EsDigitoDecimal(e.KeyChar);
         }
 
         private void txtCantidad_Leave(object sender, EventArgs e)

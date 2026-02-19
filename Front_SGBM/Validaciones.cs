@@ -4,17 +4,12 @@ namespace Front_SGBM
 {
     public static class Validaciones
     {
-        public static bool esDigitoDecimal(char c)
-        {
-            return char.IsDigit(c) || c == '.' || c == ',' || c == '\b';
-        }
+        public static bool EsDigitoDecimal(char c) => char.IsDigit(c) || c == '.' || c == ',' || c == '\b';
 
-        public static bool esDigitoNumerico(char c)
-        {
-            return char.IsNumber(c) || c == '\b';
-        }
+        public static bool EsDigitoNumerico(char c) => char.IsNumber(c) || c == '\b';
+        
 
-        public static bool esNumeroDecimal(string numero, ref string mensaje, bool obligatorio = true)
+        public static bool EsNumeroDecimal(string numero, ref string mensaje, bool obligatorio = true)
         {
             if (string.IsNullOrEmpty(numero))
             {
@@ -40,7 +35,7 @@ namespace Front_SGBM
             return true;
         }
 
-        public static bool textoCorrecto(string texto, ref string mensaje)
+        public static bool TextoCorrecto(string texto, ref string mensaje)
         {
             if (string.IsNullOrWhiteSpace(texto))
             {
@@ -55,7 +50,7 @@ namespace Front_SGBM
             return true;
         }
 
-        public static string capitalizarTexto(string texto, bool soloInicio = false)
+        public static string CapitalizarTexto(string texto, bool soloInicio = false)
         {
             if (soloInicio)
             {

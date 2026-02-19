@@ -575,7 +575,7 @@ namespace Front_SGBM
         {
             if (cerrando)
                 return;
-            e.Handled = !Validaciones.esDigitoNumerico(e.KeyChar);
+            e.Handled = !Validaciones.EsDigitoNumerico(e.KeyChar);
         }
 
         /// <summary>
@@ -586,7 +586,7 @@ namespace Front_SGBM
         {
             if (cerrando)
                 return;
-            e.Handled = !Validaciones.esDigitoDecimal(e.KeyChar);
+            e.Handled = !Validaciones.EsDigitoDecimal(e.KeyChar);
         }
 
         /// <summary>
@@ -868,7 +868,7 @@ namespace Front_SGBM
                 string mensajeValidacion = string.Empty;
 
                 // Nota: Validaciones.textoCorrecto mantiene su contrato; adaptamos su salida a Resultado.
-                if (!Validaciones.textoCorrecto(texto, ref mensajeValidacion))
+                if (!Validaciones.TextoCorrecto(texto, ref mensajeValidacion))
                 {
                     errorProvider1.SetError(controlTexto, mensajeValidacion);
                     return Resultado<bool>.Fail(mensajeValidacion);
@@ -876,7 +876,7 @@ namespace Front_SGBM
 
                 // Limpia errores y capitaliza el texto
                 errorProvider1.SetError(controlTexto, string.Empty);
-                controlTexto.Text = Validaciones.capitalizarTexto(texto, true);
+                controlTexto.Text = Validaciones.CapitalizarTexto(texto, true);
                 return Resultado<bool>.Ok(true);
             }
             catch (Exception ex)
@@ -899,7 +899,7 @@ namespace Front_SGBM
                 string texto = campo.Text.Trim();
                 string mensajeValidacion = string.Empty;
 
-                if (!Validaciones.esNumeroDecimal(texto, ref mensajeValidacion, obligatorio))
+                if (!Validaciones.EsNumeroDecimal(texto, ref mensajeValidacion, obligatorio))
                 {
                     errorProvider1.SetError(campo, mensajeValidacion);
                     return Resultado<decimal?>.Fail(mensajeValidacion);
@@ -1115,7 +1115,7 @@ namespace Front_SGBM
 
                 if (categoria == null)
                 {
-                    texto = Validaciones.capitalizarTexto(texto, true);
+                    texto = Validaciones.CapitalizarTexto(texto, true);
                     categoria = new Categorias { Indole = "Productos", Descripcion = texto };
                 }
 

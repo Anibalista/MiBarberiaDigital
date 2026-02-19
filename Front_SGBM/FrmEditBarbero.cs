@@ -936,14 +936,14 @@ namespace Front_SGBM
             string error = string.Empty;
 
             // Se valida el texto utilizando las reglas definidas en Validaciones.textoCorrecto
-            bool exito = Validaciones.textoCorrecto(texto, ref error);
+            bool exito = Validaciones.TextoCorrecto(texto, ref error);
 
             // Se muestra el error en el control si corresponde
             ErrorCampo(campo, error);
 
             // Si la validación fue exitosa, se capitaliza el texto según el parámetro
             if (exito)
-                campo.Text = Validaciones.capitalizarTexto(texto, capitalizarTodo);
+                campo.Text = Validaciones.CapitalizarTexto(texto, capitalizarTodo);
 
             // Retorna el resultado de la validación
             return exito;
@@ -1027,8 +1027,8 @@ namespace Front_SGBM
             mensaje = string.Empty;
 
             // Valida nombres y apellidos usando helper de Validaciones
-            if (!Validaciones.textoCorrecto(_persona.Nombres, ref mensaje) ||
-                !Validaciones.textoCorrecto(_persona.Apellidos, ref mensApellido))
+            if (!Validaciones.TextoCorrecto(_persona.Nombres, ref mensaje) ||
+                !Validaciones.TextoCorrecto(_persona.Apellidos, ref mensApellido))
             {
                 //Carga los errores en el provider y devuelve el mensaje de error
                 ErrorCampo(txtNombre, mensaje);
@@ -1043,8 +1043,8 @@ namespace Front_SGBM
                 ErrorCampo(txtApellido);
             }
             // Capitaliza nombres y apellidos para uniformidad
-            _persona.Nombres = Validaciones.capitalizarTexto(_persona.Nombres);
-            _persona.Apellidos = Validaciones.capitalizarTexto(_persona.Apellidos);
+            _persona.Nombres = Validaciones.CapitalizarTexto(_persona.Nombres);
+            _persona.Apellidos = Validaciones.CapitalizarTexto(_persona.Apellidos);
 
             return true; // Nombres válidos
         }
@@ -1215,11 +1215,11 @@ namespace Front_SGBM
                     IdDomicilio = _domicilio?.IdDomicilio,
                     Calle = string.IsNullOrWhiteSpace(txtCalle.Text) ? null : txtCalle.Text,
                     Barrio = string.IsNullOrWhiteSpace(txtBarrio.Text) ? null : txtBarrio.Text,
-                    Altura = Validaciones.textoCorrecto(txtNro.Text.Trim(), ref mensaje)
+                    Altura = Validaciones.TextoCorrecto(txtNro.Text.Trim(), ref mensaje)
                         ? txtNro.Text.Trim() : null,
-                    Piso = Validaciones.textoCorrecto(txtPiso.Text.Trim(), ref mensaje)
+                    Piso = Validaciones.TextoCorrecto(txtPiso.Text.Trim(), ref mensaje)
                         ? txtPiso.Text.Trim() : null,
-                    Depto = Validaciones.textoCorrecto(txtDepto.Text.Trim(), ref mensaje)
+                    Depto = Validaciones.TextoCorrecto(txtDepto.Text.Trim(), ref mensaje)
                         ? txtDepto.Text.Trim() : null,
                     IdLocalidad = _localidad?.IdLocalidad ?? 0,
                     Localidades = _localidad?.IdLocalidad > 0
@@ -1290,7 +1290,7 @@ namespace Front_SGBM
                     _localidad = _localidades.FirstOrDefault(l => l.Localidad.Equals(localidad, StringComparison.OrdinalIgnoreCase));
 
                 // Si no se encontró, se crea una nueva capitalizando el texto
-                _localidad ??= new Localidades { Localidad = Validaciones.capitalizarTexto(localidad, true) };
+                _localidad ??= new Localidades { Localidad = Validaciones.CapitalizarTexto(localidad, true) };
 
                 // Asigna la provincia correspondiente
                 _localidad.IdProvincia = _provincia?.IdProvincia ?? 0;
@@ -1350,7 +1350,7 @@ namespace Front_SGBM
                     .FirstOrDefault(p => p.Provincia.Equals(provincia, StringComparison.OrdinalIgnoreCase));
 
                 // Si no se encontró, se crea una nueva capitalizando el texto
-                _provincia ??= new Provincias { Provincia = Validaciones.capitalizarTexto(provincia, true) };
+                _provincia ??= new Provincias { Provincia = Validaciones.CapitalizarTexto(provincia, true) };
 
                 return true;
             }
