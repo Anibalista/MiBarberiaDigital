@@ -55,7 +55,7 @@ namespace Front_SGBM
                 cbCategorias.DataSource = null;
                 List<Categorias>? categorias = CategoriasNegocio.ListarPorIndole("Servicios", ref mensaje);
                 if (!string.IsNullOrWhiteSpace(mensaje))
-                    Mensajes.mensajeAdvertencia(mensaje);
+                    Mensajes.MensajeAdvertencia(mensaje);
                 if (categorias == null)
                     categorias = new List<Categorias>();
 
@@ -64,7 +64,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
                 cargando = false;
             }
             finally
@@ -89,14 +89,14 @@ namespace Front_SGBM
                     lista = _servicios.Where(s => s.activo == true).ToList();
 
                 if (!string.IsNullOrWhiteSpace(mensaje))
-                    Mensajes.mensajeAdvertencia(mensaje);
+                    Mensajes.MensajeAdvertencia(mensaje);
 
                 bindingSourceServicios.DataSource = lista;
                 refrescarGrillaServicios();
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
             }
             finally
             {
@@ -139,14 +139,14 @@ namespace Front_SGBM
                 _costos = CostosNegocio.ObtenerInsumosPorIdServicio((int)_servicioSeleccionado.IdServicio, ref mensaje);
 
                 if (!string.IsNullOrWhiteSpace(mensaje))
-                    Mensajes.mensajeAdvertencia(mensaje);
+                    Mensajes.MensajeAdvertencia(mensaje);
 
                 bindingSourceCostos.DataSource = _costos;
                 refrescarGrillaCostos();
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
                 cargando = false;
             }
         }
@@ -182,7 +182,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
                 cargando = false;
             }
         }
@@ -190,7 +190,7 @@ namespace Front_SGBM
         //Botones
         private void btnSalir_Click(object sender, EventArgs e)
         {
-            bool confirmar = Mensajes.confirmarCierre();
+            bool confirmar = Mensajes.ConfirmarCierre();
             if (confirmar)
                 cerrarFormulario();
         }
@@ -217,7 +217,7 @@ namespace Front_SGBM
                 return;
             if (_servicioSeleccionado == null)
             {
-                Mensajes.mensajeAdvertencia("Debe Seleccionar un servicio antes de continuar");
+                Mensajes.MensajeAdvertencia("Debe Seleccionar un servicio antes de continuar");
                 return;
             }
             try
@@ -237,7 +237,7 @@ namespace Front_SGBM
                 return;
             if (_servicioSeleccionado == null)
             {
-                Mensajes.mensajeAdvertencia("Debe Seleccionar un servicio antes de continuar");
+                Mensajes.MensajeAdvertencia("Debe Seleccionar un servicio antes de continuar");
                 return;
             }
             try
@@ -279,7 +279,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
                 cargando = false;
             }
         }
@@ -315,7 +315,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
             }
             finally
             {
@@ -335,7 +335,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
                 cargando = false;
             }
         }
@@ -352,7 +352,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
                 cargando = false;
             }
         }
@@ -370,7 +370,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
                 cargando = false;
             }
         }
@@ -407,7 +407,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
             }
             finally { cargando = false; }
         }
@@ -439,14 +439,14 @@ namespace Front_SGBM
                 _servicios = ServiciosNegocio.BuscarServiciosAvanzado(campo, criterio, valor, idCategoria, ref mensaje);
 
                 if (!string.IsNullOrWhiteSpace(mensaje))
-                    Mensajes.mensajeError("Error al buscar" + mensaje);
+                    Mensajes.MensajeError("Error al buscar" + mensaje);
 
                 filtroRapidoNombre(txtFiltroRapido.Text);
 
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
             }
             finally { cargando = false; }
         }
@@ -463,28 +463,28 @@ namespace Front_SGBM
 
                 if (cbCampos.SelectedIndex < 0)
                 {
-                    Mensajes.mensajeError("Falta seleccionar el campo a buscar");
+                    Mensajes.MensajeError("Falta seleccionar el campo a buscar");
                     setError(cbCampos, "Seleccionar un campo");
                     return false;
                 }
 
                 if (cbCriterios.SelectedIndex < 0)
                 {
-                    Mensajes.mensajeError("Falta seleccionar el criterio de búsqueda");
+                    Mensajes.MensajeError("Falta seleccionar el criterio de búsqueda");
                     setError(cbCriterios, "Seleccionar un criterio");
                     return false;
                 }
 
                 if (string.IsNullOrEmpty(valorBuscado))
                 {
-                    Mensajes.mensajeError("Ingrese el valor a buscar");
+                    Mensajes.MensajeError("Ingrese el valor a buscar");
                     setError(txtBusqueda, "Ingrese un valor");
                     return false;
                 }
 
                 if (buscarNumerico && !Validaciones.esNumeroDecimal(valorBuscado, ref mensaje))
                 {
-                    Mensajes.mensajeError("Error en el valor buscado\n" + mensaje);
+                    Mensajes.MensajeError("Error en el valor buscado\n" + mensaje);
                     setError(txtBusqueda, "Formato Incorrecto");
                     return false;
                 }
@@ -494,7 +494,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
                 return false;
             }
         }
@@ -516,7 +516,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
                 return;
             }
         }

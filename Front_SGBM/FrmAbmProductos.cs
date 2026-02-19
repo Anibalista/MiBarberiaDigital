@@ -1,6 +1,7 @@
 ﻿using Entidades_SGBM;
 using Front_SGBM.UXDesign;
 using Negocio_SGBM;
+using Utilidades;
 
 namespace Front_SGBM
 {
@@ -50,10 +51,10 @@ namespace Front_SGBM
         /// </summary>
         private void FrmAbmProductos_Load(object sender, EventArgs e)
         {
-            cargarProductos();          // Carga la lista de productos desde la base de datos.
-            cargarCategorias();         // Carga las categorías disponibles.
-            cargarUnidadesDeMedida();   // Carga las unidades de medida disponibles.
-            sugerirCodigo();            // Sugiere un código para un nuevo producto.
+            CargarProductos();          // Carga la lista de productos desde la base de datos.
+            CargarCategorias();         // Carga las categorías disponibles.
+            CargarUnidadesDeMedida();   // Carga las unidades de medida disponibles.
+            SugerirCodigo();            // Sugiere un código para un nuevo producto.
         }
 
         #endregion
@@ -63,26 +64,36 @@ namespace Front_SGBM
         /// <summary>
         /// Carga la lista de productos desde la capa de negocio.
         /// </summary>
-        private void cargarProductos()
+        private void CargarProductos()
         {
             _productos = null; // Se inicializa la lista en null
-            string mensaje = string.Empty;
+
             try
             {
-                // Se obtiene la lista de productos
-                _productos = ProductosNegocio.ListaSimple(ref mensaje);
+                // Se obtiene la lista de productos desde la capa negocio
+                var resultado = ProductosNegocio.ListaSimple();
+
+                // Si la operación no fue exitosa, se muestra el mensaje de error
+                if (!resultado.Success || resultado.Data == null)
+                {
+                    Mensajes.MensajeError(resultado.Mensaje);
+                    return;
+                }
 
                 // Si hubo algún mensaje de advertencia, se muestra
-                if (!string.IsNullOrWhiteSpace(mensaje))
-                    Mensajes.mensajeAdvertencia(mensaje);
+                if (!string.IsNullOrWhiteSpace(resultado.Mensaje))
+                    Mensajes.MensajeAdvertencia(resultado.Mensaje);
+
+                // Asignar la lista de productos obtenida
+                _productos = resultado.Data;
 
                 // Refresca la grilla con los productos cargados
-                refrescarGrilla();
+                RefrescarGrilla();
             }
             catch (Exception ex)
             {
                 // Manejo de errores inesperados
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
             }
         }
 
@@ -90,7 +101,7 @@ namespace Front_SGBM
         /// Refresca la grilla de productos aplicando filtros de stock, estado y categoría.
         /// </summary>
         /// <param name="filtro">Texto de búsqueda para filtrar por descripción.</param>
-        private void refrescarGrilla(string filtro = "")
+        private void RefrescarGrilla(string filtro = "")
         {
             cargando = true; // Indica que se está cargando la grilla
             try
@@ -149,7 +160,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
             }
             finally
             {
@@ -160,18 +171,30 @@ namespace Front_SGBM
         /// <summary>
         /// Carga las unidades de medida desde la capa de negocio.
         /// </summary>
-        private void cargarUnidadesDeMedida()
+        private void CargarUnidadesDeMedida()
         {
             cargando = true;
-            string mensaje = string.Empty;
+
             try
             {
                 bindingSourceMedidas.DataSource = null;
 
-                // Se obtiene la lista de unidades de medida
-                _unidadesMedidas = ProductosNegocio.ListarUnidadesMedida(ref mensaje);
+                // Se obtiene la lista de unidades de medida desde la capa negocio
+                var resultado = ProductosNegocio.ListarUnidadesMedida();
 
-                // Se asigna al binding source
+                // Si la operación no fue exitosa, se muestra el mensaje de error
+                if (!resultado.Success || resultado.Data == null)
+                {
+                    Mensajes.MensajeError(resultado.Mensaje);
+                    return;
+                }
+
+                // Si hubo algún mensaje de advertencia, se muestra
+                if (!string.IsNullOrWhiteSpace(resultado.Mensaje))
+                    Mensajes.MensajeAdvertencia(resultado.Mensaje);
+
+                // Se asigna la lista de unidades de medida al binding source
+                _unidadesMedidas = resultado.Data;
                 bindingSourceMedidas.DataSource = _unidadesMedidas;
 
                 // Se limpia la selección del combo
@@ -179,7 +202,8 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                // Manejo de errores inesperados
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
             }
             finally
             {
@@ -190,32 +214,41 @@ namespace Front_SGBM
         /// <summary>
         /// Carga las categorías disponibles desde la capa de negocio.
         /// </summary>
-        private void cargarCategorias()
+        private void CargarCategorias()
         {
-            string mensaje = string.Empty;
             cargando = true;
+
             try
             {
                 _categorias = null;
                 bindingSourceCategorias.DataSource = null;
 
-                // Se obtiene la lista de categorías para productos
-                _categorias = CategoriasNegocio.ListarPorIndole("Productos", ref mensaje);
+                // Se obtiene la lista de categorías para productos desde la capa negocio
+                var resultado = CategoriasNegocio.ListarPorIndole("Productos");
 
-                // Si hay advertencias, se muestran
-                if (!string.IsNullOrWhiteSpace(mensaje))
-                    Mensajes.mensajeAdvertencia(mensaje);
+                // Si la operación no fue exitosa, se muestra el mensaje de error
+                if (!resultado.Success || resultado.Data == null)
+                {
+                    Mensajes.MensajeError(resultado.Mensaje);
+                    return;
+                }
 
-                // Se asigna al combo de edición
+                // Si hubo algún mensaje de advertencia, se muestra
+                if (!string.IsNullOrWhiteSpace(resultado.Mensaje))
+                    Mensajes.MensajeAdvertencia(resultado.Mensaje);
+
+                // Se asigna la lista de categorías al combo de edición
+                _categorias = resultado.Data;
                 cbEditCategoria.DataSource = _categorias;
                 cbEditCategoria.SelectedIndex = -1;
 
                 // Carga el combo de filtro de categorías
-                cargarComboCatFiltro();
+                CargarComboCatFiltro();
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                // Manejo de errores inesperados
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
             }
             finally
             {
@@ -226,7 +259,7 @@ namespace Front_SGBM
         /// <summary>
         /// Carga el combo de categorías para filtro, incluyendo opciones especiales.
         /// </summary>
-        private void cargarComboCatFiltro()
+        private void CargarComboCatFiltro()
         {
             try
             {
@@ -247,7 +280,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
             }
         }
 
@@ -263,37 +296,46 @@ namespace Front_SGBM
         /// </summary>
         private void btnSalir_Click(object sender, EventArgs e)
         {
-            cerrarFormulario();
+            CerrarFormulario();
         }
 
         /// <summary>
         /// Evento click del botón Guardar.
         /// Valida y modifica un producto existente si el modo es Modificación.
         /// </summary>
-        /// <remarks>
-        /// - Verifica que el formulario esté en modo Modificación.
-        /// - Valida los datos del producto.
-        /// - Si la validación es correcta, intenta modificar el producto.
-        /// - Muestra mensajes de éxito o error según el resultado.
-        /// </remarks>
         private void btnGuardar_Click(object sender, EventArgs e)
         {
-            string mensaje = string.Empty;
-            if (modo != EnumModoForm.Modificacion)
+            try
             {
-                Mensajes.mensajeError("Modo incorrecto en el formulario");
-                return;
-            }
-            if (validarProducto(ref mensaje))
-            {
-                if (modificarProducto(ref mensaje))
+                if (modo != EnumModoForm.Modificacion)
                 {
-                    Mensajes.mensajeExito("Modificación exitosa");
-                    cargarProductos();
+                    Mensajes.MensajeError("Modo incorrecto en el formulario");
                     return;
                 }
+
+                var resultadoValidacion = ValidarProducto();
+                if (!resultadoValidacion.Success)
+                {
+                    Mensajes.MensajeError("Modificación Fallida (Verifique los campos con error)\n" + resultadoValidacion.Mensaje);
+                    return;
+                }
+
+                var resultadoModificar = ModificarProducto();
+                if (!resultadoModificar.Success)
+                {
+                    Mensajes.MensajeError("Modificación Fallida (Verifique los campos con error)\n" + resultadoModificar.Mensaje);
+                    return;
+                }
+
+                Mensajes.MensajeExito("Modificación exitosa");
+                CargarProductos();
             }
-            Mensajes.mensajeError("Modificación Fallida (Verifique los campos con error)" + mensaje);
+            catch (Exception ex)
+            {
+                var msg = "Error inesperado al guardar modificación: " + ex.Message;
+                Mensajes.MensajeError(msg);
+                Logger.LogError(msg);
+            }
         }
 
         /// <summary>
@@ -302,22 +344,37 @@ namespace Front_SGBM
         /// </summary>
         private void btnNuevo_Click(object sender, EventArgs e)
         {
-            string mensaje = string.Empty;
-            if (modo != EnumModoForm.Alta)
+            try
             {
-                Mensajes.mensajeError("Modo incorrecto en el formulario");
-                return;
-            }
-            if (validarProducto(ref mensaje))
-            {
-                if (registrarProducto(ref mensaje))
+                if (modo != EnumModoForm.Alta)
                 {
-                    Mensajes.mensajeExito("Registro exitoso");
-                    cargarProductos();
+                    Mensajes.MensajeError("Modo incorrecto en el formulario");
                     return;
                 }
+
+                var resultadoValidacion = ValidarProducto();
+                if (!resultadoValidacion.Success)
+                {
+                    Mensajes.MensajeError("Registro Fallido (Verifique los campos con error)\n" + resultadoValidacion.Mensaje);
+                    return;
+                }
+
+                var resultadoRegistrar = RegistrarProducto();
+                if (!resultadoRegistrar.Success)
+                {
+                    Mensajes.MensajeError("Registro Fallido (Verifique los campos con error)\n" + resultadoRegistrar.Mensaje);
+                    return;
+                }
+
+                Mensajes.MensajeExito("Registro exitoso");
+                CargarProductos();
             }
-            Mensajes.mensajeError("Registro Fallido (Verifique los campos con error)" + mensaje);
+            catch (Exception ex)
+            {
+                var msg = "Error inesperado al registrar producto: " + ex.Message;
+                Mensajes.MensajeError(msg);
+                Logger.LogError(msg);
+            }
         }
 
         /// <summary>
@@ -338,28 +395,40 @@ namespace Front_SGBM
         /// </summary>
         private void btnBaja_Click(object sender, EventArgs e)
         {
-            string accion = btnBaja.Text;
-            if (_productoSeleccionado == null)
+            try
             {
-                Mensajes.mensajeError($"Seleccione un producto para {accion} antes de continuar");
-                return;
+                string accion = btnBaja.Text;
+                if (_productoSeleccionado == null)
+                {
+                    Mensajes.MensajeError($"Seleccione un producto para {accion} antes de continuar");
+                    return;
+                }
+
+                string pregunta = $"¿Desea {accion} el producto {_productoSeleccionado.Descripcion}?";
+                DialogResult respuesta = Mensajes.Respuesta(pregunta);
+                if (respuesta == DialogResult.No) return;
+
+                // Convierte "Activar"/"Anular" a "Activado"/"Anulado" para el mensaje final
+                string accionPasado = accion.Length > 2 ? accion.Substring(0, accion.Length - 2) + "do" : accion + "do";
+
+                var resultadoCambio = ProductosNegocio.CambiarEstadoProducto(_productoSeleccionado);
+                if (!resultadoCambio.Success)
+                {
+                    Mensajes.MensajeError(resultadoCambio.Mensaje);
+                }
+                else
+                {
+                    Mensajes.MensajeExito($"¡Producto {accionPasado} exitosamente!");
+                }
+
+                CargarProductos();
             }
-
-            string pregunta = $"¿Desea {accion} el producto {_productoSeleccionado.Descripcion}?";
-            DialogResult respuesta = Mensajes.respuesta(pregunta);
-
-            if (respuesta == DialogResult.No)
-                return;
-
-            pregunta = string.Empty;
-            accion = accion.Substring(0, accion.Length - 2) + "do";
-
-            if (!ProductosNegocio.CambiarEstadoProducto(_productoSeleccionado, ref pregunta))
-                Mensajes.mensajeError(pregunta);
-            else
-                Mensajes.mensajeExito($"¡Producto {accion} exitosamente!");
-
-            cargarProductos();
+            catch (Exception ex)
+            {
+                var msg = "Error inesperado al cambiar estado del producto: " + ex.Message;
+                Mensajes.MensajeError(msg);
+                Logger.LogError(msg);
+            }
         }
 
         /// <summary>
@@ -370,9 +439,10 @@ namespace Front_SGBM
         {
             if (_productoSeleccionado == null)
             {
-                Mensajes.mensajeError("Seleccione un producto a modificar");
+                Mensajes.MensajeError("Seleccione un producto a modificar");
                 return;
             }
+
             modo = EnumModoForm.Modificacion;
             activarControlesEdit();
             activarCamposMedida(cbUdMedida.SelectedIndex >= 0);
@@ -404,11 +474,11 @@ namespace Front_SGBM
             try
             {
                 _categoriaSeleccionada = cbCategoríaAbm.SelectedItem as Categorias;
-                refrescarGrilla(txtFiltro.Text.Trim());
+                RefrescarGrilla(txtFiltro.Text.Trim());
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
             }
         }
 
@@ -420,7 +490,7 @@ namespace Front_SGBM
         {
             if (cerrando || cargando)
                 return;
-            refrescarGrilla(txtFiltro.Text.Trim());
+            RefrescarGrilla(txtFiltro.Text.Trim());
         }
 
         /// <summary>
@@ -431,7 +501,7 @@ namespace Front_SGBM
         {
             if (cerrando || cargando)
                 return;
-            refrescarGrilla(txtFiltro.Text.Trim());
+            RefrescarGrilla(txtFiltro.Text.Trim());
         }
 
         /// <summary>
@@ -468,7 +538,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
             }
         }
 
@@ -489,11 +559,11 @@ namespace Front_SGBM
                 string texto = txtFiltro.Text.Trim();
                 if (texto.Length > 0 && texto.Length < 3)
                     return;
-                refrescarGrilla(texto);
+                RefrescarGrilla(texto);
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
             }
         }
 
@@ -529,12 +599,12 @@ namespace Front_SGBM
                 return;
             try
             {
-                decimal margen = calcularMargen(txtPrecioVenta.Text, txtCosto.Text, txtComision.Text);
+                decimal margen = CalcularMargen(txtPrecioVenta.Text, txtCosto.Text, txtComision.Text);
                 txtMargen.Text = margen == 0 ? "" : margen.ToString("0.00");
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
             }
         }
 
@@ -548,12 +618,12 @@ namespace Front_SGBM
                 return;
             try
             {
-                decimal margen = calcularMargen(txtPrecioVenta.Text, txtCosto.Text, txtComision.Text);
+                decimal margen = CalcularMargen(txtPrecioVenta.Text, txtCosto.Text, txtComision.Text);
                 txtMargen.Text = margen == 0 ? "" : margen.ToString("0.00");
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
             }
         }
 
@@ -567,12 +637,12 @@ namespace Front_SGBM
                 return;
             try
             {
-                decimal margen = calcularMargen(txtPrecioVenta.Text, txtCosto.Text, txtComision.Text);
+                decimal margen = CalcularMargen(txtPrecioVenta.Text, txtCosto.Text, txtComision.Text);
                 txtMargen.Text = margen == 0 ? "" : margen.ToString("0.00");
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                Mensajes.MensajeError("Error inesperado: " + ex.Message);
             }
         }
 
@@ -589,24 +659,33 @@ namespace Front_SGBM
         /// </summary>
         private void activarOAnular()
         {
-            // Verifica si el producto seleccionado está activo (si no hay producto, se asume false).
-            bool activo = _productoSeleccionado?.Activo ?? false;
-
-            if (!activo)
+            try
             {
-                // Si no está activo, el botón se configura para "Activar".
-                btnBaja.Tag = "btnNormalV";
-                btnBaja.Text = "Activar";
-            }
-            else
-            {
-                // Si está activo, el botón se configura para "Anular".
-                btnBaja.Tag = "btnNormalR";
-                btnBaja.Text = "Anular";
-            }
+                // Verifica si el producto seleccionado está activo (si no hay producto, se asume false).
+                bool activo = _productoSeleccionado?.Activo ?? false;
 
-            // Aplica estilo visual al botón según la configuración.
-            EstiloAplicacion.StyleButton(btnBaja);
+                if (!activo)
+                {
+                    // Si no está activo, el botón se configura para "Activar".
+                    btnBaja.Tag = "btnNormalV";
+                    btnBaja.Text = "Activar";
+                }
+                else
+                {
+                    // Si está activo, el botón se configura para "Anular".
+                    btnBaja.Tag = "btnNormalR";
+                    btnBaja.Text = "Anular";
+                }
+
+                // Aplica estilo visual al botón según la configuración.
+                EstiloAplicacion.StyleButton(btnBaja);
+            }
+            catch (Exception ex)
+            {
+                var msg = "Error inesperado al actualizar estado del botón de baja: " + ex.Message;
+                Mensajes.MensajeError(msg);
+                Logger.LogError(msg);
+            }
         }
 
         /// <summary>
@@ -615,35 +694,46 @@ namespace Front_SGBM
         /// <param name="nuevo">Indica si se debe sugerir un nuevo código al limpiar.</param>
         private void limpiarSeleccion(bool nuevo = true)
         {
-            cargando = true; // Flag para evitar eventos mientras se limpian los campos.
+            try
+            {
+                cargando = true; // Flag para evitar eventos mientras se limpian los campos.
 
-            _productoSeleccionado = null; // Se elimina la referencia al producto actual.
+                _productoSeleccionado = null; // Se elimina la referencia al producto actual.
 
-            // Se limpian todos los campos de texto y controles.
-            txtCodigo.Text = string.Empty;
-            txtDescripcion.Text = string.Empty;
-            checkActivo.Checked = true;
-            txtPrecioVenta.Text = string.Empty;
-            txtComision.Text = string.Empty;
-            txtCosto.Text = string.Empty;
-            txtMargen.Text = string.Empty;
-            txtStockUds.Text = string.Empty;
-            cbUdMedida.SelectedIndex = -1;
-            txtCantMedida.Text = string.Empty;
-            txtMedida.Text = string.Empty;
-            cbEditCategoria.SelectedIndex = -1;
+                // Se limpian todos los campos de texto y controles.
+                txtCodigo.Text = string.Empty;
+                txtDescripcion.Text = string.Empty;
+                checkActivo.Checked = true;
+                txtPrecioVenta.Text = string.Empty;
+                txtComision.Text = string.Empty;
+                txtCosto.Text = string.Empty;
+                txtMargen.Text = string.Empty;
+                txtStockUds.Text = string.Empty;
+                cbUdMedida.SelectedIndex = -1;
+                txtCantMedida.Text = string.Empty;
+                txtMedida.Text = string.Empty;
+                cbEditCategoria.SelectedIndex = -1;
 
-            // Se deshabilita el botón Guardar hasta que haya datos válidos.
-            btnGuardar.Enabled = false;
+                // Se deshabilita el botón Guardar hasta que haya datos válidos.
+                btnGuardar.Enabled = false;
 
-            // Si es un nuevo producto, se sugiere un código automáticamente.
-            if (nuevo)
-                sugerirCodigo();
+                // Si es un nuevo producto, se sugiere un código automáticamente.
+                if (nuevo)
+                    SugerirCodigo();
 
-            // Limpia cualquier error previo en el formulario.
-            errorProvider1.Clear();
-
-            cargando = false; // Se habilitan nuevamente los eventos.
+                // Limpia cualquier error previo en el formulario.
+                errorProvider1.Clear();
+            }
+            catch (Exception ex)
+            {
+                var msg = "Error inesperado al limpiar selección: " + ex.Message;
+                Mensajes.MensajeError(msg);
+                Logger.LogError(msg);
+            }
+            finally
+            {
+                cargando = false; // Se habilitan nuevamente los eventos.
+            }
         }
 
         /// <summary>
@@ -651,28 +741,37 @@ namespace Front_SGBM
         /// </summary>
         private void activarControlesEdit()
         {
-            // Se habilitan controles si el modo no es "Consulta".
-            bool activo = modo != EnumModoForm.Consulta;
+            try
+            {
+                // Se habilitan controles si el modo no es "Consulta".
+                bool activo = modo != EnumModoForm.Consulta;
 
-            txtCodigo.Enabled = activo;
-            txtDescripcion.Enabled = activo;
-            checkActivo.Enabled = activo;
-            txtPrecioVenta.Enabled = activo;
-            txtComision.Enabled = activo;
-            txtCosto.Enabled = activo;
-            txtStockUds.Enabled = activo;
-            cbUdMedida.Enabled = activo;
-            cbEditCategoria.Enabled = activo;
+                txtCodigo.Enabled = activo;
+                txtDescripcion.Enabled = activo;
+                checkActivo.Enabled = activo;
+                txtPrecioVenta.Enabled = activo;
+                txtComision.Enabled = activo;
+                txtCosto.Enabled = activo;
+                txtStockUds.Enabled = activo;
+                cbUdMedida.Enabled = activo;
+                cbEditCategoria.Enabled = activo;
 
-            // Si no hay categoría seleccionada, se limpia el texto.
-            if (cbEditCategoria.SelectedIndex < 0)
-                cbEditCategoria.Text = "";
+                // Si no hay categoría seleccionada, se limpia el texto.
+                if (cbEditCategoria.SelectedIndex < 0)
+                    cbEditCategoria.Text = string.Empty;
 
-            // Configuración de botones según el modo.
-            btnGuardar.Enabled = activo;
-            btnNuevo.Enabled = modo == EnumModoForm.Alta;
-            btnModificar.Enabled = !activo;
-            btnBaja.Enabled = !activo;
+                // Configuración de botones según el modo.
+                btnGuardar.Enabled = activo;
+                btnNuevo.Enabled = modo == EnumModoForm.Alta;
+                btnModificar.Enabled = !activo;
+                btnBaja.Enabled = !activo;
+            }
+            catch (Exception ex)
+            {
+                var msg = "Error inesperado al activar/desactivar controles: " + ex.Message;
+                Mensajes.MensajeError(msg);
+                Logger.LogError(msg);
+            }
         }
 
         /// <summary>
@@ -681,8 +780,17 @@ namespace Front_SGBM
         /// <param name="activo">True para habilitar, False para deshabilitar.</param>
         private void activarCamposMedida(bool activo)
         {
-            txtMedida.Enabled = activo;
-            txtCantMedida.Enabled = activo;
+            try
+            {
+                txtMedida.Enabled = activo;
+                txtCantMedida.Enabled = activo;
+            }
+            catch (Exception ex)
+            {
+                var msg = "Error inesperado al activar/desactivar campos de medida: " + ex.Message;
+                Mensajes.MensajeError(msg);
+                Logger.LogError(msg);
+            }
         }
 
         /// <summary>
@@ -696,8 +804,8 @@ namespace Front_SGBM
             try
             {
                 // Asignación de valores básicos.
-                txtCodigo.Text = _productoSeleccionado.CodProducto;
-                txtDescripcion.Text = _productoSeleccionado.Descripcion;
+                txtCodigo.Text = _productoSeleccionado.CodProducto ?? string.Empty;
+                txtDescripcion.Text = _productoSeleccionado.Descripcion ?? string.Empty;
                 checkActivo.Checked = _productoSeleccionado.Activo;
                 txtPrecioVenta.Text = _productoSeleccionado.PrecioVenta.ToString("0.00");
 
@@ -706,7 +814,7 @@ namespace Front_SGBM
                 if (_productoSeleccionado.Comision != null)
                     comision = _productoSeleccionado.Comision * 100;
 
-                txtComision.Text = comision?.ToString("0.00") ?? "";
+                txtComision.Text = comision?.ToString("0.00") ?? string.Empty;
 
                 // Costo y margen calculado.
                 txtCosto.Text = _productoSeleccionado.Costo.ToString("0.00");
@@ -724,8 +832,8 @@ namespace Front_SGBM
                     cbUdMedida.SelectedValue = _medidaSeleccionada.IdUnidadMedida;
 
                 // Cantidad y medida.
-                txtCantMedida.Text = _productoSeleccionado.CantidadMedida?.ToString("0.00");
-                txtMedida.Text = _productoSeleccionado.Medida?.ToString();
+                txtCantMedida.Text = _productoSeleccionado.CantidadMedida?.ToString("0.00") ?? string.Empty;
+                txtMedida.Text = _productoSeleccionado.Medida?.ToString() ?? string.Empty;
 
                 // Categoría del producto.
                 Categorias? cat = _productoSeleccionado.Categorias;
@@ -737,7 +845,9 @@ namespace Front_SGBM
             catch (Exception ex)
             {
                 // Manejo de errores inesperados.
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                var msg = "Error inesperado al cargar campos del producto: " + ex.Message;
+                Mensajes.MensajeError(msg);
+                Logger.LogError(msg);
             }
         }
 
@@ -748,104 +858,144 @@ namespace Front_SGBM
         /// <summary>
         /// Valida que el texto ingresado en un control sea correcto.
         /// Aplica capitalización y muestra errores en el ErrorProvider.
+        /// Devuelve Resultado{bool}. Data = true si el texto es válido.
         /// </summary>
-        private bool validarTexto(Control controlTexto, ref string mensaje)
+        private Resultado<bool> ValidarTexto(Control controlTexto)
         {
-            mensaje = string.Empty;
-            string texto = controlTexto.Text.Trim();
+            try
+            {
+                string texto = controlTexto.Text.Trim();
+                string mensajeValidacion = string.Empty;
 
-            if (!Validaciones.textoCorrecto(texto, ref mensaje))
-            {
-                // Si el texto no es válido, se muestra el error
-                errorProvider1.SetError(controlTexto, mensaje);
-                return false;
-            }
-            else
-            {
+                // Nota: Validaciones.textoCorrecto mantiene su contrato; adaptamos su salida a Resultado.
+                if (!Validaciones.textoCorrecto(texto, ref mensajeValidacion))
+                {
+                    errorProvider1.SetError(controlTexto, mensajeValidacion);
+                    return Resultado<bool>.Fail(mensajeValidacion);
+                }
+
                 // Limpia errores y capitaliza el texto
-                errorProvider1.SetError(controlTexto, "");
+                errorProvider1.SetError(controlTexto, string.Empty);
                 controlTexto.Text = Validaciones.capitalizarTexto(texto, true);
-                return true;
+                return Resultado<bool>.Ok(true);
+            }
+            catch (Exception ex)
+            {
+                var msg = "Error inesperado al validar texto: " + ex.Message;
+                Mensajes.MensajeError(msg);
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
             }
         }
 
         /// <summary>
         /// Valida que un campo numérico contenga un valor correcto.
+        /// Devuelve Resultado{decimal?}. Data = número si válido, null si no válido.
         /// </summary>
-        private decimal? validarCampoNumerico(TextBox campo, bool esDecimal, bool obligatorio, ref string mensaje)
+        private Resultado<decimal?> ValidarCampoNumerico(TextBox campo, bool esDecimal, bool obligatorio)
         {
-            mensaje = string.Empty;
-            string texto = campo.Text.Trim();
             try
             {
-                decimal numero = 0;
+                string texto = campo.Text.Trim();
+                string mensajeValidacion = string.Empty;
 
-                if (!Validaciones.esNumeroDecimal(texto, ref mensaje, obligatorio))
+                if (!Validaciones.esNumeroDecimal(texto, ref mensajeValidacion, obligatorio))
                 {
-                    errorProvider1.SetError(campo, mensaje);
-                    return null;
+                    errorProvider1.SetError(campo, mensajeValidacion);
+                    return Resultado<decimal?>.Fail(mensajeValidacion);
                 }
-                else
-                    errorProvider1.SetError(campo, "");
 
-                numero = decimal.Parse(texto);
+                errorProvider1.SetError(campo, string.Empty);
+
+                decimal numero = 0;
+                if (!decimal.TryParse(texto, out numero))
+                {
+                    // Si no se pudo parsear aunque la validación haya pasado, devolver error controlado
+                    var msg = "El valor numérico no tiene un formato válido.";
+                    errorProvider1.SetError(campo, msg);
+                    return Resultado<decimal?>.Fail(msg);
+                }
+
                 campo.Text = esDecimal ? numero.ToString("0.00") : ((int)numero).ToString();
-
-                return numero;
+                return Resultado<decimal?>.Ok(numero);
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                var msg = "Error inesperado al validar campo numérico: " + ex.Message;
+                Mensajes.MensajeError(msg);
+                Logger.LogError(msg);
+                return Resultado<decimal?>.Fail(msg);
             }
         }
 
         /// <summary>
         /// Verifica si el código ingresado ya existe en otro producto.
+        /// Devuelve Resultado{bool}. Data = true si el código ya existe.
         /// </summary>
-        private bool codigoExiste(ref string mensaje)
+        private Resultado<bool> CodigoExiste()
         {
-            string codigo = txtCodigo.Text.Trim();
             try
             {
-                Productos? existente = ProductosNegocio.BuscarPorCodigo(codigo, ref mensaje);
+                string codigo = txtCodigo.Text.Trim();
+                var resultado = ProductosNegocio.BuscarPorCodigo(codigo);
 
+                if (!resultado.Success)
+                {
+                    // Si la búsqueda falló, devolvemos el mensaje de la capa negocio
+                    return Resultado<bool>.Fail(resultado.Mensaje);
+                }
+
+                Productos? existente = resultado.Data;
                 if (existente != null)
                 {
-                    mensaje = $"El código {codigo} ya pertenece al producto {existente.Descripcion}";
-                    return true;
+                    string mensaje = $"El código {codigo} ya pertenece al producto {existente.Descripcion}";
+                    return Resultado<bool>.Ok(true, mensaje);
                 }
-                return false;
+
+                return Resultado<bool>.Ok(false);
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
-                return false;
+                var msg = "Error inesperado al verificar código: " + ex.Message;
+                Mensajes.MensajeError(msg);
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
             }
         }
 
         /// <summary>
         /// Valida todos los campos del producto antes de registrar o modificar.
+        /// Devuelve Resultado{bool}. Data = true si el producto es válido.
         /// </summary>
-        private bool validarProducto(ref string mensaje)
+        private Resultado<bool> ValidarProducto()
         {
-            mensaje = string.Empty;
-
-            if (_productoSeleccionado == null)
-                _productoSeleccionado = new();
-
             try
             {
+                if (_productoSeleccionado == null)
+                    _productoSeleccionado = new Productos();
+
                 bool valido = true;
+                string mensajeLocal = string.Empty;
 
-                // Validación del código
-                decimal? codigo = validarCampoNumerico(txtCodigo, false, true, ref mensaje);
-                mensaje = string.Empty;
+                // Código
+                var resultadoCodigo = ValidarCampoNumerico(txtCodigo, false, true);
+                if (!resultadoCodigo.Success)
+                {
+                    errorProvider1.SetError(txtCodigo, resultadoCodigo.Mensaje);
+                    return Resultado<bool>.Fail(resultadoCodigo.Mensaje);
+                }
 
+                decimal? codigo = resultadoCodigo.Data;
                 if (codigo != null)
                 {
-                    bool existe = codigoExiste(ref mensaje);
+                    var resultadoExiste = CodigoExiste();
+                    if (!resultadoExiste.Success)
+                        return Resultado<bool>.Fail(resultadoExiste.Mensaje);
+
+                    bool existe = resultadoExiste.Data;
                     if (existe)
                     {
+                        // Si existe y estamos en alta, o el código cambió en modificación, es inválido
                         if (modo == EnumModoForm.Alta)
                             valido = false;
                         else if (txtCodigo.Text.Trim() != _productoSeleccionado.CodProducto)
@@ -855,84 +1005,99 @@ namespace Front_SGBM
                     if (valido)
                         _productoSeleccionado.CodProducto = txtCodigo.Text.Trim();
                     else
-                        Mensajes.mensajeError(mensaje);
-
-                    errorProvider1.SetError(txtCodigo, mensaje);
+                    {
+                        mensajeLocal = resultadoExiste.Mensaje ?? $"El código {txtCodigo.Text.Trim()} ya existe.";
+                        Mensajes.MensajeError(mensajeLocal);
+                        errorProvider1.SetError(txtCodigo, mensajeLocal);
+                        return Resultado<bool>.Fail(mensajeLocal);
+                    }
                 }
 
-                // Validación de descripción
-                mensaje = string.Empty;
-                if (validarTexto(txtDescripcion, ref mensaje))
-                    _productoSeleccionado.Descripcion = txtDescripcion.Text;
-                else
-                    valido = false;
+                // Descripción
+                var resultadoTexto = ValidarTexto(txtDescripcion);
+                if (!resultadoTexto.Success)
+                    return Resultado<bool>.Fail(resultadoTexto.Mensaje);
+
+                _productoSeleccionado.Descripcion = txtDescripcion.Text;
 
                 // Estado activo
                 _productoSeleccionado.Activo = checkActivo.Checked;
 
                 // Precio de venta
-                mensaje = string.Empty;
-                decimal? numero = validarCampoNumerico(txtPrecioVenta, true, true, ref mensaje);
-                if (numero.HasValue)
-                    _productoSeleccionado.PrecioVenta = numero ?? 0;
-                else
-                    valido = false;
+                var resultadoPrecio = ValidarCampoNumerico(txtPrecioVenta, true, true);
+                if (!resultadoPrecio.Success)
+                    return Resultado<bool>.Fail(resultadoPrecio.Mensaje);
 
-                // Costo
-                mensaje = string.Empty;
-                numero = validarCampoNumerico(txtCosto, true, false, ref mensaje);
-                if (numero.HasValue)
+                _productoSeleccionado.PrecioVenta = resultadoPrecio.Data ?? 0;
+
+                // Costo (opcional)
+                var resultadoCosto = ValidarCampoNumerico(txtCosto, true, false);
+                if (!resultadoCosto.Success && !string.IsNullOrWhiteSpace(resultadoCosto.Mensaje))
+                    return Resultado<bool>.Fail(resultadoCosto.Mensaje);
+
+                if (resultadoCosto.Data.HasValue)
                 {
-                    _productoSeleccionado.Costo = numero ?? 0;
-                    valido = valido ? numero > 0 : false;
+                    _productoSeleccionado.Costo = resultadoCosto.Data.Value;
+                    // Si se requiere que costo > 0 para considerarlo válido
+                    if (resultadoCosto.Data <= 0)
+                        valido = false;
                 }
 
-                // Comisión
-                mensaje = string.Empty;
-                _productoSeleccionado.Comision = validarCampoNumerico(txtComision, true, false, ref mensaje);
-                if (_productoSeleccionado.Comision != null)
+                // Comisión (porcentaje)
+                var resultadoComision = ValidarCampoNumerico(txtComision, true, false);
+                if (!resultadoComision.Success && !string.IsNullOrWhiteSpace(resultadoComision.Mensaje))
+                    return Resultado<bool>.Fail(resultadoComision.Mensaje);
+
+                if (resultadoComision.Data.HasValue)
                 {
-                    if (_productoSeleccionado.Comision > 100 || _productoSeleccionado.Comision < 0)
+                    decimal com = resultadoComision.Data.Value;
+                    if (com > 100 || com < 0)
                     {
-                        errorProvider1.SetError(txtComision, $"El porcentaje {numero}% no es una comisión válida");
-                        valido = false;
+                        var msg = $"El porcentaje {com}% no es una comisión válida";
+                        errorProvider1.SetError(txtComision, msg);
+                        return Resultado<bool>.Fail(msg);
                     }
-                    _productoSeleccionado.Comision = _productoSeleccionado.Comision != 0 ? _productoSeleccionado.Comision / 100 : _productoSeleccionado.Comision;
+                    _productoSeleccionado.Comision = com != 0 ? com / 100 : com;
                 }
 
                 // Stock
-                mensaje = string.Empty;
-                numero = validarCampoNumerico(txtStockUds, false, true, ref mensaje);
-                if (numero != null)
-                    _productoSeleccionado.Stock = (int)numero;
-                else
-                    valido = false;
+                var resultadoStock = ValidarCampoNumerico(txtStockUds, false, true);
+                if (!resultadoStock.Success)
+                    return Resultado<bool>.Fail(resultadoStock.Mensaje);
+
+                _productoSeleccionado.Stock = (int)(resultadoStock.Data ?? 0);
 
                 // Categoría
-                if (!validarCategoria())
-                    valido = false;
+                var resultadoCategoria = ValidarCategoria();
+                if (!resultadoCategoria.Success)
+                    return Resultado<bool>.Fail(resultadoCategoria.Mensaje);
 
                 // Dosificación
-                if (!validarDosificacion())
+                var resultadoDosificacion = ValidarDosificacion();
+                if (!resultadoDosificacion.Success)
                 {
-                    DialogResult respuesta = Mensajes.respuesta("La dosificación se anuló por errores en los campos\n¿Desea continuar igualmente?");
+                    // Si la dosificación devolvió Fail, preguntar al usuario si desea continuar
+                    DialogResult respuesta = Mensajes.Respuesta("La dosificación se anuló por errores en los campos\n¿Desea continuar igualmente?");
                     if (respuesta == DialogResult.No)
-                        valido = false;
+                        return Resultado<bool>.Fail("El usuario canceló por errores en la dosificación.");
                 }
 
-                return valido;
+                return valido ? Resultado<bool>.Ok(true) : Resultado<bool>.Fail("Validaciones detectaron valores no permitidos.");
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
-                return false;
+                var msg = "Error inesperado al validar producto: " + ex.Message;
+                Mensajes.MensajeError(msg);
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
             }
         }
 
         /// <summary>
         /// Valida la categoría seleccionada o crea una nueva si no existe.
+        /// Devuelve Resultado{bool}. Data = true si la categoría quedó asignada correctamente.
         /// </summary>
-        private bool validarCategoria()
+        private Resultado<bool> ValidarCategoria()
         {
             try
             {
@@ -942,10 +1107,11 @@ namespace Front_SGBM
                 {
                     _productoSeleccionado.Categorias = null;
                     _productoSeleccionado.idCategoria = null;
-                    return true;
+                    errorProvider1.SetError(cbEditCategoria, string.Empty);
+                    return Resultado<bool>.Ok(true);
                 }
 
-                Categorias? categoria = _categorias.FirstOrDefault(c => c.Descripcion == texto);
+                Categorias? categoria = _categorias?.FirstOrDefault(c => c.Descripcion == texto);
 
                 if (categoria == null)
                 {
@@ -955,44 +1121,53 @@ namespace Front_SGBM
 
                 _productoSeleccionado.Categorias = categoria;
                 _productoSeleccionado.idCategoria = categoria.IdCategoria;
-                errorProvider1.SetError(cbEditCategoria, "");
-                return true;
+                errorProvider1.SetError(cbEditCategoria, string.Empty);
+                return Resultado<bool>.Ok(true);
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                var msg = "Error inesperado al validar categoría: " + ex.Message;
+                Mensajes.MensajeError(msg);
                 errorProvider1.SetError(cbEditCategoria, "Excepción no controlada");
-                return false;
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
             }
         }
 
         /// <summary>
         /// Valida la dosificación del producto (unidad de medida y cantidad).
+        /// Devuelve Resultado{bool}. Data = true si la dosificación es válida o no aplica.
         /// </summary>
-        private bool validarDosificacion()
+        private Resultado<bool> ValidarDosificacion()
         {
             try
             {
-                bool cancelar = false;
-                string mensaje = string.Empty;
-
                 // Si no se seleccionó unidad de medida, se permite continuar
                 if (cbUdMedida.SelectedIndex < 0)
                 {
-                    errorProvider1.SetError(txtMedida, string.IsNullOrEmpty(txtMedida.Text) ? "" : "Debe Seleccionar una unidad de Medida");
-                    errorProvider1.SetError(txtCantMedida, string.IsNullOrEmpty(txtCantMedida.Text) ? "" : "Debe Seleccionar una unidad de Medida");
-                    return true;
+                    errorProvider1.SetError(txtMedida, string.IsNullOrEmpty(txtMedida.Text) ? string.Empty : "Debe Seleccionar una unidad de Medida");
+                    errorProvider1.SetError(txtCantMedida, string.IsNullOrEmpty(txtCantMedida.Text) ? string.Empty : "Debe Seleccionar una unidad de Medida");
+                    return Resultado<bool>.Ok(true);
                 }
 
-                // Validación de medida y cantidad
-                decimal? medida = validarCampoNumerico(txtMedida, false, false, ref mensaje);
-                mensaje = string.Empty;
-                decimal? cantidad = validarCampoNumerico(txtCantMedida, true, false, ref mensaje);
+                bool cancelar = false;
+                string mensajeLocal = string.Empty;
+
+                var resultadoMedida = ValidarCampoNumerico(txtMedida, false, false);
+                if (!resultadoMedida.Success)
+                    return Resultado<bool>.Fail(resultadoMedida.Mensaje);
+
+                var resultadoCantidad = ValidarCampoNumerico(txtCantMedida, true, false);
+                if (!resultadoCantidad.Success)
+                    return Resultado<bool>.Fail(resultadoCantidad.Mensaje);
+
+                decimal? medida = resultadoMedida.Data;
+                decimal? cantidad = resultadoCantidad.Data;
                 int medidaEntero = 0;
 
                 if (medida == null)
                 {
-                    errorProvider1.SetError(txtCantMedida, string.IsNullOrEmpty(txtCantMedida.Text) ? "" : "Debe ingresar la dosificación de Medida");
+                    errorProvider1.SetError(txtCantMedida, string.IsNullOrEmpty(txtCantMedida.Text) ? string.Empty : "Debe ingresar la dosificación de Medida");
                     cancelar = true;
                 }
                 else
@@ -1015,28 +1190,28 @@ namespace Front_SGBM
 
                 if (!cancelar)
                 {
-                    // Se asignan los valores al producto
                     UnidadesMedidas? unidad = cbUdMedida.SelectedItem as UnidadesMedidas;
                     _productoSeleccionado.IdUnidadMedida = unidad?.IdUnidadMedida;
                     _productoSeleccionado.UnidadesMedidas = unidad;
                     _productoSeleccionado.CantidadMedida = cantidad;
                     _productoSeleccionado.Medida = (int)medida;
+                    return Resultado<bool>.Ok(true);
                 }
                 else
                 {
-                    // Si hay errores, se limpian los valores
                     _productoSeleccionado.IdUnidadMedida = null;
                     _productoSeleccionado.UnidadesMedidas = null;
                     _productoSeleccionado.CantidadMedida = null;
                     _productoSeleccionado.Medida = null;
+                    return Resultado<bool>.Fail("Errores en la dosificación.");
                 }
-
-                return !cancelar;
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
-                return false;
+                var msg = "Error inesperado al validar dosificación: " + ex.Message;
+                Mensajes.MensajeError(msg);
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
             }
         }
 
@@ -1048,108 +1223,111 @@ namespace Front_SGBM
         /// Sugiere un nuevo código de producto desde la capa de negocio
         /// y lo asigna al campo de texto.
         /// </summary>
-        private void sugerirCodigo()
+        private void SugerirCodigo()
         {
-            string mensaje = string.Empty;
+            try
+            {
+                var resultado = ProductosNegocio.SugerirCodigo();
+                if (!resultado.Success)
+                {
+                    Mensajes.MensajeError(resultado.Mensaje);
+                    return;
+                }
 
-            // Obtiene el código sugerido desde la capa de negocio
-            txtCodigo.Text = ProductosNegocio.SugerirCodigo(ref mensaje);
-
-            // Si hubo algún mensaje de error, se muestra al usuario
-            if (!string.IsNullOrWhiteSpace(mensaje))
-                Mensajes.mensajeError(mensaje);
+                txtCodigo.Text = resultado.Data ?? string.Empty;
+            }
+            catch (Exception ex)
+            {
+                var msg = "Error inesperado al sugerir código: " + ex.Message;
+                Mensajes.MensajeError(msg);
+                Logger.LogError(msg);
+            }
         }
 
         /// <summary>
         /// Cierra el formulario previa confirmación del usuario.
         /// </summary>
-        private void cerrarFormulario()
+        private void CerrarFormulario()
         {
-            // Solicita confirmación al usuario
-            bool confirmar = Mensajes.confirmarCierre();
+            bool confirmar = Mensajes.ConfirmarCierre();
 
-            // Si el usuario cancela, se evita el cierre
             if (!confirmar)
             {
                 cerrando = false;
                 return;
             }
 
-            // Marca el estado de cierre y procede a cerrar el formulario
             cerrando = true;
             this.Close();
         }
 
         /// <summary>
-        /// Registra un nuevo producto en la base de datos.
+        /// Registra un nuevo producto en la base de datos usando la capa de negocio.
+        /// Devuelve Resultado{bool} con Data = true si el registro fue exitoso.
         /// </summary>
-        /// <param name="mensaje">Mensaje de error en caso de fallo.</param>
-        /// <returns>True si el producto se registró correctamente, False en caso contrario.</returns>
-        private bool registrarProducto(ref string mensaje)
+        private Resultado<bool> RegistrarProducto()
         {
-            // Validación: debe existir un producto (Se utiliza _productoSeleccionado para reciclar)
             if (_productoSeleccionado == null)
-            {
-                mensaje = "No llega el producto a registrar";
-                return false;
-            }
+                return Resultado<bool>.Fail("No llega el producto a registrar.");
 
             try
             {
-                // Se registra el producto y se asigna el Id generado
-                _productoSeleccionado.IdProducto = ProductosNegocio.RegistrarProducto(_productoSeleccionado, ref mensaje);
+                var resultado = ProductosNegocio.RegistrarProducto(_productoSeleccionado);
+                if (!resultado.Success)
+                    return Resultado<bool>.Fail(resultado.Mensaje);
 
-                // Devuelve true si el Id es válido (>0)
-                return _productoSeleccionado.IdProducto > 0;
+                // Asignar Id generado si corresponde
+                if (resultado.Data > 0)
+                    _productoSeleccionado.IdProducto = resultado.Data;
+
+                return Resultado<bool>.Ok(true, "Producto registrado correctamente.");
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
-                return false;
+                var msg = "Error inesperado al registrar producto: " + ex.Message;
+                Mensajes.MensajeError(msg);
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
             }
         }
 
         /// <summary>
-        /// Modifica un producto existente en la base de datos.
+        /// Modifica un producto existente en la base de datos usando la capa de negocio.
+        /// Devuelve Resultado{bool} con Data = true si la modificación fue exitosa.
         /// </summary>
-        /// <param name="mensaje">Mensaje de error en caso de fallo.</param>
-        /// <returns>True si el producto se modificó correctamente, False en caso contrario.</returns>
-        private bool modificarProducto(ref string mensaje)
+        private Resultado<bool> ModificarProducto()
         {
-            // Validación: debe existir un producto con Id válido
             if (_productoSeleccionado?.IdProducto == null)
-            {
-                mensaje = "No llega el producto a modificar";
-                return false;
-            }
+                return Resultado<bool>.Fail("No llega el producto a modificar.");
 
-            // Validación: el formulario debe estar en modo Modificación
             if (modo != EnumModoForm.Modificacion)
-            {
-                mensaje = "Modo incorrecto en el formulario";
-                return false;
-            }
+                return Resultado<bool>.Fail("Modo incorrecto en el formulario.");
 
             try
             {
-                // Se envía el producto a la capa de negocio para modificarlo
-                return ProductosNegocio.ModificarProducto(_productoSeleccionado, ref mensaje);
+                var resultado = ProductosNegocio.ModificarProducto(_productoSeleccionado);
+                if (!resultado.Success)
+                    return Resultado<bool>.Fail(resultado.Mensaje);
+
+                return Resultado<bool>.Ok(true, "Producto modificado correctamente.");
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
-                return false;
+                var msg = "Error inesperado al modificar producto: " + ex.Message;
+                Mensajes.MensajeError(msg);
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
             }
         }
 
         /// <summary>
         /// Calcula el margen de ganancia de un producto.
+        /// precio: Precio de venta como string.
+        /// costo: Costo de compra como string.
+        /// comision: Comisión como string (en porcentaje o decimal).
+        /// Devuelve el margen calculado como decimal.
         /// </summary>
-        /// <param name="precio">Precio de venta como string.</param>
-        /// <param name="costo">Costo de compra como string.</param>
-        /// <param name="comision">Comisión como string (en porcentaje o decimal).</param>
-        /// <returns>Margen calculado como decimal.</returns>
-        private decimal calcularMargen(string? precio, string? costo, string? comision)
+        private decimal CalcularMargen(string? precio, string? costo, string? comision)
         {
             decimal resultado = 0;
             decimal pvp = 0;          // Precio de venta
@@ -1158,17 +1336,15 @@ namespace Front_SGBM
 
             try
             {
-                // Intenta convertir los valores a decimal
-                bool precioCorrecto = decimal.TryParse(precio, out pvp);
-                bool costoCorrecto = decimal.TryParse(costo, out costoCompra);
+                decimal.TryParse(precio, out pvp);
+                decimal.TryParse(costo, out costoCompra);
 
-                // Convierte la comisión a decimal y normaliza si es porcentaje
                 if (decimal.TryParse(comision, out cometa))
                 {
                     cometa = cometa > 0 ? cometa / 100 : 0;
                 }
 
-                // Calcula el margen: precio neto - costo
+                // Precio neto después de comisión menos costo
                 resultado = pvp * (1 - cometa);
                 resultado -= costoCompra;
 
@@ -1176,7 +1352,9 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado: " + ex.Message);
+                var msg = "Error inesperado al calcular margen: " + ex.Message;
+                Mensajes.MensajeError(msg);
+                Logger.LogError(msg);
                 return 0;
             }
         }

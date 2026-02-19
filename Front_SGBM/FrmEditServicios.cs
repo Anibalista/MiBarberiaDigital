@@ -26,7 +26,7 @@ namespace Front_SGBM
 
         private void cerrarFormulario(object sender, EventArgs e)
         {
-            cerrando = Mensajes.confirmarCierre();
+            cerrando = Mensajes.ConfirmarCierre();
             if (!cerrando)
                 return;
             try
@@ -76,7 +76,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error: " + ex.Message);
+                Mensajes.MensajeError("Error: " + ex.Message);
                 return;
             }
         }
@@ -107,12 +107,12 @@ namespace Front_SGBM
             {
                 cbCategoria.SelectedValue = _servicio.IdCategoria;
                 if (cbCategoria.SelectedIndex == -1)
-                    Mensajes.mensajeAdvertencia("Problema al seleccionar la categoría");
+                    Mensajes.MensajeAdvertencia("Problema al seleccionar la categoría");
                 
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error: " + ex.Message);
+                Mensajes.MensajeError("Error: " + ex.Message);
                 return;
             }
         }
@@ -397,12 +397,12 @@ namespace Front_SGBM
         {
             if (_costoServicio == null || _costos == null)
             {
-                Mensajes.mensajeError("Seleccione un costo a modificar");
+                Mensajes.MensajeError("Seleccione un costo a modificar");
                 return;
             }
             if (_costoServicio.IdCostoServicio == null)
             {
-                Mensajes.mensajeError("Problemas con e ID del costo a modificar");
+                Mensajes.MensajeError("Problemas con e ID del costo a modificar");
                 return;
             }
             cargando = true;
@@ -411,13 +411,13 @@ namespace Front_SGBM
                 string mensaje = string.Empty;
                 if (!armarCostoServicio(ref mensaje))
                 {
-                    Mensajes.mensajeError(mensaje);
+                    Mensajes.MensajeError(mensaje);
                     return;
                 }
                 int indice = _costos.FindIndex(c => c.IdCostoServicio == _costoServicio.IdCostoServicio);
                 if (indice < 0)
                 {
-                    Mensajes.mensajeError("No se encuentra el Costo a modificar");
+                    Mensajes.MensajeError("No se encuentra el Costo a modificar");
                     return;
                 }
                 _costos[indice] = _costoServicio;
@@ -429,7 +429,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error al cargar el insumo-resultado:\n" + ex.Message);
+                Mensajes.MensajeError("Error al cargar el insumo-resultado:\n" + ex.Message);
             }
             finally
             {
@@ -441,12 +441,12 @@ namespace Front_SGBM
         {
             if (_costoServicio == null || _costos == null)
             {
-                Mensajes.mensajeError("Seleccione un costo a modificar");
+                Mensajes.MensajeError("Seleccione un costo a modificar");
                 return;
             }
             if (_costoServicio.IdCostoServicio == null)
             {
-                Mensajes.mensajeError("Problemas con e ID del costo a modificar");
+                Mensajes.MensajeError("Problemas con e ID del costo a modificar");
                 return;
             }
             cargando = true;
@@ -457,10 +457,10 @@ namespace Front_SGBM
                 int indice = _costos.FindIndex(c => c.IdCostoServicio == _costoServicio.IdCostoServicio);
                 if (indice < 0)
                 {
-                    Mensajes.mensajeError("No se encuentra el Costo a eliminar");
+                    Mensajes.MensajeError("No se encuentra el Costo a eliminar");
                     return;
                 }
-                DialogResult respuesta = Mensajes.respuesta("¿Confirma eliminar el costo?\nEsta acción no se puede deshacer");
+                DialogResult respuesta = Mensajes.Respuesta("¿Confirma eliminar el costo?\nEsta acción no se puede deshacer");
                 if (respuesta == DialogResult.No)
                     return;
                 _costos.RemoveAt(indice);
@@ -472,7 +472,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error al cargar el insumo-resultado:\n" + ex.Message);
+                Mensajes.MensajeError("Error al cargar el insumo-resultado:\n" + ex.Message);
             }
             finally
             {
@@ -495,7 +495,7 @@ namespace Front_SGBM
         private void btnGuardar_Click(object sender, EventArgs e)
         {
             string accion = modo == EnumModoForm.Alta ? "RegistrarCosto" : "ModificarCosto";
-            DialogResult respuesta = Mensajes.respuesta($"¿Confirma que desea {accion} el servicio?");
+            DialogResult respuesta = Mensajes.Respuesta($"¿Confirma que desea {accion} el servicio?");
             if (respuesta == DialogResult.No)
                 return;
 
@@ -505,14 +505,14 @@ namespace Front_SGBM
                 //Valido que los campos son correctos
                 if (!validarServicio(ref mensaje))
                 {
-                    Mensajes.mensajeError("Error:" + mensaje);
+                    Mensajes.MensajeError("Error:" + mensaje);
                     return;
                 }
                 if (modo == EnumModoForm.Alta)
                 {
                     if (!ServiciosNegocio.Registrar(_servicio, _costos, ref mensaje))
                     {
-                        Mensajes.mensajeError("Error" + mensaje);
+                        Mensajes.MensajeError("Error" + mensaje);
                         return;
                     }
                 }
@@ -521,15 +521,15 @@ namespace Front_SGBM
                     string mensajeCostos = string.Empty;
                     if (!ServiciosNegocio.Modificar(_servicio, ref mensaje))
                     {
-                        Mensajes.mensajeError("Error" + mensaje);
+                        Mensajes.MensajeError("Error" + mensaje);
                         return;
                     } else if (!CostosNegocio.GestionarCostosServicios(_costos, (int)_servicio.IdServicio, ref mensajeCostos))
                     {
-                        Mensajes.mensajeAdvertencia(mensaje + mensajeCostos);
+                        Mensajes.MensajeAdvertencia(mensaje + mensajeCostos);
                         mensaje = string.Empty;
                     }
                 }
-                DialogResult seguir = Mensajes.respuesta(mensaje + "\n¿Desea registrar un nuevo servicio?");
+                DialogResult seguir = Mensajes.Respuesta(mensaje + "\n¿Desea registrar un nuevo servicio?");
                 if (seguir == DialogResult.Yes)
                 {
                     limpiarCampos();
@@ -546,7 +546,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError($"Error al {accion} el servicio:\n{ex.Message}");
+                Mensajes.MensajeError($"Error al {accion} el servicio:\n{ex.Message}");
                 return;
             }
         }
@@ -720,13 +720,13 @@ namespace Front_SGBM
                     _costoServicio.IdProducto = _productoSeleccionado.IdProducto;
                 } else
                 {
-                    Mensajes.mensajeError(error);
+                    Mensajes.MensajeError(error);
                     return;
                 }
             } 
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error inesperado\n" + ex.Message);
+                Mensajes.MensajeError("Error inesperado\n" + ex.Message);
                 return;
             }
             
@@ -973,7 +973,7 @@ namespace Front_SGBM
                 _costoServicio = new();
             if (_costoServicio.IdCostoServicio != null)
             {
-                Mensajes.mensajeError("No puede volver a agregar un Costo existente, presione modificar");
+                Mensajes.MensajeError("No puede volver a agregar un Costo existente, presione modificar");
                 return;
             }
             try
@@ -981,7 +981,7 @@ namespace Front_SGBM
                 string mensaje = string.Empty;
                 if (!armarCostoServicio(ref mensaje))
                 {
-                    Mensajes.mensajeError(mensaje);
+                    Mensajes.MensajeError(mensaje);
                     return;
                 }
                 
@@ -1003,7 +1003,7 @@ namespace Front_SGBM
             }
             catch (Exception ex)
             {
-                Mensajes.mensajeError("Error al cargar el insumo-resultado:\n" + ex.Message);
+                Mensajes.MensajeError("Error al cargar el insumo-resultado:\n" + ex.Message);
             } finally
             {
                 cargando = false;

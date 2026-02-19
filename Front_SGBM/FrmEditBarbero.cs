@@ -170,7 +170,7 @@ namespace Front_SGBM
                     _estados = new List<Estados> { new Estados { Indole = "Empleados", Estado = "Activo", IdEstado = 0 } };
 
                     // Se muestra el mensaje de error al usuario
-                    Mensajes.mensajeError(mensaje);
+                    Mensajes.MensajeError(mensaje);
 
                     // Se corta la ejecución para evitar continuar con datos inválidos
                     return;
@@ -578,7 +578,7 @@ namespace Front_SGBM
             // Si hay mensaje de error, se muestra y se detiene
             if (!String.IsNullOrWhiteSpace(mensaje))
             {
-                Mensajes.mensajeError($"Error: {mensaje}");
+                Mensajes.MensajeError($"Error: {mensaje}");
                 return;
             }
 
@@ -613,12 +613,12 @@ namespace Front_SGBM
             // Si la operación falló, muestra el error y corta el flujo.
             if (!exito)
             {
-                Mensajes.mensajeError(mensaje);
+                Mensajes.MensajeError(mensaje);
                 return;
             }
 
             // Si fue exitosa, pregunta si el usuario quiere registrar otro barbero.
-            DialogResult respuesta = Mensajes.respuesta(mensaje + "\n¿Desea registrar un nuevo Barbero?");
+            DialogResult respuesta = Mensajes.Respuesta(mensaje + "\n¿Desea registrar un nuevo Barbero?");
             if (respuesta == DialogResult.Yes)
             {
                 LimpiarValores(true);
@@ -911,7 +911,7 @@ namespace Front_SGBM
                 Logger.LogError(ex.Message);
 
                 // Muestra un mensaje de error genérico al usuario
-                Mensajes.mensajeError("Error inesperado" + ex.Message);
+                Mensajes.MensajeError("Error inesperado" + ex.Message);
             }
         }
 
@@ -1375,7 +1375,7 @@ namespace Front_SGBM
         /// <returns>True si el usuario confirma la modificación; False en caso contrario.</returns>
         private bool ConfirmarModificacion(string dni, string tipoEmpleado, string nombreCompleto)
         {
-            DialogResult respuesta = Mensajes.respuesta(
+            DialogResult respuesta = Mensajes.Respuesta(
                 $"El DNI {dni} pertenece al {tipoEmpleado}\n{nombreCompleto}\n¿Desea modificar sus datos?");
             return respuesta == DialogResult.Yes;
         }
@@ -1391,7 +1391,7 @@ namespace Front_SGBM
         /// <returns>True si el usuario confirma el registro; False en caso contrario.</returns>
         private bool ConfirmarRegistroNuevo(string dni)
         {
-            DialogResult respuesta = Mensajes.respuesta(
+            DialogResult respuesta = Mensajes.Respuesta(
                 $"El DNI: {dni} no pertenece a ningún empleado\n¿Desea registrar uno nuevo?");
             return respuesta == DialogResult.Yes;
         }
@@ -1409,7 +1409,7 @@ namespace Front_SGBM
             if (editandoContactos)
             {
                 // Solicita confirmación al usuario, advirtiendo que los cambios no se guardarán
-                DialogResult respuesta = Mensajes.respuesta(
+                DialogResult respuesta = Mensajes.Respuesta(
                     "La edición de contactos está activa, si continúa no se guardarán los cambios\n¿Desea continuar igualmente?"
                 );
 
@@ -1440,14 +1440,14 @@ namespace Front_SGBM
             if (!ComprobarEmpleado(ref mensaje, modo == EnumModoForm.Alta))
             {
                 // Muestra error si la validación del empleado falla
-                Mensajes.mensajeError($"Error: {mensaje}");
+                Mensajes.MensajeError($"Error: {mensaje}");
                 return false;
             }
 
             // Verifica si la dirección fue ingresada correctamente
             if (!DireccionIngresada(ref mensaje))
                 // Muestra advertencia si la dirección no es válida, pero permite continuar
-                Mensajes.mensajeAdvertencia(mensaje);
+                Mensajes.MensajeAdvertencia(mensaje);
 
             // Asigna el domicilio a la persona así sea null 
             _persona.Domicilios = _domicilio;
@@ -1500,7 +1500,7 @@ namespace Front_SGBM
             // Valida que el empleado pueda ser cargado correctamente.
             if (!CargarEmpleado())
             {
-                Mensajes.mensajeError("Error: En el modo modificación no se puede obtener al sujeto a modificar");
+                Mensajes.MensajeError("Error: En el modo modificación no se puede obtener al sujeto a modificar");
                 Logger.LogError("Error: En el modo modificación no se puede obtener al sujeto a modificar");
                 return;
             }
@@ -1519,7 +1519,7 @@ namespace Front_SGBM
                 Logger.LogError(ex.Message);
 
                 // Muestra un mensaje de error al usuario.
-                Mensajes.mensajeError("Error al cargar los datos del empleado\n" + ex.Message);
+                Mensajes.MensajeError("Error al cargar los datos del empleado\n" + ex.Message);
             }
         }
 
@@ -1611,7 +1611,7 @@ namespace Front_SGBM
         private void CerrarFormulario()
         {
             // Solicita confirmación antes de cerrar
-            if (!Mensajes.confirmarCierre())
+            if (!Mensajes.ConfirmarCierre())
                 return;
 
             // Marca el estado de cierre y cierra el formulario
@@ -1633,13 +1633,13 @@ namespace Front_SGBM
             {
                 if (_barbero?.Personas != null)
                 {
-                    Mensajes.mensajeExito($"El DNI: {txtDni.Text} ya es un cliente registrado. Cargando datos");
+                    Mensajes.MensajeExito($"El DNI: {txtDni.Text} ya es un cliente registrado. Cargando datos");
                     PrepararModificacion();
                     return;
                 }
 
                 // Si el DNI está libre, se habilita el registro
-                Mensajes.mensajeExito($"El DNI: {txtDni.Text} está libre para utilizar. Habilitando registro");
+                Mensajes.MensajeExito($"El DNI: {txtDni.Text} está libre para utilizar. Habilitando registro");
                 ActivarCamposEditables(true);
                 LimpiarValores(true);
                 return;
