@@ -1,6 +1,7 @@
 ﻿using Entidades_SGBM;
 using Negocio_SGBM;
 using OfficeOpenXml;
+using Utilidades;
 
 namespace Front_SGBM
 {
@@ -32,14 +33,20 @@ namespace Front_SGBM
         private static readonly HashSet<string> codigosArea = new() { "3446", "3447", "3442", "3445", "3444" };
 
 
+        /// <summary>
+        /// Constructor: inicializa la ruta del archivo XLSX a importar.
+        /// </summary>
         public ImportarClientes()
         {
             _ruta = ArchivosOfficce.SeleccionarArchivoXLSX();
-            hayArchivo = !String.IsNullOrEmpty(_ruta);
+            hayArchivo = !string.IsNullOrEmpty(_ruta);
             observaciones = "";
         }
 
-        private void vaciarCampos()
+        /// <summary>
+        /// Vacía los campos internos antes de procesar una nueva fila del Excel.
+        /// </summary>
+        private void VaciarCampos()
         {
             _dni = string.Empty;
             _apellido = string.Empty;
@@ -54,210 +61,241 @@ namespace Front_SGBM
             _persona = null;
         }
 
-        private void localidadOk(ref string mensaje)
+        /// <summary>
+        /// Convierte un string en fecha válida, o null si es inválida.
+        /// </summary>
+        private DateTime? ParseFecha(string fechaStr)
         {
-            _localidad = DomiciliosNegocio.GetLocalidadGenerica(_localidad, ref mensaje);
-            if (_localidad == null)
-            {
-                _localidadOk = false;
-                return;
-            }
-            _localidadOk = _localidad.IdLocalidad != null;
+            if (DateTime.TryParse(fechaStr, out DateTime fecha) && fecha.Year > 1900)
+                return fecha;
+
+            return null;
         }
 
-        private bool domicilioCorrecto()
+        /// <summary>
+        /// Construye un domicilio válido a partir de la dirección y localidad.
+        /// </summary>
+        private bool DomicilioCorrecto()
         {
             if (string.IsNullOrWhiteSpace(_direccion))
             {
                 _domicilio = null;
                 return false;
             }
-            if (!_localidadOk)
-            {
-                return false;
-            }
-            _domicilio = new();
+            if (!_localidadOk) return false;
+
+            _domicilio = new Domicilios();
             string[] partes = _direccion.Split(' ');
             _domicilio.Calle = string.Join(" ", partes.Take(partes.Length - 1));
             _domicilio.Altura = partes.Last();
+
             if (_localidad.IdLocalidad == null)
-            {
                 _domicilio.Localidades = _localidad;
-            } else
-            {
-                _domicilio.IdLocalidad = (int) _localidad.IdLocalidad;
-            }
-            
+            else
+                _domicilio.IdLocalidad = (int)_localidad.IdLocalidad;
+
             return true;
-            
         }
 
-        private DateTime? ParseFecha(string fechaStr)
+        /// <summary>
+        /// Valida y obtiene la localidad genérica para el cliente.
+        /// Devuelve un <see cref="Resultado{T}"/> con true si la localidad es válida,
+        /// o con el mensaje de error en caso contrario.
+        /// </summary>
+        private Resultado<bool> LocalidadOk()
         {
-            if (DateTime.TryParse(fechaStr, out DateTime fecha) && fecha.Year > 1900)
+            try
             {
-                return fecha;
+                var resultado = DomiciliosNegocio.GetLocalidadGenerica(_localidad);
+
+                if (!resultado.Success || resultado.Data == null)
+                {
+                    _localidadOk = false;
+                    return Resultado<bool>.Fail(resultado.Mensaje);
+                }
+
+                _localidad = resultado.Data;
+                _localidadOk = _localidad.IdLocalidad != null;
+
+                return Resultado<bool>.Ok(_localidadOk, "Localidad validada correctamente.");
             }
-            return null; // Si es inválida, asigna null
+            catch (Exception ex)
+            {
+                var msg = $"Error inesperado al validar localidad:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                _localidadOk = false;
+                return Resultado<bool>.Fail(msg);
+            }
         }
 
-        //Importar los clientes
-        private int ProcesarExcel(ref string mensaje)
+        /// <summary>
+        /// Procesa el archivo Excel y genera clientes a partir de sus filas.
+        /// Devuelve un <see cref="Resultado{T}"/> con la cantidad de clientes importados exitosamente,
+        /// junto con un mensaje detallado de observaciones.
+        /// </summary>
+        public Resultado<int> ProcesarExcel()
         {
-            int exitosos = 0;
-            int fracasos = 0;
-            int contador = 0;
-            localidadOk(ref mensaje);
+            int exitosos = 0, fracasos = 0, contador = 0;
+
+            // Validar localidad antes de procesar
+            var resultadoLocalidad = LocalidadOk();
+            if (!resultadoLocalidad.Success)
+                return Resultado<int>.Fail(resultadoLocalidad.Mensaje);
+
             string desarrollo = "Observaciones:";
+
             FileInfo archivo;
             try
             {
                 archivo = new FileInfo(_ruta);
-            } catch (Exception ex)
-            {
-                mensaje = "Error :" + ex.Message;
-                return 0;
             }
-            
-            // Establecer el contexto de licencia correctamente en EPPlus 7+
+            catch (Exception ex)
+            {
+                return Resultado<int>.Fail("Error al abrir archivo: " + ex.Message);
+            }
+
+            // EPPlus requiere establecer licencia en versiones 7+
             ExcelPackage.License.SetNonCommercialPersonal("Anibal");
 
-            using (ExcelPackage package = new ExcelPackage(archivo))
+            try
             {
-                ExcelWorksheet hoja = package.Workbook.Worksheets[0];
-
-                for (int fila = 2; fila <= hoja.Dimension.Rows; fila++)
+                using (ExcelPackage package = new ExcelPackage(archivo))
                 {
-                    vaciarCampos();
-                    contador++;
-                    string mensajeInterno = "";
-                    _apellido = hoja.Cells[fila, 1].Text.Trim();
-                    _nombre = hoja.Cells[fila, 2].Text.Trim();
-                    _dni = hoja.Cells[fila, 3].Text.Trim();
-                    _direccion = hoja.Cells[fila, 4].Text.Trim();
-                    _email = hoja.Cells[fila, 5].Text.Trim();
-                    _fijo = hoja.Cells[fila, 6].Text.Trim();
-                    _whatsapp = hoja.Cells[fila, 7].Text.Trim();
-                    _nacimiento = ParseFecha(hoja.Cells[fila, 8].Text.Trim());
+                    ExcelWorksheet hoja = package.Workbook.Worksheets[0];
 
-                    if (_apellido == "apellido")
+                    for (int fila = 2; fila <= hoja.Dimension.Rows; fila++)
                     {
-                        contador--;
-                        continue;
-                    }
-                    if (!armarCliente())
-                    {
-                        mensajeInterno = $"No fue posible interactuar con el cliente {_apellido} {_nombre}";
-                        fracasos++;
-                        continue;
-                    }
-                    if (!importarCliente(ref mensajeInterno))
-                    {
-                        mensajeInterno = $"No fue posible interactuar con el cliente n° {contador}";
-                        fracasos++;
-                    } else
-                    {
-                        exitosos++;
-                    }
-                    if (!String.IsNullOrWhiteSpace(mensajeInterno))
-                    {
-                        desarrollo += $"\n{mensajeInterno}";
+                        VaciarCampos();
+                        contador++;
+
+                        _apellido = hoja.Cells[fila, 1].Text.Trim();
+                        _nombre = hoja.Cells[fila, 2].Text.Trim();
+                        _dni = hoja.Cells[fila, 3].Text.Trim();
+                        _direccion = hoja.Cells[fila, 4].Text.Trim();
+                        _email = hoja.Cells[fila, 5].Text.Trim();
+                        _fijo = hoja.Cells[fila, 6].Text.Trim();
+                        _whatsapp = hoja.Cells[fila, 7].Text.Trim();
+                        _nacimiento = ParseFecha(hoja.Cells[fila, 8].Text.Trim());
+
+                        // Saltar encabezado
+                        if (_apellido == "apellido")
+                        {
+                            contador--;
+                            continue;
+                        }
+
+                        // Construir cliente
+                        if (!ArmarCliente())
+                        {
+                            desarrollo += $"\nNo fue posible armar cliente {_apellido} {_nombre}";
+                            fracasos++;
+                            continue;
+                        }
+
+                        // Importar cliente
+                        var resultadoImportar = ImportarCliente();
+                        if (!resultadoImportar.Success)
+                        {
+                            desarrollo += $"\n{resultadoImportar.Mensaje}";
+                            fracasos++;
+                        }
+                        else
+                        {
+                            exitosos++;
+                        }
                     }
                 }
+
+                string mensajeFinal = $"Se procesaron {contador} líneas del archivo \nExitosos: {exitosos} | Fracasos: {fracasos}\n{desarrollo}";
+                return Resultado<int>.Ok(exitosos, mensajeFinal);
             }
-            mensaje = $"Se procesaron {contador} lineas del archivo \nExitosos: {exitosos} | Fracasos: {fracasos}\n{mensaje}\n{desarrollo}";
-            return exitosos;
+            catch (Exception ex)
+            {
+                var msg = $"Error inesperado al procesar Excel:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<int>.Fail(msg);
+            }
         }
 
-        private bool armarCliente()
+        /// <summary>
+        /// Construye la entidad Cliente y Persona a partir de los datos cargados.
+        /// </summary>
+        private bool ArmarCliente()
         {
-            if (String.IsNullOrWhiteSpace(_dni))
-            {
-                return false;
-            }            
+            if (string.IsNullOrWhiteSpace(_dni)) return false;
+
             _cliente = new Clientes();
-            _persona = new Personas();
-            _persona.Dni = _dni;
-            _persona.Nombres = _nombre;
-            _persona.Apellidos = _apellido;
-            _persona.FechaNac = _nacimiento;
+            _persona = new Personas
+            {
+                Dni = _dni,
+                Nombres = _nombre,
+                Apellidos = _apellido,
+                FechaNac = _nacimiento
+            };
             _cliente.Personas = _persona;
-            if (domicilioCorrecto())
+
+            if (DomicilioCorrecto())
             {
                 _cliente.Personas.IdDomicilio = _domicilio?.IdDomicilio;
                 _cliente.Personas.Domicilios = _domicilio;
             }
-            armarContacto();
+
+            ArmarContacto();
             return true;
         }
 
-        private void armarContacto()
+        /// <summary>
+        /// Construye el contacto asociado al cliente si hay datos disponibles.
+        /// </summary>
+        private void ArmarContacto()
         {
-            if (String.IsNullOrWhiteSpace(_fijo) && String.IsNullOrWhiteSpace(_whatsapp) && String.IsNullOrWhiteSpace(_email))
-            {
+            if (string.IsNullOrWhiteSpace(_fijo) && string.IsNullOrWhiteSpace(_whatsapp) && string.IsNullOrWhiteSpace(_email))
                 return;
-            }
-            _contacto = new Contactos();
-            _contacto.Telefono = procesarFijo();
-            _contacto.Whatsapp = procesarWhatsapp();
-            _contacto.ExtranjeroWhatsapp = _contacto.Whatsapp != null ? _extranjeroWhatsapp : false;
-            _contacto.Email = _email;
+
+            _contacto = new Contactos
+            {
+                Telefono = ProcesarFijo(),
+                Whatsapp = ProcesarWhatsapp(),
+                ExtranjeroWhatsapp = _contacto?.Whatsapp != null ? _extranjeroWhatsapp : false,
+                Email = _email
+            };
         }
 
-        private string? procesarWhatsapp()
+        /// <summary>
+        /// Procesa y normaliza el número de WhatsApp.
+        /// </summary>
+        private string? ProcesarWhatsapp()
         {
-            if (string.IsNullOrWhiteSpace(_whatsapp))
-            {
-                return null;
-            }
-            // Si empieza con "540", reemplazar por "549"
+            if (string.IsNullOrWhiteSpace(_whatsapp)) return null;
+
             if (_whatsapp.StartsWith("540"))
-            {
                 _whatsapp = "549" + _whatsapp.Substring(3);
-            }
 
-            // Si empieza con "5490", reemplazar por "549"
             if (_whatsapp.StartsWith("5490"))
-            {
                 _whatsapp = "549" + _whatsapp.Substring(4);
-            }
 
-            // Si empieza con "54" sin el 9, se lo agrega
             if (_whatsapp.StartsWith("54") && !_whatsapp.StartsWith("549"))
-            {
                 _whatsapp = _whatsapp.Insert(2, "9");
-            }
 
-            if (_whatsapp.Length < 7)
-            {
-                return null;
-            }
+            if (_whatsapp.Length < 7) return null;
 
             string area = _whatsapp.Substring(0, 4);
             if (codigosArea.Contains(area))
-            {
                 _whatsapp = "549" + _whatsapp;
-            }
 
-            // Si empieza con "549", insertar un guion después de los primeros 6 caracteres
             if (_whatsapp.StartsWith("549"))
             {
                 _extranjeroWhatsapp = false;
-                area = _whatsapp.Substring(3, 4); // Extraer los siguientes 4 dígitos
+                area = _whatsapp.Substring(3, 4);
+
                 if (_whatsapp.StartsWith("54911"))
-                {
                     _whatsapp = _whatsapp.Insert(5, "-");
-                }
                 else if (codigosArea.Contains(area))
-                {
-                    _whatsapp = _whatsapp.Insert(7, "-"); // Separar código de área con guion
-                }
+                    _whatsapp = _whatsapp.Insert(7, "-");
                 else
-                {
-                    _whatsapp = _whatsapp.Insert(6, "-"); // Para otros números, guion después de los primeros 6
-                } 
-                
-            } else
+                    _whatsapp = _whatsapp.Insert(6, "-");
+            }
+            else
             {
                 _whatsapp = _whatsapp.Insert(3, "-");
             }
@@ -265,58 +303,85 @@ namespace Front_SGBM
             return _whatsapp;
         }
 
-        private string? procesarFijo()
+        /// <summary>
+        /// Procesa y normaliza el número de teléfono fijo.
+        /// </summary>
+        private string? ProcesarFijo()
         {
-            if (string.IsNullOrWhiteSpace(_fijo))
-            {
-                return null;
-            }
-            //Si no tiene un largo suficiente no lo registra
-            if (_fijo.Length < 7)
-            {
-                return null;
-            }
-            // Si empieza con "0", se lo quita
-            if (_fijo.StartsWith("0"))
-            {
-                _fijo = _fijo.Substring(1);
-            }
+            if (string.IsNullOrWhiteSpace(_fijo)) return null;
+            if (_fijo.Length < 7) return null;
 
-            // Manejo especial para el código de área 11 (Buenos Aires)
+            if (_fijo.StartsWith("0"))
+                _fijo = _fijo.Substring(1);
+
             if (_fijo.StartsWith("11"))
-            {
                 _fijo = _fijo.Insert(2, "-");
-            }
-            // Si los primeros 4 caracteres son un código de área conocido, se coloca el guion después de 4 dígitos
             else if (codigosArea.Contains(_fijo.Substring(0, 4)))
-            {
                 _fijo = _fijo.Insert(4, "-");
-            }
-            // Para otros números, se coloca el guion después de los primeros 3 dígitos
             else
-            {
                 _fijo = _fijo.Insert(3, "-");
-            }
 
             return _fijo;
-
         }
 
-        private bool importarCliente(ref string mensaje)
+        /// <summary>
+        /// Importa un cliente usando la capa negocio.
+        /// Devuelve un <see cref="Resultado{T}"/> con true si la importación fue exitosa,
+        /// o con el mensaje de error en caso contrario.
+        /// </summary>
+        private Resultado<bool> ImportarCliente()
         {
-            return ClientesNegocio.ImportarCliente(_cliente, _contacto, ref mensaje);
-        }
+            if (_cliente == null)
+                return Resultado<bool>.Fail("No se pudo construir la entidad Cliente para importar.");
 
-        public bool importarArchivoClientes()
-        {
-            string mensaje = "";
-            bool exito = false;
-            if (ProcesarExcel(ref mensaje) > 0)
+            try
             {
-                exito = true;
+                var resultado = ClientesNegocio.ImportarCliente(_cliente, _contacto);
+                if (!resultado.Success)
+                    return Resultado<bool>.Fail(resultado.Mensaje);
+
+                return Resultado<bool>.Ok(true, "Cliente importado correctamente.");
             }
-            observaciones = mensaje;
-            return exito;
+            catch (Exception ex)
+            {
+                var msg = $"Error inesperado al importar cliente:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<bool>.Fail(msg);
+            }
+        }
+
+        /// <summary>
+        /// Ejecuta la importación de clientes desde archivo Excel.
+        /// Devuelve un <see cref="Resultado{T}"/> con true si la importación fue exitosa,
+        /// junto con las observaciones generadas durante el proceso.
+        /// </summary>
+        public Resultado<bool> ImportarArchivoClientes()
+        {
+            try
+            {
+                var resultado = ProcesarExcel();
+
+                if (!resultado.Success)
+                {
+                    observaciones = resultado.Mensaje;
+                    return Resultado<bool>.Fail(resultado.Mensaje);
+                }
+
+                observaciones = resultado.Mensaje;
+                bool exito = resultado.Data > 0;
+
+                if (!exito)
+                    return Resultado<bool>.Fail("No se pudo importar ningún cliente.\n" + observaciones);
+
+                return Resultado<bool>.Ok(true, observaciones);
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error inesperado al importar archivo de clientes:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                observaciones = msg;
+                return Resultado<bool>.Fail(msg);
+            }
         }
     }
 }

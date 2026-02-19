@@ -1,5 +1,6 @@
 ﻿using Entidades_SGBM;
 using Negocio_SGBM;
+using Utilidades;
 
 namespace Front_SGBM
 {
@@ -21,113 +22,125 @@ namespace Front_SGBM
         Localidades? _localidadBuscada = null;
         private bool incluirAnulados = false;
 
+        /// <summary>
+        /// Inicializa el formulario ABM de Clientes.
+        /// </summary>
         public FrmAbmClientes()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Evento de carga del formulario: inicializa controles y dispara búsqueda inicial.
+        /// </summary>
         private void FrmAbmClientes_Load(object sender, EventArgs e)
         {
-            cargarFormulario();
+            CargarFormulario();
             btnBuscar_Click(sender, e);
-            btnSeleccionar.Text = modo == EnumModoForm.Venta ? "Seleccionar" : "ModificarCosto Cliente";
+            btnSeleccionar.Text = modo == EnumModoForm.Venta ? "Seleccionar" : "Modificar Cliente";
         }
 
-        private void cargarFormulario()
+        /// <summary>
+        /// Carga las opciones de búsqueda en el combo correspondiente.
+        /// </summary>
+        private void CargarFormulario()
         {
             cbBusqueda.Items.Clear();
             cbBusqueda.DataSource = opcionesBuscar;
             cbBusqueda.SelectedIndex = 0;
         }
 
-        private void buscarLocalidades()
+        /// <summary>
+        /// Carga las localidades disponibles en el combo de localidades.
+        /// </summary>
+        private void BuscarLocalidades()
         {
-            if (cerrando)
-            {
-                return;
-            }
-            Localidades localidadCero = new();
-            localidadCero.Localidad = "Seleccionar";
-            List<Localidades>? localidades = new List<Localidades>();
-            localidades.Add(localidadCero);
-            string error = string.Empty;
-            _localidades = DomiciliosNegocio.GetLocalidades(ref error);
-            if (_localidades != null)
-            {
-                localidades.AddRange(_localidades);
-            }
+            if (cerrando) return;
+
+            var localidadCero = new Localidades { Localidad = "Seleccionar" };
+            var localidades = new List<Localidades> { localidadCero };
+
+            var resultado = DomiciliosNegocio.GetLocalidades();
+            if (resultado.Success && resultado.Data != null)
+                localidades.AddRange(resultado.Data);
+
             bindingLocalidades.Clear();
             bindingLocalidades.DataSource = localidades;
+
             try
             {
                 cbLocalidad.SelectedIndex = 0;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message + error);
+                Logger.LogError($"Error al seleccionar localidad: {ex.Message}");
             }
         }
 
-        private void cambiarNombresCampos(string lbl1, string lbl2, bool localidad)
+        /// <summary>
+        /// Cambia los nombres de los labels de búsqueda y visibilidad de localidad.
+        /// </summary>
+        private void CambiarNombresCampos(string lbl1, string lbl2, bool localidad)
         {
             labelCampo1.Text = lbl1;
             labelCampo2.Text = lbl2;
             cbLocalidad.Visible = localidad;
             labelLocalidad.Visible = localidad;
         }
-        //Comprobaciones
-       
-        private void actualizarGrillaClientes()
+
+        /// <summary>
+        /// Actualiza la grilla de clientes con las personas extraídas de la lista de clientes.
+        /// </summary>
+        private void ActualizarGrillaClientes()
         {
-            if (cerrando)
-            {
-                return;
-            }
+            if (cerrando) return;
+
             bindingClientes.Clear();
-            extraerPersonas();
-            List<Personas> personas = _personas ?? new();
+            ExtraerPersonas();
+
+            var personas = _personas ?? new List<Personas>();
             bindingClientes.DataSource = personas;
             dataGridClientes.Refresh();
-            if (personas.Count == 0)
-            {
-                return;
-            }
+
+            if (personas.Count == 0) return;
+
             for (int i = 0; i < personas.Count; i++)
             {
                 var persona = personas[i];
-
-                // Aseguramos que el índice de fila exista
                 if (i < dataGridClientes.Rows.Count)
                 {
                     var row = dataGridClientes.Rows[i];
-
-                    // Asignamos los valores de las propiedades NotMapped
                     row.Cells["Localidad"].Value = persona.Localidad ?? "";
                     row.Cells["Domicilio"].Value = persona.Direccion ?? "";
                 }
             }
         }
 
-        private void actualizarGrillaContactos()
+        /// <summary>
+        /// Actualiza la grilla de contactos asociados a la persona seleccionada.
+        /// </summary>
+        private void ActualizarGrillaContactos()
         {
-            if (cerrando)
-            {
-                return;
-            }
+            if (cerrando) return;
+
             contactosBindingSource.Clear();
             _contactos = null;
-            string error = "";
+
             if (_persona != null)
             {
-                _contactos = ContactosNegocio.getContactosPorPersona(_persona, ref error);
+                var resultado = ContactosNegocio.GetContactosPorPersona(_persona);
+                _contactos = resultado.Success ? resultado.Data : null;
             }
-            List<Contactos> contactos = _contactos ?? new();
+
+            var contactos = _contactos ?? new List<Contactos>();
             contactosBindingSource.DataSource = contactos;
             dataGridContactos.Refresh();
         }
 
-        //Métodos
-        private void limpiarValores()
+        /// <summary>
+        /// Limpia los valores de búsqueda y entidades cargadas.
+        /// </summary>
+        private void LimpiarValores()
         {
             _campo1 = string.Empty;
             _campo2 = string.Empty;
@@ -137,193 +150,218 @@ namespace Front_SGBM
             _persona = null;
         }
 
-        private void cargarValores()
+        /// <summary>
+        /// Carga los valores de búsqueda desde los controles del formulario.
+        /// </summary>
+        private void CargarValores()
         {
-            limpiarValores();
+            LimpiarValores();
             _campo1 = txtCampo1.Text;
             _campo2 = txtCampo2.Text;
+
             if (cbBusqueda.Text == "Domicilio")
             {
                 try
                 {
                     _localidadBuscada = (Localidades)bindingLocalidades.Current;
                 }
-                catch (Exception)
+                catch
                 {
                     _localidadBuscada = null;
                 }
             }
+
             if (_localidadBuscada != null && _localidadBuscada.IdLocalidad == null)
-            {
                 _localidadBuscada = null;
-            }
         }
 
-        private bool buscarClientes(ref string mensaje)
+        /// <summary>
+        /// Ejecuta la búsqueda de clientes según los criterios seleccionados.
+        /// </summary>
+        private bool BuscarClientes()
         {
-            cargarValores();
-            string opcion = cbBusqueda.Text;
+            CargarValores();
+            var opcion = cbBusqueda.Text;
             incluirAnulados = checkAnulados.Checked;
-            _clientes = ClientesNegocio.GetListadoDeClientes(opcion, _campo1, _campo2, _localidadBuscada, incluirAnulados, ref mensaje);
-            return _clientes != null;
+
+            var resultado = ClientesNegocio.GetListadoDeClientes(opcion, _campo1, _campo2, _localidadBuscada, incluirAnulados);
+            if (!resultado.Success || resultado.Data == null)
+            {
+                MessageBox.Show(resultado.Mensaje, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            _clientes = resultado.Data;
+            return true;
         }
 
-        private void extraerPersonas()
+        /// <summary>
+        /// Extrae las personas asociadas a los clientes cargados.
+        /// </summary>
+        private void ExtraerPersonas()
         {
             _personas = null;
-            if (_clientes == null)
-            {
-                return;
-            }
-            _personas = _clientes.Where(c => c.Personas != null).Select(c => c.Personas).OrderBy(p => p.Apellidos).ToList();
+            if (_clientes == null) return;
+
+            _personas = _clientes
+                .Where(c => c.Personas != null)
+                .Select(c => c.Personas)
+                .OrderBy(p => p.Apellidos)
+                .ToList();
         }
 
         //Botones
+        /// <summary>
+        /// Evento de botón Salir: marca el formulario como cerrando y lo cierra.
+        /// </summary>
         private void btnSalir_Click(object sender, EventArgs e)
         {
             cerrando = true;
             this.Close();
         }
 
+        /// <summary>
+        /// Evento de botón Buscar: ejecuta la búsqueda de clientes y actualiza la grilla.
+        /// </summary>
         private void btnBuscar_Click(object sender, EventArgs e)
         {
-            if (cerrando)
-            {
-                return;
-            }
-            string mensaje = string.Empty;
-            if (!buscarClientes(ref mensaje))
-            {
-                MessageBox.Show(mensaje, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            actualizarGrillaClientes();
+            if (cerrando) return;
+
+            var resultado = BuscarClientes();
+            if (!resultado)
+                MessageBox.Show("No se encontraron clientes o ocurrió un error en la búsqueda.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            ActualizarGrillaClientes();
         }
 
+        /// <summary>
+        /// Evento de botón Seleccionar: abre el formulario de edición de clientes desde el menú principal.
+        /// </summary>
         private void btnSeleccionar_Click(object sender, EventArgs e)
         {
             FrmMenuPrincipal padre = Application.OpenForms.OfType<FrmMenuPrincipal>().FirstOrDefault();
-            if (padre == null)
-                return;
+            if (padre == null) return;
+
             try
             {
                 if (modo != EnumModoForm.Venta)
                 {
                     padre.AbrirEditClientes(sender, e, EnumModoForm.Modificacion, _cliente);
                 }
-                ///
-                //Acá hacer el enlace a la venta
+                // TODO: Enlazar con el flujo de ventas si el modo es Venta.
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error sobre el menu principal" + ex.Message, "Error fatal", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error sobre el menú principal: " + ex.Message, "Error fatal", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
+        /// <summary>
+        /// Evento de botón Registrar: abre el formulario de alta de clientes desde el menú principal.
+        /// </summary>
         private void btnRegistrar_Click(object sender, EventArgs e)
         {
             FrmMenuPrincipal padre = Application.OpenForms.OfType<FrmMenuPrincipal>().FirstOrDefault();
-            if (padre == null)
-                return;
-            try 
+            if (padre == null) return;
+
+            try
             {
                 padre.AbrirEditClientes(sender, e, EnumModoForm.Alta);
-            } 
+            }
             catch (Exception ex)
             {
-                MessageBox.Show("Error sobre el menu principal" + ex.Message, "Error fatal", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error sobre el menú principal: " + ex.Message, "Error fatal", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
+        /// <summary>
+        /// Evento de botón Importar: ejecuta la importación de clientes desde archivo externo.
+        /// </summary>
         private void btnImportar_Click(object sender, EventArgs e)
         {
             ImportarClientes importados = new ImportarClientes();
-            if (!importados.hayArchivo)
+            if (!importados.hayArchivo) return;
+
+            var resultado = importados.ImportarArchivoClientes();
+
+            if (!resultado.Success)
             {
-                return;
-            }
-            if (!importados.importarArchivoClientes())
-            {
-                MessageBox.Show($"Error {importados.observaciones}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error: {resultado.Mensaje}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             else
             {
-                MessageBox.Show(importados.observaciones, "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(resultado.Mensaje, "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-
         }
 
+        /// <summary>
+        /// Evento de botón Exportar: pendiente de implementación.
+        /// </summary>
         private void btnExportar_Click(object sender, EventArgs e)
         {
-            ///
-            //crear
+            // TODO: Implementar exportación de clientes.
         }
 
-        //Cambios
+        /// <summary>
+        /// Evento de cambio de texto en combo de búsqueda: ajusta labels y visibilidad de localidad.
+        /// </summary>
         private void cbBusqueda_TextChanged(object sender, EventArgs e)
         {
-            if (cerrando)
-            {
-                return;
-            }
+            if (cerrando) return;
+
             string opcion = cbBusqueda.Text;
-            if (String.IsNullOrEmpty(opcion))
-            {
-                return;
-            }
+            if (string.IsNullOrEmpty(opcion)) return;
+
             if (opcion == "Dni, Nombres")
-            {
-                cambiarNombresCampos("Dni", "Nombres", false);
-            }
+                CambiarNombresCampos("Dni", "Nombres", false);
             else if (opcion == "Domicilio")
-            {
-                cambiarNombresCampos("Calle", "Barrio", true);
-            }
+                CambiarNombresCampos("Calle", "Barrio", true);
             else
-            {
-                cambiarNombresCampos("Whatsapp", "Teléfono", false);
-            }
+                CambiarNombresCampos("Whatsapp", "Teléfono", false);
         }
 
+        /// <summary>
+        /// Evento de cambio de visibilidad del combo de localidad: carga localidades si corresponde.
+        /// </summary>
         private void cbLocalidad_VisibleChanged(object sender, EventArgs e)
         {
-            if (cerrando)
-            {
-                return;
-            }
+            if (cerrando) return;
+
             if (!cbLocalidad.Visible)
             {
-                buscarLocalidades();
+                BuscarLocalidades();
                 return;
             }
             _localidades = null;
         }
 
+        /// <summary>
+        /// Evento de cambio en el binding de clientes: actualiza cliente y persona seleccionados.
+        /// </summary>
         private void bindingClientes_CurrentChanged(object sender, EventArgs e)
         {
-            if (cerrando)
-            {
-                return;
-            }
-            if (_personas == null)
-            {
-                return;
-            }
+            if (cerrando) return;
+            if (_personas == null) return;
+
             _persona = null;
             try
             {
                 _persona = (Personas)bindingClientes.Current;
-                if (_persona == null)
-                    return;
-                _cliente = null;
+                if (_persona == null) return;
+
                 _cliente = _clientes?.FirstOrDefault(c => c.IdPersona == _persona.IdPersona);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
-            actualizarGrillaContactos();
+
+            ActualizarGrillaContactos();
         }
 
+        /// <summary>
+        /// Evento de botón Consultar: abre el formulario de consulta de clientes desde el menú principal.
+        /// </summary>
         private void btnConsultar_Click(object sender, EventArgs e)
         {
             if (_persona == null)
@@ -331,6 +369,7 @@ namespace Front_SGBM
                 MessageBox.Show("Debe seleccionar un cliente para consultar", "Error", MessageBoxButtons.OK, MessageBoxIcon.Stop);
                 return;
             }
+
             FrmMenuPrincipal padre = Application.OpenForms.OfType<FrmMenuPrincipal>().FirstOrDefault();
             if (padre != null)
             {
