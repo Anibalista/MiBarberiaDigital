@@ -136,193 +136,265 @@ namespace Front_SGBM
         }
 
         /// <summary>
-        /// Carga la lista de estados para la índole "Empleados"
-        /// y asegura que siempre exista al menos un estado "Activo".
+        /// Carga la lista de estados para la índole "Empleados" gestionando la respuesta con el patrón Resultado.
         /// </summary>
         /// <remarks>
-        /// - Reinicia el binding y las referencias antes de cargar.
-        /// - Obtiene los estados desde la capa de negocio.
-        /// - Si ocurre un error o no hay estados válidos, crea uno por defecto.
-        /// - Asigna la lista al binding y delega la selección al método correspondiente.
-        /// - Configura la habilitación del combo según disponibilidad.
+        /// <para>
+        /// <b>Pasos de ejecución:</b>
+        /// <list type="number">
+        /// <item>Reinicia el binding y las referencias visuales previas.</item>
+        /// <item>Consulta los estados a la capa de negocio mediante <see cref="EstadosNegocio.getEstadosPorIndole"/>.</item>
+        /// <item><b>Fallback (Respaldo):</b> Si la consulta falla o devuelve nulo, crea un estado "Activo" por defecto, 
+        /// lo enlaza a la UI de forma segura y deshabilita la selección para prevenir inconsistencias.</item>
+        /// <item><b>Éxito:</b> Enlaza los datos reales, habilita el combo y delega la selección a <c>SeleccionarEstado</c>.</item>
+        /// </list>
+        /// </para>
         /// </remarks>
-        /// <exception cref="Exception">
-        /// Se captura cualquier excepción durante la carga y se registra en el log.
-        /// </exception>
         private void CargarEstados()
         {
-            cargando = true;     // Activa la bandera que detiene los eventos
-            string mensaje = ""; // Mensaje de error o advertencia devuelto por la capa de negocio
+            cargando = true; // Bloqueamos eventos dependientes de la carga
+
             try
             {
-                // Reinicia las referencias y el binding antes de cargar nuevos datos
+                // 1. Limpieza inicial para evitar datos residuales
                 bindingEstados.DataSource = null;
                 _estado = null;
                 _estados = null;
 
-                // Obtiene la lista de estados desde la capa de negocio
-                _estados = EstadosNegocio.getEstadosPorIndole("Empleados", ref mensaje);
+                // 2. Consulta a la capa de negocio (Patrón Resultado)
+                var resultado = EstadosNegocio.GetEstadosPorIndole("Empleados");
 
-                // Si hubo un mensaje de error o no se obtuvieron estados válidos
-                if (!String.IsNullOrWhiteSpace(mensaje) || _estados == null)
+                // 3. Evaluación de Errores o Lista Vacía
+                if (!resultado.Success || resultado.Data == null || resultado.Data.Count == 0)
                 {
-                    // Se crea una lista mínima con un estado "Activo" por defecto
-                    _estados = new List<Estados> { new Estados { Indole = "Empleados", Estado = "Activo", IdEstado = 0 } };
+                    // Creamos el estado mínimo en memoria
+                    _estados = new List<Estados>
+                    {
+                        new Estados { Indole = "Empleados", Estado = "Activo", IdEstado = 0 }
+                    };
 
-                    // Se muestra el mensaje de error al usuario
-                    Mensajes.MensajeError(mensaje);
+                    // ¡CORRECCIÓN!: Enlazamos la lista a la interfaz antes de salir
+                    bindingEstados.DataSource = _estados;
 
-                    // Se corta la ejecución para evitar continuar con datos inválidos
+                    // Deshabilitamos el combo porque es un dato ficticio de rescate
+                    cbEstados.Enabled = false;
+
+                    // Mostramos el mensaje devuelto por el servidor o uno genérico
+                    Mensajes.MensajeError(resultado.Mensaje ?? "No se encontraron estados configurados para Empleados.");
                     return;
                 }
 
-                // Asigna la lista de estados al binding para que se refleje en la UI
+                // 4. Flujo Normal (Éxito)
+                _estados = resultado.Data;
                 bindingEstados.DataSource = _estados;
 
-                // Delegar la lógica de selección al método especializado
                 SeleccionarEstado();
 
-                // Habilita el combo solo si hay estados disponibles
+                // Habilitamos el combo si hay opciones válidas
                 cbEstados.Enabled = bindingEstados.Count > 0;
             }
             catch (Exception ex)
             {
-                // Registra el error en el log para diagnóstico
-                Logger.LogError(ex.Message);
+                // Registro del error técnico en el archivo Log
+                Logger.LogError($"Error crítico en CargarEstados (Barberos): {ex.ToString()}");
 
-                // Deshabilita el combo en caso de error
+                // Degradación elegante de la UI
                 cbEstados.Enabled = false;
-                return;
+                Mensajes.MensajeError("Ocurrió un error inesperado al intentar cargar la lista de estados.");
             }
             finally
             {
-                // Desactiva la bandera que detiene los eventos
-                cargando = false;
+                cargando = false; // Liberamos los eventos
             }
         }
 
         /// <summary>
-        /// Carga la lista de provincias desde la capa de negocio y la asigna al binding.
+        /// Carga la lista de provincias utilizando el patrón Resultado y la asigna al binding de la interfaz.
         /// </summary>
         /// <remarks>
-        /// - Reinicia el binding y las referencias antes de cargar.
-        /// - Obtiene las provincias desde <c>DomiciliosNegocio</c>.
-        /// - Si no se obtienen provincias, inicializa una lista vacía.
-        /// - Asigna la provincia correspondiente a la localidad actual si existe.
-        /// - Configura la selección del combo de provincias.
+        /// <para>
+        /// <b>Pasos de ejecución:</b>
+        /// <list type="number">
+        /// <item>Bloquea eventos de la UI activando la bandera <c>cargando</c>.</item>
+        /// <item>Limpia los orígenes de datos previos para evitar inconsistencias visuales.</item>
+        /// <item>Consulta las provincias a la capa de negocio mediante <see cref="DomiciliosNegocio.GetProvincias"/>.</item>
+        /// <item><b>Fallback:</b> Si falla la consulta o no hay datos, crea una lista de rescate con "Entre Ríos" por defecto.</item>
+        /// <item>Si el barbero (empleado) ya tiene una localidad asignada en memoria, pre-selecciona la provincia correspondiente.</item>
+        /// </list>
+        /// </para>
         /// </remarks>
-        /// <exception cref="Exception">
-        /// Se captura cualquier excepción durante la carga y se registra en el log.
-        /// </exception>
         private void CargarProvincias()
         {
-            cargando = true; // Flag para indicar que se está cargando información
-
-            // Reinicia binding y referencias
-            bindingProvincias.DataSource = null;
-            _provincias = null;
-            _provincia = null;
+            cargando = true; // Flag para evitar que los eventos SelectedIndexChanged se disparen prematuramente
 
             try
             {
-                // Obtiene la lista de provincias o inicializa una nueva si es null con Entre Ríos como genérica
-                _provincias = DomiciliosNegocio.GetProvincias()
-                    ?? new List<Provincias> { new Provincias { Provincia = "Entre Ríos" } };
+                // 1. Reinicio de bindings y variables de estado
+                bindingProvincias.DataSource = null;
+                _provincias = null;
+                _provincia = null;
 
-                // Asigna la lista al binding
+                // 2. Llamada a la capa de negocio (Patrón Resultado<T>)
+                var resultado = DomiciliosNegocio.GetProvincias();
+
+                // 3. Manejo del resultado y Fallback (Respaldo)
+                if (!resultado.Success || resultado.Data == null || resultado.Data.Count == 0)
+                {
+                    // Fallback de seguridad: Creamos "Entre Ríos" como genérico para que la UI no explote.
+                    // Es buena práctica asignarle un ID (ej: 0) para que el SelectedValue del ComboBox no falle.
+                    _provincias = new List<Provincias>
+                    {
+                        new Provincias { Provincia = "Entre Ríos", IdProvincia = 0 }
+                    };
+
+                    // Informamos al usuario si la falla vino acompañada de un mensaje del servidor
+                    if (!resultado.Success)
+                    {
+                        Mensajes.MensajeError(resultado.Mensaje ?? "No se pudieron cargar las provincias desde la base de datos.");
+                    }
+                }
+                else
+                {
+                    // Éxito: asignamos los datos reales provenientes de la BD
+                    _provincias = resultado.Data;
+                }
+
+                // 4. Enlace a la interfaz
                 bindingProvincias.DataSource = _provincias;
 
-                // Si existe una localidad, intenta recuperar su provincia
+                // 5. Pre-selección de provincia (Si estamos editando un barbero que ya tiene localidad)
                 if (_localidad != null)
                 {
                     _provincia = _provincias.FirstOrDefault(p => p.IdProvincia == _localidad.IdProvincia);
                 }
 
-                // Configura la selección del combo según la provincia encontrada
+                // 6. Configuración visual del ComboBox
                 if (_provincia != null)
+                {
                     cbProvincia.SelectedValue = _provincia.IdProvincia;
+                }
                 else
+                {
+                    // Deja el combo en blanco si no hay coincidencia, obligando al usuario a elegir
                     cbProvincia.SelectedIndex = -1;
+                }
             }
             catch (Exception ex)
             {
-                // Registra el error en el log
-                Logger.LogError(ex.Message);
+                // Registro del error completo en el log para diagnóstico posterior
+                Logger.LogError($"Error crítico en CargarProvincias (Barberos): {ex.ToString()}");
+                Mensajes.MensajeError("Ocurrió un error inesperado al intentar inicializar las provincias.");
             }
             finally
             {
-                cargando = false; //Se desactiva la bandera para que los eventos sigan su ejecución
+                cargando = false; // Reactiva los eventos de UI
             }
         }
 
         /// <summary>
-        /// Carga las localidades correspondientes a la provincia seleccionada
-        /// y las asigna al binding del combo de localidades.
+        /// Carga las localidades correspondientes a la provincia seleccionada utilizando el patrón Resultado.
         /// </summary>
         /// <remarks>
-        /// - Reinicia el binding y la lista de localidades antes de cargar.
-        /// - Si no hay provincias cargadas, finaliza inmediatamente.
-        /// - Obtiene la provincia seleccionada en el combo.
-        /// - Si la provincia es válida, carga sus localidades desde la capa de negocio.
-        /// - Asigna la lista de localidades al binding.
-        /// - Configura la selección del combo de localidades según la localidad actual.
-        /// - Maneja errores registrándolos en el log y asegura que el flag <c>cargando</c> se libere.
+        /// <para>
+        /// <b>Flujo de ejecución:</b>
+        /// <list type="number">
+        /// <item>Limpia el origen de datos de localidades y bloquea los eventos visuales.</item>
+        /// <item>Valida que haya una provincia válida seleccionada o escrita en el combo.</item>
+        /// <item>Consulta las localidades a la capa de negocio mediante <see cref="DomiciliosNegocio.GetLocalidadesPorProvincia"/>.</item>
+        /// <item>Evalúa el <c>Resultado</c>: Si falla, inicializa una lista vacía y notifica el error. Si tiene éxito, enlaza los datos reales.</item>
+        /// <item>Pre-selecciona la localidad en memoria (si se está editando un registro existente).</item>
+        /// </list>
+        /// </para>
         /// </remarks>
-        /// <exception cref="Exception">
-        /// Se captura cualquier excepción durante la carga y se registra en el log.
-        /// </exception>
         private void CargarLocalidades()
         {
-            // Reinicia binding y referencias
-            bindingLocalidades.DataSource = null;
-            _localidades = null;
-
-            // Si no hay provincias cargadas, no se puede continuar
-            if (_provincias?.Count < 1)
-            {
-                cbLocalidad.Enabled = false;
-                return;
-            }
-            string provincia = cbProvincia.Text; // Provincia seleccionada en el combo
-
-            // Si no hay texto de provincia, se asigna lista vacía y se corta
-            if (String.IsNullOrWhiteSpace(provincia))
-            {
-                bindingLocalidades.DataSource = null;
-                cbLocalidad.Enabled = false;
-                return;
-            }
+            // ¡CORRECCIÓN!: Faltaba activar la bandera al inicio para bloquear los eventos SelectedIndexChanged
+            cargando = true;
 
             try
             {
-                // Busca la provincia seleccionada en la lista
-                _provincia = _provincias?
-                    .FirstOrDefault(p => p.Provincia.Equals(provincia, StringComparison.OrdinalIgnoreCase));
+                // 1. Reinicio de binding y referencias
+                bindingLocalidades.DataSource = null;
+                _localidades = null;
 
-                // Si se encontró la provincia, carga sus localidades
-                if (_provincia != null)
-                    _localidades = DomiciliosNegocio.GetLocalidadesPorProvincia(_provincia) ?? new List<Localidades>();
+                // 2. Validaciones tempranas (Cláusulas de guarda)
+                // Si no hay provincias cargadas en memoria, no podemos buscar localidades
+                if (_provincias == null || _provincias.Count < 1)
+                {
+                    cbLocalidad.Enabled = false;
+                    return;
+                }
 
-                // Asigna la lista de localidades al binding
+                string nombreProvincia = cbProvincia.Text.Trim();
+
+                // Si el combo está vacío, limpiamos y cortamos la ejecución
+                if (string.IsNullOrWhiteSpace(nombreProvincia))
+                {
+                    cbLocalidad.Enabled = false;
+                    return;
+                }
+
+                // 3. Búsqueda de la provincia en la lista en memoria
+                _provincia = _provincias.FirstOrDefault(p =>
+                    p.Provincia.Equals(nombreProvincia, StringComparison.OrdinalIgnoreCase));
+
+                // Si el usuario escribió una provincia que no existe en la lista
+                if (_provincia == null)
+                {
+                    cbLocalidad.Enabled = false;
+                    _localidades = new List<Localidades>();
+                    bindingLocalidades.DataSource = _localidades;
+                    return;
+                }
+
+                // 4. Llamada a la capa de negocio (Patrón Resultado)
+                var resultado = DomiciliosNegocio.GetLocalidadesPorProvincia(_provincia);
+
+                // 5. Manejo de la respuesta
+                if (!resultado.Success || resultado.Data == null)
+                {
+                    // Fallback: Dejamos la lista vacía para no romper el DataBinding
+                    _localidades = new List<Localidades>();
+
+                    if (!resultado.Success)
+                    {
+                        Mensajes.MensajeError(resultado.Mensaje ?? $"No se pudieron cargar las localidades para {_provincia.Provincia}.");
+                    }
+                }
+                else
+                {
+                    // Éxito: Asignamos los datos reales
+                    _localidades = resultado.Data;
+                }
+
+                // 6. Enlace a la interfaz
                 bindingLocalidades.DataSource = _localidades;
 
-                //Activa o desactiva el combo box según si se seleccionó o escribió una provincia
-                cbLocalidad.Enabled = _provincia != null;
+                // Habilitamos el combo solo si la provincia tiene localidades asociadas
+                cbLocalidad.Enabled = _localidades.Count > 0;
 
-                // Configura la selección del combo según la localidad actual
-                if (_localidad != null)
+                // 7. Configuración visual (Pre-selección)
+                if (_localidad != null && cbLocalidad.Enabled)
+                {
                     cbLocalidad.SelectedValue = _localidad.IdLocalidad;
+                }
                 else
+                {
                     cbLocalidad.SelectedIndex = -1;
+                }
             }
             catch (Exception ex)
             {
-                // Registra el error en el log
-                Logger.LogError(ex.Message);
+                // Registro del error completo en el log para diagnóstico
+                Logger.LogError($"Error crítico en CargarLocalidades (Barberos): {ex.ToString()}");
+                Mensajes.MensajeError("Ocurrió un error inesperado al intentar cargar las localidades.");
+
+                // Degradación elegante
+                cbLocalidad.Enabled = false;
             }
             finally
             {
-                // Libera el flag de carga siempre
+                // Liberamos el flag para que la UI vuelva a reaccionar a los eventos del usuario
                 cargando = false;
             }
         }
@@ -406,49 +478,63 @@ namespace Front_SGBM
         }
 
         /// <summary>
-        /// Carga los contactos asociados a la persona actual y los asigna al binding.
+        /// Carga los contactos asociados a la persona actual utilizando el patrón Resultado y actualiza la grilla.
         /// </summary>
         /// <remarks>
-        /// - Reinicia el binding y la lista de contactos antes de cargar.
-        /// - Si no hay barbero o persona, refresca la grilla y finaliza.
-        /// - Obtiene los contactos desde la capa de negocio.
-        /// - Registra en el log cualquier error devuelto por la capa de negocio.
-        /// - Siempre refresca la grilla al finalizar, incluso si ocurre una excepción.
+        /// <para>
+        /// <b>Flujo de ejecución:</b>
+        /// <list type="number">
+        /// <item>Limpia el origen de datos actual en memoria para evitar mostrar contactos antiguos.</item>
+        /// <item><b>Cláusula de guarda:</b> Si no hay barbero o persona instanciada, aborta la consulta.</item>
+        /// <item>Consulta los contactos a la capa de negocio mediante <see cref="ContactosNegocio.getContactosPorPersona"/>.</item>
+        /// <item>Evalúa el <c>Resultado</c>: Si falla, registra el error en el log e inicializa una lista vacía para no romper la UI.</item>
+        /// <item><b>Garantía visual:</b> El bloque <c>finally</c> asegura que <see cref="RefrescarGrilla"/> se ejecute siempre, haya ocurrido un error o no.</item>
+        /// </list>
+        /// </para>
         /// </remarks>
-        /// <exception cref="Exception">
-        /// Se captura cualquier excepción durante la carga y se registra en el log.
-        /// </exception>
         private void CargarContactos()
         {
-            // Reinicia el binding y la lista de contactos
-            bindingContactos.DataSource = null;
-            _contactos = null;
-
-            // Si no hay barbero o persona, refresca la grilla y termina
-            if (_barbero == null || _persona == null)
-            {
-                RefrescarGrilla();
-                return;
-            }
-
             try
             {
-                string error = ""; // Variable para capturar errores desde la capa de negocio
+                // 1. Reinicio seguro de referencias
+                bindingContactos.DataSource = null;
+                _contactos = null;
 
-                // Obtiene los contactos de la persona
-                _contactos = ContactosNegocio.getContactosPorPersona(_persona, ref error);
+                // 2. Cláusula de guarda: No hay a quién buscarle contactos
+                if (_barbero == null || _persona == null) return;
 
-                // Si hubo error, se registra en el log
-                if (!String.IsNullOrWhiteSpace(error))
-                    Logger.LogError(error);
+                // 3. Consulta a la capa de negocio (Patrón Resultado)
+                var resultado = ContactosNegocio.GetContactosPorPersona(_persona);
 
-                //Refresca la grilla
-                RefrescarGrilla();
+                // 4. Evaluación del resultado
+                if (!resultado.Success)
+                {
+                    // Registro silencioso del error en el log (podrías agregar un MensajeError si lo deseas)
+                    Logger.LogError($"Error al cargar contactos de persona ID {_persona.IdPersona}: {resultado.Mensaje}");
+
+                    // Fallback: Asignamos lista vacía para evitar nulos en la grilla
+                    _contactos = new List<Contactos>();
+                }
+                else
+                {
+                    // Éxito: Obtenemos los datos (protegiendo contra nulos desde la BD)
+                    _contactos = resultado.Data ?? new List<Contactos>();
+                }
             }
             catch (Exception ex)
             {
-                // Registra cualquier excepción inesperada
-                Logger.LogError(ex.Message);
+                // Registro del error completo con stack trace
+                Logger.LogError($"Error crítico en CargarContactos (Barberos): {ex.ToString()}");
+
+                // Fallback preventivo ante caídas inesperadas
+                _contactos = new List<Contactos>();
+            }
+            finally
+            {
+                // 5. Garantía de actualización visual
+                // Al estar en el finally, la grilla se refrescará siempre.
+                // Si hubo éxito mostrará los datos, si hubo error o no había persona, se limpiará correctamente.
+                RefrescarGrilla();
             }
         }
 
@@ -559,79 +645,111 @@ namespace Front_SGBM
         }
 
         /// <summary>
-        /// Maneja el evento de clic en el botón Buscar.
+        /// Maneja el evento de clic en el botón Buscar para localizar un empleado por su DNI.
         /// </summary>
         /// <remarks>
-        /// - Invoca la búsqueda de un empleado por DNI.
-        /// - Si la búsqueda devuelve un mensaje de error, lo muestra al usuario y detiene la ejecución.
-        /// - Si no hay errores, delega la lógica en <c>ProcesarBusquedaEmpleado</c>.
+        /// <para>
+        /// Al haber delegado la gestión de alertas y validaciones directamente a <see cref="BuscarEmpleado"/>,
+        /// este evento simplemente invoca la búsqueda y delega el flujo de la interfaz (habilitar/deshabilitar controles, limpiar datos)
+        /// a <see cref="ProcesarBusquedaEmpleado"/>.
+        /// </para>
         /// </remarks>
         /// <param name="sender">El botón que dispara el evento.</param>
-        /// <param name="e">Argumentos del evento <c>Click</c>.</param>
+        /// <param name="e">Argumentos del evento.</param>
         private void btnBuscar_Click(object sender, EventArgs e)
         {
-            string mensaje = "";
-
-            // Busca al empleado y obtiene un mensaje de error si corresponde
-            bool existe = BuscarEmpleado(ref mensaje);
-
-            // Si hay mensaje de error, se muestra y se detiene
-            if (!String.IsNullOrWhiteSpace(mensaje))
+            try
             {
-                Mensajes.MensajeError($"Error: {mensaje}");
-                return;
-            }
+                // 1. Invoca la búsqueda (BuscarEmpleado maneja internamente sus propios errores visuales)
+                bool existe = BuscarEmpleado();
 
-            // Procesa la búsqueda según el modo actual del formulario
-            ProcesarBusquedaEmpleado(existe);
+                // 2. Delega la lógica de la UI según el resultado
+                // (Ej: Si existe y es Alta, bloquear; si no existe, habilitar campos para carga nueva)
+                ProcesarBusquedaEmpleado(existe);
+            }
+            catch (Exception ex)
+            {
+                // 3. Red de seguridad para evitar caídas de la aplicación por eventos no controlados
+                Logger.LogError($"Error crítico en btnBuscar_Click: {ex.ToString()}");
+                Mensajes.MensajeError("Ocurrió un error inesperado al intentar realizar la búsqueda.");
+            }
         }
 
         /// <summary>
-        /// Handler del botón Guardar: valida, asigna datos y ejecuta registro o modificación.
+        /// Orquesta el guardado del barbero, validando los datos, ejecutando la persistencia y gestionando la UI post-guardado.
         /// </summary>
-        /// <param name="sender">Origen del evento.</param>
+        /// <remarks>
+        /// <para>
+        /// <b>Flujo del Guardado:</b>
+        /// <list type="number">
+        /// <item>Ejecuta todas las validaciones previas agrupadas en <see cref="ContinuarGuardando"/>.</item>
+        /// <item>Realiza la vinculación final de la entidad Persona con el Barbero en memoria.</item>
+        /// <item>Invoca la operación de base de datos correspondiente (Alta o Modificación) capturando el resultado con <c>out</c>.</item>
+        /// <item>Si falla, muestra el error. Si tiene éxito, pregunta al usuario si desea continuar cargando más registros.</item>
+        /// <item>Resetea la ventana para un nuevo ingreso o la cierra según la respuesta del usuario.</item>
+        /// </list>
+        /// </para>
+        /// </remarks>
+        /// <param name="sender">El botón Guardar que dispara el evento.</param>
         /// <param name="e">Argumentos del evento.</param>
         private void btnGuardar_Click(object sender, EventArgs e)
         {
-            // Valida condiciones previas al guardado (confirmaciones, validaciones).
-            if (!ContinuarGuardando())
-                return;
-
-            // Asigna la persona al modelo y su Id (manejo seguro de null).
-            _barbero.Personas = _persona;
-            _barbero.IdPersona = _persona?.IdPersona ?? 0;
-
-            string mensaje = string.Empty;
-            bool exito = false;
-
-            // Decide si registra o modifica según el modo del formulario.
-            if (modo == EnumModoForm.Alta)
-                exito = RegistrarEmpleado(ref mensaje);
-            else
-                exito = ModificarEmpleado(ref mensaje);
-
-            // Si la operación falló, muestra el error y corta el flujo.
-            if (!exito)
+            try
             {
-                Mensajes.MensajeError(mensaje);
-                return;
-            }
+                // 1. Orquestación de validaciones (las alertas visuales ya se manejan internamente)
+                if (!ContinuarGuardando()) return;
 
-            // Si fue exitosa, pregunta si el usuario quiere registrar otro barbero.
-            DialogResult respuesta = Mensajes.Respuesta(mensaje + "\n¿Desea registrar un nuevo Barbero?");
-            if (respuesta == DialogResult.Yes)
+                // 2. Vinculación final de entidades para la base de datos
+                // Aseguramos que el barbero tenga asignada su persona y copiamos el ID (0 si es nuevo)
+                _barbero.Personas = _persona;
+                _barbero.IdPersona = _persona?.IdPersona ?? 0;
+
+                bool operacionExitosa = false;
+                string mensajeResultado; // Variable para recibir el parámetro 'out'
+
+                // 3. Ejecución de la Persistencia
+                if (modo == EnumModoForm.Alta)
+                {
+                    operacionExitosa = RegistrarEmpleado(out mensajeResultado);
+                }
+                else
+                {
+                    operacionExitosa = ModificarEmpleado(out mensajeResultado);
+                }
+
+                // 4. Manejo de Fallos
+                if (!operacionExitosa)
+                {
+                    // El mensaje de error viene directo de la capa de negocio gracias al 'out'
+                    Mensajes.MensajeError(mensajeResultado);
+                    return;
+                }
+
+                // 5. Manejo del Éxito y Experiencia de Usuario (UX)
+                DialogResult respuesta = Mensajes.Respuesta($"{mensajeResultado}\n\n¿Desea registrar un nuevo Barbero?");
+
+                if (respuesta == DialogResult.Yes)
+                {
+                    // Reseteo completo del formulario para volver a empezar
+                    LimpiarValores(true);
+                    LimpiarCampos();
+                    modo = EnumModoForm.Alta;
+                    cargarFormulario();
+                    ActivarCamposEditables(false);
+
+                    return; // Cortamos la ejecución para no cerrar la ventana
+                }
+
+                // 6. Cierre del formulario
+                cerrando = true; // Variable de estado (probablemente usada en FormClosing)
+                this.Close();
+            }
+            catch (Exception ex)
             {
-                LimpiarValores(true);
-                LimpiarCampos();
-                modo = EnumModoForm.Alta;
-                cargarFormulario();
-                ActivarCamposEditables(false);
-                return;
+                // 7. Red de seguridad final
+                Logger.LogError($"Error crítico no controlado al intentar guardar el barbero: {ex.ToString()}");
+                Mensajes.MensajeError("Ocurrió un error técnico inesperado al procesar el guardado.");
             }
-
-            // Cierra el formulario si no se desea continuar.
-            cerrando = true;
-            this.Close();
         }
 
         #endregion
@@ -988,65 +1106,88 @@ namespace Front_SGBM
         }
 
         /// <summary>
-        /// Comprueba que el DNI ingresado sea válido.
+        /// Comprueba que el DNI ingresado tenga un formato y longitud válidos.
         /// </summary>
-        /// <param name="mensaje">Mensaje de error si la validación falla.</param>
-        /// <returns>True si el DNI es válido, False en caso contrario.</returns>
-        private bool ComprobarDni(ref string mensaje)
+        /// <remarks>
+        /// <para>
+        /// <b>Validaciones:</b>
+        /// <list type="bullet">
+        /// <item>Verifica que el campo contenga solo números (a través de <c>ValidarCampoNumerico</c>).</item>
+        /// <item>Verifica que la longitud esté entre 6 y 9 dígitos.</item>
+        /// </list>
+        /// Si alguna validación falla, se marca el control con <see cref="ErrorCampo"/>.
+        /// </para>
+        /// </remarks>
+        /// <returns><c>true</c> si el DNI es válido; de lo contrario, <c>false</c>.</returns>
+        private bool ComprobarDni()
         {
-            if (!ValidarCampoNumerico(txtDni, true))//Valida y resalta el error en el campo con el provider o lo limpia
+            // 1. Validación de caracteres (solo números)
+            if (!ValidarCampoNumerico(txtDni, true))
                 return false;
 
-            // Valida la longitud del DNI (entre 6 y 9 caracteres)
-            if (txtDni.Text.Length > 9 || txtDni.Text.Length < 6)
+            // 2. Validación de longitud
+            string dni = txtDni.Text.Trim();
+            if (dni.Length < 6 || dni.Length > 9)
             {
-                mensaje = "La longitud del Dni es menor o mayor a lo esperado";
-                ErrorCampo(txtDni, mensaje); //Resalta el error en el campo con el provider
+                ErrorCampo(txtDni, "La longitud del DNI debe tener entre 6 y 9 dígitos.");
                 return false;
             }
 
-            ErrorCampo(txtDni); //Si todo está correcto limpia el error en el provider
+            // 3. Éxito: Limpieza de errores visuales
+            ErrorCampo(txtDni);
 
-            return true; // DNI válido
+            return true;
         }
 
         /// <summary>
-        /// Comprueba que los nombres y apellidos sean correctos y los capitaliza.
+        /// Comprueba que los nombres y apellidos cumplan con las reglas de texto, los capitaliza y los asigna a la entidad.
         /// </summary>
-        /// <param name="mensaje">Mensaje de error si la validación falla.</param>
-        /// <returns>True si los nombres son válidos, False en caso contrario.</returns>
-        private bool ComprobarNombres(ref string mensaje)
+        /// <remarks>
+        /// <para>
+        /// Se evalúan tanto el nombre como el apellido simultáneamente para mostrar todos los errores posibles de una sola vez.
+        /// Si la validación es exitosa, se capitaliza el texto (ej: "juan" -> "Juan") y se actualiza la interfaz y el objeto en memoria.
+        /// </para>
+        /// </remarks>
+        /// <returns><c>true</c> si los nombres y apellidos son válidos; de lo contrario, <c>false</c>.</returns>
+        private bool ComprobarNombres()
         {
-            _persona = _persona ?? new(); // Inicializa la persona si es null
+            // Inicialización moderna: Si _persona es null, crea una nueva instancia
+            _persona ??= new Personas();
 
-            // Asigna nombres y apellidos desde los textbox
-            _persona.Nombres = txtNombre.Text.Trim();
-            _persona.Apellidos = txtApellido.Text.Trim();
+            string nombresIngresados = txtNombre.Text.Trim();
+            string apellidosIngresados = txtApellido.Text.Trim();
 
-            string mensApellido = string.Empty;
-            mensaje = string.Empty;
+            // Variables temporales para atrapar los mensajes de tu clase Validaciones
+            string errorNombres = string.Empty;
+            string errorApellidos = string.Empty;
 
-            // Valida nombres y apellidos usando helper de Validaciones
-            if (!Validaciones.TextoCorrecto(_persona.Nombres, ref mensaje) ||
-                !Validaciones.TextoCorrecto(_persona.Apellidos, ref mensApellido))
+            // Evaluamos ambos campos por separado para no hacer un "corto circuito" 
+            // y poder marcar ambos TextBoxes en rojo si ambos están mal.
+            bool nombreValido = Validaciones.TextoCorrecto(nombresIngresados, ref errorNombres);
+            bool apellidoValido = Validaciones.TextoCorrecto(apellidosIngresados, ref errorApellidos);
+
+            if (!nombreValido || !apellidoValido)
             {
-                //Carga los errores en el provider y devuelve el mensaje de error
-                ErrorCampo(txtNombre, mensaje);
-                ErrorCampo(txtApellido, mensApellido);
-                mensaje = "Se detectaron problemas con los nombres o apellidos";
+                // Encendemos el ErrorProvider con sus respectivos mensajes o lo limpiamos si uno de los dos está bien
+                if (!nombreValido) ErrorCampo(txtNombre, errorNombres); else ErrorCampo(txtNombre);
+                if (!apellidoValido) ErrorCampo(txtApellido, errorApellidos); else ErrorCampo(txtApellido);
+
                 return false;
             }
-            else
-            {
-                //Si no existen errores limpia el error de los campos
-                ErrorCampo(txtNombre);
-                ErrorCampo(txtApellido);
-            }
-            // Capitaliza nombres y apellidos para uniformidad
-            _persona.Nombres = Validaciones.CapitalizarTexto(_persona.Nombres);
-            _persona.Apellidos = Validaciones.CapitalizarTexto(_persona.Apellidos);
 
-            return true; // Nombres válidos
+            // Limpieza general si todo está correcto
+            ErrorCampo(txtNombre);
+            ErrorCampo(txtApellido);
+
+            // Capitalización para mantener la uniformidad en la base de datos
+            _persona.Nombres = Validaciones.CapitalizarTexto(nombresIngresados);
+            _persona.Apellidos = Validaciones.CapitalizarTexto(apellidosIngresados);
+
+            // Feedback visual: Actualizamos las cajas de texto para que el usuario vea la corrección
+            txtNombre.Text = _persona.Nombres;
+            txtApellido.Text = _persona.Apellidos;
+
+            return true;
         }
 
         /// <summary>
@@ -1078,7 +1219,7 @@ namespace Front_SGBM
             {
                 // Manejo de errores
                 mensaje = "Error al comprobar la fecha de nacimiento";
-                Logger.LogError(ex.Message);
+                Logger.LogError(ex.ToString());
             }
             finally
             {
@@ -1088,223 +1229,251 @@ namespace Front_SGBM
         }
 
         /// <summary>
-        /// Comprueba la validez de los datos de un empleado (barbero) antes de registrar o modificar.
-        /// Verifica duplicidad de DNI, nombres, fecha de nacimiento y estado seleccionado.
-        /// </summary>
-        /// <param name="mensaje">
-        /// Referencia a un string donde se almacenará un mensaje de error o advertencia en caso de que la validación falle.
-        /// </param>
-        /// <param name="registro">
-        /// Indica si la operación corresponde a un registro nuevo (true) o a una modificación existente (false).
-        /// </param>
-        /// <returns>
-        /// True si todas las comprobaciones fueron exitosas; False si se detecta algún error o inconsistencia.
-        /// </returns>
-        private bool ComprobarEmpleado(ref string mensaje, bool registro)
-        {
-            // Se busca si ya existe un empleado con el mismo DNI
-            if (BuscarEmpleado(ref mensaje))
-            {
-                if (registro)
-                {
-                    // Si es un registro nuevo y el DNI ya existe, se rechaza
-                    mensaje = "El Dni ingresado ya pertenece a otro barbero";
-                    return false;
-                }
-                else if (_barbero.Personas?.Dni != _persona?.Dni)
-                {
-                    // Si es una modificación y el nuevo DNI coincide con otro empleado, se rechaza
-                    mensaje = $"El Dni nuevo que ingresó ya pertenece a {_barbero.NombreCompleto}";
-                    return false;
-                }
-            }
-
-            // Se asigna la persona asociada al barbero actual
-            _persona = _barbero.Personas;
-
-            // Se comprueban los nombres; si falla, se retorna false con mensaje
-            if (!ComprobarNombres(ref mensaje))
-            {
-                return false;
-            }
-
-            // Se comprueba la fecha de nacimiento (sin retorno, solo validación interna)
-            ComprobarNacimiento();
-
-            try
-            {
-                // Se obtiene el estado seleccionado en el combo
-                _estado = (Estados)cbEstados.SelectedItem;
-
-                // Si el estado no se recupera correctamente en modo modificación, se rechaza
-                if (_estado?.IdEstado == null && modo == EnumModoForm.Modificacion)
-                {
-                    mensaje = "Problemas con la recuperación de estados de empleados de la BD";
-                    return false;
-                }
-
-                //Asigna el estado al barbero asi sea nuevo
-                _barbero.Estados = _estado;
-                _barbero.IdEstado = _estado?.IdEstado ?? 0;
-            }
-            catch (Exception ex)
-            {
-                // Si ocurre una excepción, se captura el mensaje y se retorna false
-                mensaje = ex.Message;
-                return false;
-            }
-
-            // Si todas las comprobaciones fueron exitosas, se retorna true
-            return true;
-        }
-
-        /// <summary>
-        /// Verifica si se ha ingresado una dirección válida en los campos de texto
-        /// y asigna el objeto <c>_domicilio</c> en consecuencia.
+        /// Comprueba la validez integral de los datos de un empleado (barbero) antes de registrarlo o modificarlo.
         /// </summary>
         /// <remarks>
-        /// - Considera válida la dirección si al menos se ingresó calle o barrio.
-        /// - Valida que se haya ingresado o seleccionado una localidad.
-        /// - Construye un objeto <c>Domicilios</c> con los valores de los controles.
-        /// - Valida cada campo con <c>Validaciones.textoCorrecto</c>, asignando null si no es correcto.
-        /// - Si no se ingresó información suficiente, muestra advertencia y no registra domicilio.
-        /// - Registra en el log cualquier excepción y muestra un mensaje de error al usuario.
+        /// <para>
+        /// <b>Proceso de Validación:</b>
+        /// <list type="number">
+        /// <item><b>Duplicidad de DNI:</b> Verifica que el DNI no pertenezca a otro empleado en la base de datos.</item>
+        /// <item><b>Sincronización:</b> Asegura que las instancias de <c>_barbero</c> y <c>_persona</c> estén creadas en memoria.</item>
+        /// <item><b>Nombres:</b> Delega la validación de formato a <see cref="ComprobarNombres"/>.</item>
+        /// <item><b>Nacimiento:</b> Delega la validación de fechas a <see cref="ComprobarNacimiento"/>.</item>
+        /// <item><b>Estado:</b> Verifica que el combo de estados tenga una selección válida, especialmente en modificaciones.</item>
+        /// </list>
+        /// </para>
         /// </remarks>
-        /// <param name="mensaje">
-        /// Referencia a un string donde se almacenará un mensaje de error o advertencia en caso de validación fallida.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> si se ingresó una dirección válida (calle o barrio y localidad);
-        /// <c>false</c> si no se ingresó información suficiente o ocurre una excepción.
-        /// </returns>
-        /// <exception cref="Exception">
-        /// Se captura cualquier excepción durante la validación y se registra en el log.
-        /// </exception>
-        private bool DireccionIngresada(ref string mensaje)
+        /// <param name="esNuevoRegistro">Indica si la operación corresponde a un registro nuevo (<c>true</c>) o a una modificación (<c>false</c>).</param>
+        /// <returns><c>true</c> si todas las comprobaciones fueron exitosas; <c>false</c> si se detecta algún error o inconsistencia.</returns>
+        private bool ComprobarEmpleado(bool esNuevoRegistro)
         {
-            // Se considera válido si al menos hay calle o barrio
-            if (ValidarTextoObligatorio(txtCalle) || ValidarTextoObligatorio(txtBarrio))
+            try
             {
-                // Valida que se haya ingresado o seleccionado una localidad
-                if (!LocalidadIngresada(ref mensaje))
+                // Guardamos el DNI actual en memoria por si BuscarEmpleado() sobreescribe la entidad
+                string dniActualMemoria = _persona?.Dni;
+
+                // 1. Verificación de Duplicidad de DNI en la Base de Datos
+                if (BuscarEmpleado())
                 {
-                    ErrorCampo(cbLocalidad, mensaje);
-                    ErrorCampo(cbProvincia, mensaje);
-                    return false;
+                    if (esNuevoRegistro)
+                    {
+                        // Es alta y el DNI ya existe
+                        ErrorCampo(txtDni, "El DNI ingresado ya pertenece a otro barbero registrado.");
+                        return false;
+                    }
+                    else if (_barbero?.Personas?.Dni != dniActualMemoria)
+                    {
+                        // Es modificación, pero el DNI nuevo introducido choca con otro existente
+                        ErrorCampo(txtDni, $"El DNI nuevo que ingresó ya pertenece a {_barbero?.NombreCompleto}.");
+                        return false;
+                    }
                 }
                 else
                 {
-                    // Limpia errores previos si la localidad es válida
-                    ErrorCampo(cbLocalidad);
-                    ErrorCampo(cbProvincia);
+                    // Si el DNI está libre o es válido, limpiamos cualquier error visual previo
+                    ErrorCampo(txtDni);
                 }
-            }
-            else
-            {
-                // Si no hay calle ni barrio, no se registra domicilio
-                _domicilio = null;
-                mensaje = "No se registrará ningún domicilio";
-                return false;
-            }
 
-            try
-            {
-                // Construye el objeto domicilio con los valores validados
-                Domicilios domicilioIngresado = new Domicilios
+                // 2. Sincronización Segura de Entidades (Prevención de NullReferenceException)
+                _barbero ??= new Empleados();
+
+                // Asignamos la persona del barbero encontrado, o mantenemos la actual, o creamos una nueva
+                _persona = _barbero.Personas ?? _persona ?? new Personas();
+
+                // 3. Validación de Nombres y Apellidos
+                if (!ComprobarNombres())
                 {
-                    IdDomicilio = _domicilio?.IdDomicilio,
-                    Calle = string.IsNullOrWhiteSpace(txtCalle.Text) ? null : txtCalle.Text,
-                    Barrio = string.IsNullOrWhiteSpace(txtBarrio.Text) ? null : txtBarrio.Text,
-                    Altura = Validaciones.TextoCorrecto(txtNro.Text.Trim(), ref mensaje)
-                        ? txtNro.Text.Trim() : null,
-                    Piso = Validaciones.TextoCorrecto(txtPiso.Text.Trim(), ref mensaje)
-                        ? txtPiso.Text.Trim() : null,
-                    Depto = Validaciones.TextoCorrecto(txtDepto.Text.Trim(), ref mensaje)
-                        ? txtDepto.Text.Trim() : null,
-                    IdLocalidad = _localidad?.IdLocalidad ?? 0,
-                    Localidades = _localidad?.IdLocalidad > 0
-                        ? _localidad : null
-                };
+                    return false;
+                }
 
-                // Asigna el domicilio si fue válido
-                _domicilio = domicilioIngresado;
+                // 4. Validación de Fecha de Nacimiento (asumimos que gestiona sus propios errores visuales)
+                ComprobarNacimiento();
+
+                // 5. Validación y Asignación del Estado Laboral
+                // Uso de 'as' para casteo seguro sin excepciones
+                _estado = cbEstados.SelectedItem as Estados;
+
+                if (_estado == null && modo == EnumModoForm.Modificacion)
+                {
+                    Mensajes.MensajeError("Problemas con la recuperación de estados de empleados desde la base de datos.");
+                    return false;
+                }
+
+                // Vinculación final de datos
+                _barbero.Estados = _estado;
+                _barbero.IdEstado = _estado?.IdEstado ?? 0;
+
+                // Si pasó todas las barreras, los datos son válidos
                 return true;
             }
             catch (Exception ex)
             {
-                // Registra el error y muestra mensaje al usuario
-                Logger.LogError(ex.Message);
-                mensaje = $"Error inesperado en el domicilio \n{ex.Message}\nNo se registrará ningún domicilio";
-                _domicilio = null;
+                // 6. Manejo de Errores Inesperados
+                Logger.LogError($"Error inesperado en ComprobarEmpleado: {ex.ToString()}");
+                Mensajes.MensajeError("Ocurrió un error técnico al intentar validar los datos del barbero.");
                 return false;
             }
         }
 
         /// <summary>
-        /// Verifica si se ha ingresado una localidad válida en el combo
-        /// y asigna el objeto <c>_localidad</c> en consecuencia.
+        /// Verifica si se ingresaron datos suficientes para conformar una dirección válida y construye la entidad.
         /// </summary>
         /// <remarks>
-        /// - Requiere que previamente se haya ingresado una provincia válida.
-        /// - Si el texto de localidad está vacío, devuelve <c>false</c> y asigna un mensaje.
-        /// - Si existen localidades cargadas, busca coincidencia por nombre.
-        /// - Si no encuentra coincidencia, crea una nueva localidad capitalizando el texto.
-        /// - Asigna la provincia correspondiente a la localidad.
-        /// - Registra en el log cualquier excepción y devuelve <c>false</c>.
+        /// <para>
+        /// <b>Criterios de validación:</b>
+        /// <list type="bullet">
+        /// <item>Se requiere como mínimo que exista una Calle o un Barrio.</item>
+        /// <item>Si se ingresó Calle o Barrio, es estrictamente obligatorio seleccionar o escribir una Localidad válida.</item>
+        /// <item>Si los campos obligatorios están vacíos, se asume que el usuario no desea registrar un domicilio.</item>
+        /// </list>
+        /// </para>
         /// </remarks>
-        /// <param name="mensaje">
-        /// Mensaje de error o advertencia que se devuelve al usuario en caso de fallo.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> si se ingresó una localidad válida o se creó una nueva; 
-        /// <c>false</c> si no hay provincia, el texto está vacío o ocurre una excepción.
-        /// </returns>
-        /// <exception cref="Exception">
-        /// Se captura cualquier excepción durante la validación y se registra en el log.
-        /// </exception>
-        private bool LocalidadIngresada(ref string mensaje)
+        /// <param name="mensaje">Parámetro de salida (<c>out</c>) que contendrá avisos o errores si el método devuelve <c>false</c>.</param>
+        /// <returns><c>true</c> si se construyó un domicilio válido; <c>false</c> si no se ingresaron datos suficientes o hubo un error.</returns>
+        private bool DireccionIngresada(out string mensaje)
         {
-            _localidad = null;
-            mensaje = "";
+            // 1. Inicialización obligatoria de salida
+            mensaje = string.Empty;
 
-            // Verifica que haya una provincia válida
-            if (!ProvinciaIngresada())
+            // 2. Evaluación de intención: ¿El usuario quiere registrar una dirección?
+            // Asumimos que ValidarTextoObligatorio devuelve true si el TextBox tiene texto.
+            bool tieneCalle = ValidarTextoObligatorio(txtCalle);
+            bool tieneBarrio = ValidarTextoObligatorio(txtBarrio);
+
+            if (!tieneCalle && !tieneBarrio)
             {
-                mensaje = "Para ingresar un domicilio escriba o seleccione una localidad y provincia";
+                // El usuario dejó todo vacío. No es un error crítico, pero no hay dirección que guardar.
+                _domicilio = null;
+                mensaje = "No se registrará ningún domicilio (campos vacíos).";
                 return false;
             }
 
-            string localidad = cbLocalidad.Text.Trim();
-
-            // Si el texto de localidad está vacío, no hay localidad válida
-            if (String.IsNullOrWhiteSpace(localidad))
+            // 3. Si hay intención, la Localidad es obligatoria
+            // Invocamos a LocalidadIngresada usando su nueva firma 'out'
+            if (!LocalidadIngresada(out string errorLocalidad))
             {
-                mensaje = "Para ingresar un domicilio escriba o seleccione una localidad y provincia";
+                ErrorCampo(cbLocalidad, errorLocalidad);
+                ErrorCampo(cbProvincia, errorLocalidad);
+                mensaje = "Faltan datos geográficos para completar el domicilio.";
+                return false;
+            }
+
+            // Limpieza de errores visuales si todo está bien
+            ErrorCampo(cbLocalidad);
+            ErrorCampo(cbProvincia);
+
+            try
+            {
+                // 4. Construcción segura de la entidad Domicilios
+                // Extraemos y limpiamos los textos para evitar guardar puros espacios en blanco en la BD
+                string calleLimpia = txtCalle.Text.Trim();
+                string barrioLimpio = txtBarrio.Text.Trim();
+                string alturaLimpia = txtNro.Text.Trim();
+                string pisoLimpio = txtPiso.Text.Trim();
+                string deptoLimpio = txtDepto.Text.Trim();
+
+                _domicilio = new Domicilios
+                {
+                    // Mantenemos el ID original si estábamos editando
+                    IdDomicilio = _domicilio?.IdDomicilio,
+
+                    // Operadores condicionales para asignar null si el string está vacío
+                    Calle = string.IsNullOrWhiteSpace(calleLimpia) ? null : calleLimpia,
+                    Barrio = string.IsNullOrWhiteSpace(barrioLimpio) ? null : barrioLimpio,
+                    Altura = string.IsNullOrWhiteSpace(alturaLimpia) ? null : alturaLimpia,
+                    Piso = string.IsNullOrWhiteSpace(pisoLimpio) ? null : pisoLimpio,
+                    Depto = string.IsNullOrWhiteSpace(deptoLimpio) ? null : deptoLimpio,
+
+                    // Vinculación relacional con Localidad
+                    IdLocalidad = _localidad?.IdLocalidad ?? 0,
+                    Localidades = _localidad != null && _localidad.IdLocalidad == 0 ? _localidad : null
+                };
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // 5. Fallo técnico durante la instanciación
+                Logger.LogError($"Error crítico al construir la entidad Domicilio: {ex.ToString()}");
+                _domicilio = null;
+                mensaje = "Ocurrió un error técnico inesperado al intentar procesar el domicilio.";
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Verifica si se ha ingresado una localidad válida en el combo, creándola si es nueva.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <b>Proceso de validación y asignación:</b>
+        /// <list type="number">
+        /// <item>Requiere que previamente se haya ingresado una provincia válida (vía <see cref="ProvinciaIngresada"/>).</item>
+        /// <item>Verifica que el campo de localidad no esté vacío.</item>
+        /// <item>Busca la localidad en la lista cargada en memoria (ignorando mayúsculas/minúsculas).</item>
+        /// <item>Si no existe, instancia una nueva capitalizando el texto ingresado.</item>
+        /// <item>Vincula la provincia correspondiente a la localidad (por ID o por referencia de objeto).</item>
+        /// </list>
+        /// </para>
+        /// </remarks>
+        /// <param name="mensaje">Parámetro de salida (<c>out</c>) que contendrá el motivo del fallo si el método devuelve <c>false</c>.</param>
+        /// <returns><c>true</c> si se validó o creó exitosamente la localidad; de lo contrario, <c>false</c>.</returns>
+        private bool LocalidadIngresada(out string mensaje)
+        {
+            // 1. Inicialización obligatoria del parámetro 'out' y limpieza de estado
+            mensaje = string.Empty;
+            _localidad = null;
+
+            // 2. Validación de dependencias (Provincia)
+            if (!ProvinciaIngresada())
+            {
+                mensaje = "Para ingresar un domicilio, primero debe especificar una provincia válida.";
+                return false;
+            }
+
+            // 3. Validación de entrada (Localidad)
+            string nombreLocalidad = cbLocalidad.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(nombreLocalidad))
+            {
+                mensaje = "Por favor, escriba o seleccione una localidad.";
                 return false;
             }
 
             try
             {
-                // Si hay localidades cargadas, busca coincidencia por nombre
-                if (_localidades?.Count > 0)
-                    _localidad = _localidades.FirstOrDefault(l => l.Localidad.Equals(localidad, StringComparison.OrdinalIgnoreCase));
+                // 4. Búsqueda de coincidencia en memoria
+                if (_localidades != null && _localidades.Count > 0)
+                {
+                    _localidad = _localidades.FirstOrDefault(l => l.Localidad.Equals(nombreLocalidad, StringComparison.OrdinalIgnoreCase));
+                }
 
-                // Si no se encontró, se crea una nueva capitalizando el texto
-                _localidad ??= new Localidades { Localidad = Validaciones.CapitalizarTexto(localidad, true) };
+                // 5. Creación de nueva localidad si no fue encontrada
+                if (_localidad == null)
+                {
+                    _localidad = new Localidades
+                    {
+                        Localidad = Validaciones.CapitalizarTexto(nombreLocalidad, true)
+                    };
+                }
 
-                // Asigna la provincia correspondiente
+                // 6. Vinculación Relacional (Localidad -> Provincia)
                 _localidad.IdProvincia = _provincia?.IdProvincia ?? 0;
 
-                // Si la provincia no tiene Id, asigna el objeto provincia directamente
-                _localidad.Provincias = _localidad.IdProvincia == 0 ? _provincia : null;
+                // Si la provincia es nueva (Id = 0) o no está en BD, enlazamos el objeto completo para que Entity Framework / la BD lo sepa manejar
+                if (_localidad.IdProvincia == 0)
+                {
+                    _localidad.Provincias = _provincia;
+                }
 
-                return _localidad != null;
+                // Si llegamos hasta aquí, todo fue un éxito
+                return true;
             }
             catch (Exception ex)
             {
-                // Registra el error y devuelve false
-                Logger.LogError(ex.Message);
-                mensaje = "Error inesperado " + ex.Message;
+                // 7. Manejo de Errores Críticos
+                Logger.LogError($"Error inesperado en LocalidadIngresada: {ex.ToString()}");
+                mensaje = "Ocurrió un error técnico al procesar la localidad. Revise los registros del sistema.";
                 return false;
             }
         }
@@ -1422,39 +1591,62 @@ namespace Front_SGBM
         }
 
         /// <summary>
-        /// Valida las condiciones necesarias antes de guardar los datos de contactos.
+        /// Orquesta las validaciones finales antes de proceder con el guardado del registro en la base de datos.
         /// </summary>
-        /// <returns>
-        /// Devuelve true si las validaciones se cumplen y se puede continuar con el guardado.
-        /// Devuelve false si alguna validación crítica falla.
-        /// </returns>
+        /// <remarks>
+        /// <para>
+        /// <b>Flujo de Validación:</b>
+        /// <list type="number">
+        /// <item>Verifica que no haya ventanas de edición de contactos abiertas y pendientes (<see cref="ConfirmarContactos"/>).</item>
+        /// <item>Valida integralmente los datos del empleado (<see cref="ComprobarEmpleado"/>).</item>
+        /// <item>Intenta construir el domicilio. Si los datos son insuficientes, emite una advertencia pero no bloquea el flujo.</item>
+        /// <item>Vincula el domicilio validado (o nulo) a la entidad persona en memoria.</item>
+        /// </list>
+        /// </para>
+        /// </remarks>
+        /// <returns><c>true</c> si las validaciones críticas se cumplen y es seguro guardar; de lo contrario, <c>false</c>.</returns>
         private bool ContinuarGuardando()
         {
-            // Confirma si se puede continuar, verificando edición activa de contactos
-            if (!ConfirmarContactos())
-                return false;
-
-            string mensaje = string.Empty;
-
-            // Comprueba que el empleado sea válido según el modo actual (Alta o Edición)
-            if (!ComprobarEmpleado(ref mensaje, modo == EnumModoForm.Alta))
+            try
             {
-                // Muestra error si la validación del empleado falla
-                Mensajes.MensajeError($"Error: {mensaje}");
+                // 1. Verificación de ventanas hijas (Contactos)
+                if (!ConfirmarContactos()) return false;
+
+                // 2. Validación central del Empleado (DNI, Nombres, Estado)
+                // Como ComprobarEmpleado ya gestiona sus propias alertas de UI, solo verificamos su resultado booleano.
+                bool esAlta = (modo == EnumModoForm.Alta);
+                if (!ComprobarEmpleado(esAlta)) return false;
+
+                // 3. Validación y extracción de la Dirección
+                // Usamos el nuevo patrón 'out' para capturar el aviso si la validación no es completa
+                if (!DireccionIngresada(out string avisoDireccion))
+                {
+                    // Como el domicilio no bloquea el guardado (no es crítico), 
+                    // mostramos la advertencia que nos devolvió el método.
+                    if (!string.IsNullOrWhiteSpace(avisoDireccion))
+                    {
+                        Mensajes.MensajeAdvertencia(avisoDireccion);
+                    }
+                }
+
+                // 4. Vinculación relacional de entidades
+                // Protegemos contra nulos por si _persona no llegó a instanciarse por algún motivo extraño
+                if (_persona != null)
+                {
+                    _persona.Domicilios = _domicilio;
+                    _persona.IdDomicilio = _domicilio?.IdDomicilio;
+                }
+
+                // Si pasó todas las barreras críticas, luz verde para guardar
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // 5. Manejo de errores imprevistos
+                Logger.LogError($"Error crítico en ContinuarGuardando: {ex.ToString()}");
+                Mensajes.MensajeError("Ocurrió un error inesperado al verificar los datos antes de guardar.");
                 return false;
             }
-
-            // Verifica si la dirección fue ingresada correctamente
-            if (!DireccionIngresada(ref mensaje))
-                // Muestra advertencia si la dirección no es válida, pero permite continuar
-                Mensajes.MensajeAdvertencia(mensaje);
-
-            // Asigna el domicilio a la persona así sea null 
-            _persona.Domicilios = _domicilio;
-            _persona.IdDomicilio = _domicilio?.IdDomicilio;
-
-            // Si todas las validaciones críticas se cumplen, permite continuar
-            return true;
         }
 
         #endregion
@@ -1463,28 +1655,59 @@ namespace Front_SGBM
 
         #region Búsquedas
         /// <summary>
-        /// Busca un empleado por DNI y asigna el resultado a _barbero.
+        /// Busca un empleado por su DNI en la base de datos y actualiza las referencias en memoria.
         /// </summary>
-        /// <param name="mensaje">Mensaje de error o validación.</param>
-        /// <returns>True si se encontró el empleado, False en caso contrario.</returns>
-        private bool BuscarEmpleado(ref string mensaje)
+        /// <remarks>
+        /// <para>
+        /// <b>Flujo de ejecución:</b>
+        /// <list type="number">
+        /// <item>Si el formulario está en modo Alta, limpia las entidades previas.</item>
+        /// <item>Delega la validación de formato a <see cref="ComprobarDni"/>.</item>
+        /// <item>Consulta a la capa de negocio utilizando el patrón <c>Resultado</c>.</item>
+        /// <item>Si la consulta falla, muestra el error y retorna falso. Si tiene éxito, asigna el objeto.</item>
+        /// </list>
+        /// </para>
+        /// </remarks>
+        /// <returns><c>true</c> si se encontró y asignó un empleado válido; de lo contrario, <c>false</c>.</returns>
+        private bool BuscarEmpleado()
         {
-            if (modo == EnumModoForm.Alta)
+            try
             {
-                // Reinicia la referencia antes de buscar cuando es un nuevo registro 
-                _barbero = null;
-                _persona = null;
+                if (modo == EnumModoForm.Alta)
+                {
+                    // Reiniciamos las referencias para evitar cruce de datos en un nuevo registro
+                    _barbero = null;
+                    _persona = null;
+                }
+
+                // 1. Validación local (Asumiendo que ComprobarDni también se refactorizará para no usar 'ref')
+                // Si ComprobarDni falla, este mismo se encargará de mostrar el SetError o MensajeError.
+                if (!ComprobarDni()) return false;
+
+                // 2. Consulta a la capa de negocio (Patrón Resultado)
+                string dniIngresado = txtDni.Text.Trim();
+                var resultado = EmpleadosNegocio.GetEmpleadoPorDni(dniIngresado);
+
+                // 3. Manejo de errores de negocio o base de datos
+                if (!resultado.Success)
+                {
+                    Mensajes.MensajeError(resultado.Mensaje ?? "Ocurrió un problema al intentar buscar el empleado.");
+                    return false;
+                }
+
+                // 4. Éxito: Asignación de datos
+                _barbero = resultado.Data;
+
+                // Retorna true solo si realmente nos devolvió un objeto instanciado y con ID válido
+                return _barbero != null && _barbero.IdEmpleado > 0;
             }
-
-            // Valida el DNI antes de continuar
-            if (!ComprobarDni(ref mensaje))
+            catch (Exception ex)
+            {
+                // 5. Manejo de excepciones imprevistas
+                Logger.LogError($"Error crítico en BuscarEmpleado (por DNI): {ex.ToString()}");
+                Mensajes.MensajeError("Ocurrió un error inesperado durante la búsqueda del empleado.");
                 return false;
-
-            // Busca el empleado en la capa de negocio usando el DNI
-            _barbero = EmpleadosNegocio.GetEmpleadoPorDni(txtDni.Text, ref mensaje);
-
-            // Retorna true si se encontró un empleado válido
-            return _barbero?.IdEmpleado != null;
+            }
         }
         #endregion
 
@@ -1713,46 +1936,86 @@ namespace Front_SGBM
         }
 
         /// <summary>
-        /// Intenta modificar el empleado existente usando los datos actuales.
+        /// Intenta modificar un empleado existente en la base de datos enviando las entidades actualizadas a la capa de negocio.
         /// </summary>
-        /// <param name="mensaje">Mensaje de salida con detalle del resultado o error.</param>
-        /// <returns>True si la modificación fue exitosa; false en caso contrario.</returns>
-        private bool ModificarEmpleado(ref string mensaje)
+        /// <remarks>
+        /// <para>
+        /// Este método actúa como puente entre la interfaz de usuario y la lógica de negocio para la actualización.
+        /// Empaqueta la entidad principal (<c>_barbero</c>) junto con sus dependencias (<c>_contactos</c>).
+        /// </para>
+        /// </remarks>
+        /// <param name="mensaje">Parámetro de salida (<c>out</c>) que contendrá el detalle del éxito o el motivo del error.</param>
+        /// <returns><c>true</c> si la modificación en la base de datos fue exitosa; de lo contrario, <c>false</c>.</returns>
+        private bool ModificarEmpleado(out string mensaje)
         {
-            // Llama al negocio para modificar el empleado con la lista de contactos.
-            // Si falla, antepone un texto explicativo al mensaje devuelto por la capa de negocio.
-            if (!EmpleadosNegocio.modificarEmpleado(_barbero, _contactos, ref mensaje))
+            // 1. Inicialización obligatoria del parámetro de salida
+            mensaje = string.Empty;
+
+            try
             {
-                mensaje = "Error en la modificación\n" + mensaje;
-                return false;
-            }
-            else
-            {
-                // Si la operación fue exitosa, informa el éxito y concatena detalles adicionales.
-                mensaje = "Modificación exitosa\n" + mensaje;
+                // 2. Llamada a la capa de negocio (Patrón Resultado)
+                var resultado = EmpleadosNegocio.ModificarEmpleado(_barbero, _contactos);
+
+                // 3. Evaluación de la respuesta
+                if (!resultado.Success)
+                {
+                    // Fallo en la actualización (ej: problemas de concurrencia, validaciones de negocio)
+                    mensaje = $"Error en la modificación:\n{resultado.Mensaje}";
+                    return false;
+                }
+
+                // 4. Éxito
+                mensaje = $"Modificación exitosa.\n{resultado.Mensaje}";
                 return true;
+            }
+            catch (Exception ex)
+            {
+                // 5. Manejo de excepciones no controladas durante la transacción
+                Logger.LogError($"Error crítico en ModificarEmpleado: {ex.ToString()}");
+                mensaje = "Ocurrió un error técnico inesperado al intentar actualizar el barbero en la base de datos.";
+                return false;
             }
         }
 
         /// <summary>
-        /// Intenta registrar un nuevo empleado usando los datos actuales.
+        /// Intenta registrar un nuevo empleado en la base de datos enviando las entidades a la capa de negocio.
         /// </summary>
-        /// <param name="mensaje">Mensaje de salida con detalle del resultado o error.</param>
-        /// <returns>True si el registro fue exitoso; false en caso contrario.</returns>
-        private bool RegistrarEmpleado(ref string mensaje)
+        /// <remarks>
+        /// <para>
+        /// Este método actúa como puente entre la interfaz de usuario y la lógica de negocio para la inserción.
+        /// Empaqueta la entidad principal (<c>_barbero</c>) junto con sus dependencias (<c>_contactos</c>).
+        /// </para>
+        /// </remarks>
+        /// <param name="mensaje">Parámetro de salida (<c>out</c>) que contendrá el detalle del éxito o el motivo del error.</param>
+        /// <returns><c>true</c> si el registro en la base de datos fue exitoso; de lo contrario, <c>false</c>.</returns>
+        private bool RegistrarEmpleado(out string mensaje)
         {
-            // Llama al negocio para registrar el empleado.
-            // Si falla, antepone un texto explicativo al mensaje devuelto por la capa de negocio.
-            if (!EmpleadosNegocio.RegistrarEmpleado(_barbero, _contactos, ref mensaje))
+            // 1. Inicialización obligatoria del parámetro de salida
+            mensaje = string.Empty;
+
+            try
             {
-                mensaje = "Error en el registro\n" + mensaje;
-                return false;
-            }
-            else
-            {
-                // Si la operación fue exitosa, informa el éxito y concatena detalles adicionales.
-                mensaje = "Registro exitoso\n" + mensaje;
+                // 2. Llamada a la capa de negocio (Asumiendo que ahora devuelve un objeto Resultado)
+                var resultado = EmpleadosNegocio.RegistrarEmpleado(_barbero, _contactos);
+
+                // 3. Evaluación de la respuesta del servidor/negocio
+                if (!resultado.Success)
+                {
+                    // Fallo en la inserción (ej: violaciones de clave foránea, timeout, etc.)
+                    mensaje = $"Error en el registro:\n{resultado.Mensaje}";
+                    return false;
+                }
+
+                // 4. Éxito
+                mensaje = $"Registro exitoso.\n{resultado.Mensaje}";
                 return true;
+            }
+            catch (Exception ex)
+            {
+                // 5. Manejo de catástrofes imprevistas durante la transacción
+                Logger.LogError($"Error crítico en RegistrarEmpleado: {ex.ToString()}");
+                mensaje = "Ocurrió un error técnico inesperado al intentar guardar el barbero en la base de datos.";
+                return false;
             }
         }
 

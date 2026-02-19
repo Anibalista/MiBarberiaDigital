@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             groupBox1 = new GroupBox();
             label2 = new Label();
             checkExtranjeroWhat = new CheckBox();
@@ -53,9 +54,11 @@
             btnMas = new Button();
             groupBoxBotones = new GroupBox();
             flowLayoutPanel1 = new FlowLayoutPanel();
+            errorProvider1 = new ErrorProvider(components);
             groupBox1.SuspendLayout();
             groupBoxBotones.SuspendLayout();
             flowLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)errorProvider1).BeginInit();
             SuspendLayout();
             // 
             // groupBox1
@@ -121,7 +124,7 @@
             txtEmail.Name = "txtEmail";
             txtEmail.Size = new Size(251, 23);
             txtEmail.TabIndex = 7;
-            txtEmail.Validating += txtEmail_Validating;
+            txtEmail.Validating += TxtEmail_Validating;
             // 
             // label13
             // 
@@ -147,7 +150,7 @@
             txtNumFijo.Name = "txtNumFijo";
             txtNumFijo.Size = new Size(102, 23);
             txtNumFijo.TabIndex = 4;
-            txtNumFijo.KeyPress += numeric_KeyPress;
+            txtNumFijo.KeyPress += Numeric_KeyPress;
             // 
             // label10
             // 
@@ -164,7 +167,7 @@
             txtAreaFijo.Name = "txtAreaFijo";
             txtAreaFijo.Size = new Size(50, 23);
             txtAreaFijo.TabIndex = 3;
-            txtAreaFijo.KeyPress += numeric_KeyPress;
+            txtAreaFijo.KeyPress += Numeric_KeyPress;
             // 
             // label11
             // 
@@ -182,7 +185,7 @@
             txtNumWhat.Name = "txtNumWhat";
             txtNumWhat.Size = new Size(119, 23);
             txtNumWhat.TabIndex = 2;
-            txtNumWhat.KeyPress += numeric_KeyPress;
+            txtNumWhat.KeyPress += Numeric_KeyPress;
             // 
             // label6
             // 
@@ -231,7 +234,7 @@
             txtAreaWhat.Name = "txtAreaWhat";
             txtAreaWhat.Size = new Size(50, 23);
             txtAreaWhat.TabIndex = 1;
-            txtAreaWhat.KeyPress += numeric_KeyPress;
+            txtAreaWhat.KeyPress += Numeric_KeyPress;
             // 
             // label9
             // 
@@ -253,7 +256,7 @@
             btnCancelar.Tag = "btnSecundarioR";
             btnCancelar.Text = "Cancelar";
             btnCancelar.UseVisualStyleBackColor = true;
-            btnCancelar.Click += btnCancelar_Click;
+            btnCancelar.Click += BtnCancelar_Click;
             // 
             // btnGuardar
             // 
@@ -265,7 +268,7 @@
             btnGuardar.Tag = "btnSecundarioV";
             btnGuardar.Text = "Guardar Contacto";
             btnGuardar.UseVisualStyleBackColor = true;
-            btnGuardar.Click += btnGuardar_Click;
+            btnGuardar.Click += BtnGuardar_Click;
             // 
             // btnMenos
             // 
@@ -277,7 +280,7 @@
             btnMenos.Tag = "btnPrincipal";
             btnMenos.Text = "-";
             btnMenos.UseVisualStyleBackColor = true;
-            btnMenos.Click += btnMenos_Click;
+            btnMenos.Click += BtnMenos_Click;
             // 
             // btnMas
             // 
@@ -289,7 +292,7 @@
             btnMas.Tag = "btnPrincipal";
             btnMas.Text = "+";
             btnMas.UseVisualStyleBackColor = true;
-            btnMas.Click += btnMas_Click;
+            btnMas.Click += BtnMas_Click;
             // 
             // groupBoxBotones
             // 
@@ -313,6 +316,11 @@
             flowLayoutPanel1.Size = new Size(361, 258);
             flowLayoutPanel1.TabIndex = 5;
             // 
+            // errorProvider1
+            // 
+            errorProvider1.BlinkStyle = ErrorBlinkStyle.NeverBlink;
+            errorProvider1.ContainerControl = this;
+            // 
             // FrmContactos
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -328,6 +336,7 @@
             groupBox1.PerformLayout();
             groupBoxBotones.ResumeLayout(false);
             flowLayoutPanel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)errorProvider1).EndInit();
             ResumeLayout(false);
         }
 
@@ -358,5 +367,6 @@
         private Label label2;
         private CheckBox checkExtranjeroWhat;
         private FlowLayoutPanel flowLayoutPanel1;
+        private ErrorProvider errorProvider1;
     }
 }
