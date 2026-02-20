@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace Front_SGBM
 {
@@ -20,7 +22,7 @@ namespace Front_SGBM
 
         public static void MensajeAdvertencia(string mensaje, string caption = "Advertencia")
         {
-            MessageBox.Show(mensaje, caption, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            MessageBox.Show(mensaje, caption, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         public static DialogResult Respuesta(string pregunta, string caption = "Confirmar", bool cancelar = false)
@@ -36,5 +38,6 @@ namespace Front_SGBM
             DialogResult confirmacion = Respuesta("¿Seguro desea salir? Los cambios no guardados se perderán");
             return confirmacion == DialogResult.Yes;
         }
+
     }
 }

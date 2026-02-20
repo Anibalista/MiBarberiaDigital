@@ -74,6 +74,7 @@
             txtCalle = new TextBox();
             label21 = new Label();
             pnlContent = new Panel();
+            errorProvider1 = new ErrorProvider(components);
             panelTitulo.SuspendLayout();
             panelBotones.SuspendLayout();
             groupBox1.SuspendLayout();
@@ -84,6 +85,7 @@
             groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)bindingProvincias).BeginInit();
             ((System.ComponentModel.ISupportInitialize)bindingLocalidades).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)errorProvider1).BeginInit();
             SuspendLayout();
             // 
             // panelTitulo
@@ -125,7 +127,7 @@
             btnCancelar.Tag = "btnPrincipalR";
             btnCancelar.Text = "Cancelar";
             btnCancelar.UseVisualStyleBackColor = true;
-            btnCancelar.Click += btnCancelar_Click;
+            btnCancelar.Click += BtnCancelar_Click;
             // 
             // btnGuardar
             // 
@@ -137,7 +139,7 @@
             btnGuardar.Tag = "btnPrincipalV";
             btnGuardar.Text = "Guardar";
             btnGuardar.UseVisualStyleBackColor = true;
-            btnGuardar.Click += btnGuardar_Click;
+            btnGuardar.Click += BtnGuardar_Click;
             // 
             // groupBox1
             // 
@@ -187,12 +189,12 @@
             linkContactos.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             linkContactos.Location = new Point(572, 131);
             linkContactos.Name = "linkContactos";
-            linkContactos.Size = new Size(139, 19);
+            linkContactos.Size = new Size(176, 19);
             linkContactos.TabIndex = 6;
             linkContactos.TabStop = true;
             linkContactos.Text = "ModificarCosto Contactos";
             linkContactos.VisitedLinkColor = Color.Blue;
-            linkContactos.LinkClicked += linkContactos_LinkClicked;
+            linkContactos.LinkClicked += LinkContactos_LinkClicked;
             // 
             // label6
             // 
@@ -267,7 +269,7 @@
             btnBuscar.Tag = "btnNormal";
             btnBuscar.Text = "Buscar";
             btnBuscar.UseVisualStyleBackColor = true;
-            btnBuscar.Click += btnBuscar_Click;
+            btnBuscar.Click += BtnBuscar_Click;
             // 
             // txtDni
             // 
@@ -277,7 +279,7 @@
             txtDni.Size = new Size(116, 23);
             txtDni.TabIndex = 0;
             txtDni.TextAlign = HorizontalAlignment.Center;
-            txtDni.KeyPress += txtDni_KeyPress;
+            txtDni.KeyPress += TxtDni_KeyPress;
             // 
             // label2
             // 
@@ -404,7 +406,7 @@
             cbProvincia.Size = new Size(243, 23);
             cbProvincia.TabIndex = 5;
             cbProvincia.ValueMember = "IdProvincia";
-            cbProvincia.SelectedIndexChanged += cbProvincia_SelectedIndexChanged;
+            cbProvincia.SelectedIndexChanged += CbProvincia_SelectedIndexChanged;
             // 
             // bindingProvincias
             // 
@@ -536,6 +538,10 @@
             pnlContent.Size = new Size(488, 622);
             pnlContent.TabIndex = 5;
             // 
+            // errorProvider1
+            // 
+            errorProvider1.ContainerControl = this;
+            // 
             // FrmEditClientes
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -564,6 +570,7 @@
             groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)bindingProvincias).EndInit();
             ((System.ComponentModel.ISupportInitialize)bindingLocalidades).EndInit();
+            ((System.ComponentModel.ISupportInitialize)errorProvider1).EndInit();
             ResumeLayout(false);
         }
 
@@ -614,5 +621,6 @@
         private Label label6;
         private BindingSource bindingEstados;
         private Panel pnlContent;
+        private ErrorProvider errorProvider1;
     }
 }

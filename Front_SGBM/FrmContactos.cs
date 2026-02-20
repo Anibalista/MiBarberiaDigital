@@ -410,7 +410,7 @@ namespace Front_SGBM
                     var frmClientes = Application.OpenForms.OfType<FrmEditClientes>().FirstOrDefault();
                     if (frmClientes != null)
                     {
-                        transferenciaExitosa = frmClientes.traerContactos(_contactosNuevos);
+                        transferenciaExitosa = frmClientes.TraerContactos(_contactosNuevos);
                     }
                 }
                 else if (origen == "Barberos")

@@ -670,7 +670,7 @@ namespace Front_SGBM
             catch (Exception ex)
             {
                 // 3. Red de seguridad para evitar caídas de la aplicación por eventos no controlados
-                Logger.LogError($"Error crítico en btnBuscar_Click: {ex.ToString()}");
+                Logger.LogError($"Error crítico en BtnBuscar_Click: {ex.ToString()}");
                 Mensajes.MensajeError("Ocurrió un error inesperado al intentar realizar la búsqueda.");
             }
         }
