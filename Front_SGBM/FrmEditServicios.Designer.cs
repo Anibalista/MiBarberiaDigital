@@ -105,7 +105,7 @@
             btnSalir.Tag = "btnPrincipalR";
             btnSalir.Text = "Cancelar";
             btnSalir.UseVisualStyleBackColor = true;
-            btnSalir.Click += btnSalir_Click;
+            btnSalir.Click += BtnSalir_Click;
             // 
             // btnGuardar
             // 
@@ -116,7 +116,7 @@
             btnGuardar.Tag = "btnPrincipalV";
             btnGuardar.Text = "Guardar";
             btnGuardar.UseVisualStyleBackColor = true;
-            btnGuardar.Click += btnGuardar_Click;
+            btnGuardar.Click += BtnGuardar_Click;
             // 
             // groupBoxCampos
             // 
@@ -174,7 +174,7 @@
             checkComision.TabIndex = 18;
             checkComision.Text = "Restar Comisión";
             checkComision.UseVisualStyleBackColor = true;
-            checkComision.CheckedChanged += checkComision_CheckedChanged;
+            checkComision.CheckedChanged += CheckComision_CheckedChanged;
             // 
             // lblCategoria
             // 
@@ -211,7 +211,7 @@
             btnAdminCostos.Tag = "btnNormal";
             btnAdminCostos.Text = "Administrar";
             btnAdminCostos.UseVisualStyleBackColor = true;
-            btnAdminCostos.Click += btnAdminCostos_Click;
+            btnAdminCostos.Click += BtnAdminCostos_Click;
             // 
             // txtCostosServicio
             // 
@@ -237,8 +237,8 @@
             txtComision.PlaceholderText = "máx 100.00%";
             txtComision.Size = new Size(87, 23);
             txtComision.TabIndex = 5;
-            txtComision.KeyPress += validarSoloDecimales_KeyPress;
-            txtComision.Leave += txtComision_Leave;
+            txtComision.KeyPress += ValidarSoloDecimales_KeyPress;
+            txtComision.Leave += TxtComision_Leave;
             // 
             // lblComision
             // 
@@ -256,8 +256,8 @@
             txtPrecio.PlaceholderText = "$ pesos";
             txtPrecio.Size = new Size(142, 23);
             txtPrecio.TabIndex = 4;
-            txtPrecio.KeyPress += validarSoloDecimales_KeyPress;
-            txtPrecio.Leave += txtPrecio_Leave;
+            txtPrecio.KeyPress += ValidarSoloDecimales_KeyPress;
+            txtPrecio.Leave += TxtPrecio_Leave;
             // 
             // lblPrecio
             // 
@@ -274,7 +274,7 @@
             txtPuntaje.Name = "txtPuntaje";
             txtPuntaje.Size = new Size(87, 23);
             txtPuntaje.TabIndex = 3;
-            txtPuntaje.KeyPress += validarSoloNumeros_KeyPress;
+            txtPuntaje.KeyPress += ValidarSoloNumeros_KeyPress;
             // 
             // lblPuntaje
             // 
@@ -292,7 +292,7 @@
             txtDuracion.PlaceholderText = "(minutos)";
             txtDuracion.Size = new Size(142, 23);
             txtDuracion.TabIndex = 2;
-            txtDuracion.KeyPress += validarSoloNumeros_KeyPress;
+            txtDuracion.KeyPress += ValidarSoloNumeros_KeyPress;
             // 
             // lblDuracion
             // 
@@ -381,7 +381,7 @@
             btnLimpiar.Tag = "btnNormal";
             btnLimpiar.Text = "Limpiar Campos";
             btnLimpiar.UseVisualStyleBackColor = true;
-            btnLimpiar.Click += btnLimpiar_Click;
+            btnLimpiar.Click += BtnLimpiar_Click;
             // 
             // dataGridInsumos
             // 
@@ -399,7 +399,7 @@
             dataGridInsumos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridInsumos.Size = new Size(411, 289);
             dataGridInsumos.TabIndex = 8;
-            dataGridInsumos.SelectionChanged += dataGridInsumos_SelectionChanged;
+            dataGridInsumos.SelectionChanged += DataGridInsumos_SelectionChanged;
             // 
             // txtTotalCostos
             // 
@@ -421,7 +421,7 @@
             btnModificar.Tag = "btnNormal";
             btnModificar.Text = "ModificarCosto";
             btnModificar.UseVisualStyleBackColor = true;
-            btnModificar.Click += btnModificar_Click;
+            btnModificar.Click += BtnModificar_Click;
             // 
             // lblTotal
             // 
@@ -444,7 +444,7 @@
             btnEliminar.Tag = "btnNormalR";
             btnEliminar.Text = "Eliminar";
             btnEliminar.UseVisualStyleBackColor = true;
-            btnEliminar.Click += btnEliminar_Click;
+            btnEliminar.Click += BtnEliminar_Click;
             // 
             // txtUnidades
             // 
@@ -453,8 +453,8 @@
             txtUnidades.Name = "txtUnidades";
             txtUnidades.Size = new Size(76, 23);
             txtUnidades.TabIndex = 5;
-            txtUnidades.KeyPress += validarSoloNumeros_KeyPress;
-            txtUnidades.Leave += txtUnidades_Leave;
+            txtUnidades.KeyPress += ValidarSoloNumeros_KeyPress;
+            txtUnidades.Leave += TxtUnidades_Leave;
             // 
             // lblUnidades
             // 
@@ -475,7 +475,7 @@
             btnNuevoInsumo.Tag = "btnNormalV";
             btnNuevoInsumo.Text = "Añadir";
             btnNuevoInsumo.UseVisualStyleBackColor = true;
-            btnNuevoInsumo.Click += btnNuevoInsumo_Click;
+            btnNuevoInsumo.Click += BtnNuevoInsumo_Click;
             // 
             // txtCantidad
             // 
@@ -484,8 +484,8 @@
             txtCantidad.Name = "txtCantidad";
             txtCantidad.Size = new Size(87, 23);
             txtCantidad.TabIndex = 4;
-            txtCantidad.KeyPress += validarSoloNumeros_KeyPress;
-            txtCantidad.Leave += txtCantidad_Leave;
+            txtCantidad.KeyPress += ValidarSoloNumeros_KeyPress;
+            txtCantidad.Leave += TxtCantidad_Leave;
             // 
             // txtMontoInsumo
             // 
@@ -495,7 +495,7 @@
             txtMontoInsumo.PlaceholderText = "$ pesos";
             txtMontoInsumo.Size = new Size(87, 23);
             txtMontoInsumo.TabIndex = 1;
-            txtMontoInsumo.KeyPress += validarSoloDecimales_KeyPress;
+            txtMontoInsumo.KeyPress += ValidarSoloDecimales_KeyPress;
             // 
             // lblCantidad
             // 
@@ -544,7 +544,7 @@
             cbProductos.Size = new Size(266, 23);
             cbProductos.TabIndex = 3;
             cbProductos.ValueMember = "IdProducto";
-            cbProductos.SelectedIndexChanged += cbProductos_SelectedIndexChanged;
+            cbProductos.SelectedIndexChanged += CbProductos_SelectedIndexChanged;
             // 
             // bindingSourceProductos
             // 
