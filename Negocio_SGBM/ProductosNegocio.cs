@@ -65,6 +65,8 @@ namespace Negocio_SGBM
                     producto.UnidadesMedidas = null;
                 }
             }
+            else
+                producto.UnidadesMedidas = null;
 
             // --- REGLAS DE NEGOCIO PARA CANTIDADES ---
             if (producto.IdUnidadMedida == null)

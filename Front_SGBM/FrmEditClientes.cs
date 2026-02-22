@@ -1,14 +1,5 @@
 ﻿using Entidades_SGBM;
 using Negocio_SGBM;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using Utilidades;
 
 namespace Front_SGBM

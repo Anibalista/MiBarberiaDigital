@@ -15,6 +15,7 @@ namespace Front_SGBM
         private List<Localidades>? _localidades = null;
         public List<string> opcionesBuscar = new List<string> { "Dni, Nombres", "Domicilio", "WhatsApp, Teléfono" };
         private bool cerrando = false;
+        private bool cargando = false;
 
         //Campos
         string _campo1 = string.Empty;
@@ -95,7 +96,7 @@ namespace Front_SGBM
         {
             if (cerrando) return;
 
-            bindingClientes.Clear();
+            bindingClientes.DataSource = null;
             ExtraerPersonas();
 
             var personas = _personas ?? new List<Personas>();
@@ -114,6 +115,7 @@ namespace Front_SGBM
                     row.Cells["Domicilio"].Value = persona.Direccion ?? "";
                 }
             }
+            dataGridClientes.ClearSelection();
         }
 
         /// <summary>
@@ -123,7 +125,7 @@ namespace Front_SGBM
         {
             if (cerrando) return;
 
-            contactosBindingSource.Clear();
+            contactosBindingSource.DataSource = null;
             _contactos = null;
 
             if (_persona != null)
@@ -340,13 +342,13 @@ namespace Front_SGBM
         /// </summary>
         private void bindingClientes_CurrentChanged(object sender, EventArgs e)
         {
-            if (cerrando) return;
+            if (cerrando || cargando) return;
             if (_personas == null) return;
 
             _persona = null;
             try
             {
-                _persona = (Personas)bindingClientes.Current;
+                _persona = bindingClientes.Current as Personas;
                 if (_persona == null) return;
 
                 _cliente = _clientes?.FirstOrDefault(c => c.IdPersona == _persona.IdPersona);

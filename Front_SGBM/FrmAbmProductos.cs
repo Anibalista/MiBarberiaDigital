@@ -329,6 +329,7 @@ namespace Front_SGBM
 
                 Mensajes.MensajeExito("Modificación exitosa");
                 CargarProductos();
+                CargarCategorias();
             }
             catch (Exception ex)
             {
@@ -368,6 +369,7 @@ namespace Front_SGBM
 
                 Mensajes.MensajeExito("Registro exitoso");
                 CargarProductos();
+                CargarCategorias();
             }
             catch (Exception ex)
             {
@@ -1157,12 +1159,15 @@ namespace Front_SGBM
                 if (!resultadoMedida.Success)
                     return Resultado<bool>.Fail(resultadoMedida.Mensaje);
 
-                var resultadoCantidad = ValidarCampoNumerico(txtCantMedida, true, false);
-                if (!resultadoCantidad.Success)
-                    return Resultado<bool>.Fail(resultadoCantidad.Mensaje);
-
                 decimal? medida = resultadoMedida.Data;
-                decimal? cantidad = resultadoCantidad.Data;
+                decimal? cantidad = null;
+
+                var resultadoCantidad = ValidarCampoNumerico(txtCantMedida, true, false);
+                if (resultadoCantidad.Success)
+                    cantidad = resultadoCantidad.Data;
+
+                
+                
                 int medidaEntero = 0;
 
                 if (medida == null)
