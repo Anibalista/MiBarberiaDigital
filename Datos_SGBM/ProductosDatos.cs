@@ -80,7 +80,7 @@ namespace Datos_SGBM
                                         .ToList();
 
                     if (lista == null || lista.Count == 0)
-                        return Resultado<List<Productos>>.Fail("No se encontraron productos.");
+                        return Resultado<List<Productos>>.Ok(new List<Productos>(), "No se encontraron productos.");
 
                     return Resultado<List<Productos>>.Ok(lista);
                 }

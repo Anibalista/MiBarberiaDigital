@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Entidades_SGBM
 {
     public class UnidadesMedidas
     {
         [Key]
-        public int? IdUnidadMedida { get; set; }
+        public int IdUnidadMedida { get; set; }
 
         [MaxLength(10)]
         public string Unidad { get; set; }

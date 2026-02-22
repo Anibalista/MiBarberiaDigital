@@ -76,7 +76,7 @@ namespace Front_SGBM
                 // Si la operación no fue exitosa, se muestra el mensaje de error
                 if (!resultado.Success || resultado.Data == null)
                 {
-                    Mensajes.MensajeError(resultado.Mensaje);
+                    Mensajes.MensajeAdvertencia(resultado.Mensaje);
                     return;
                 }
 
@@ -85,7 +85,7 @@ namespace Front_SGBM
                     Mensajes.MensajeAdvertencia(resultado.Mensaje);
 
                 // Asignar la lista de productos obtenida
-                _productos = resultado.Data;
+                _productos = resultado.Data ?? new List<Productos>();
 
                 // Refresca la grilla con los productos cargados
                 RefrescarGrilla();
@@ -939,7 +939,7 @@ namespace Front_SGBM
                 string codigo = txtCodigo.Text.Trim();
                 var resultado = ProductosNegocio.BuscarPorCodigo(codigo);
 
-                if (!resultado.Success)
+                if (!resultado.Success && modo == EnumModoForm.Modificacion)
                 {
                     // Si la búsqueda falló, devolvemos el mensaje de la capa negocio
                     return Resultado<bool>.Fail(resultado.Mensaje);
@@ -989,7 +989,7 @@ namespace Front_SGBM
                 if (codigo != null)
                 {
                     var resultadoExiste = CodigoExiste();
-                    if (!resultadoExiste.Success)
+                    if (!resultadoExiste.Success && modo == EnumModoForm.Modificacion)
                         return Resultado<bool>.Fail(resultadoExiste.Mensaje);
 
                     bool existe = resultadoExiste.Data;
@@ -1111,7 +1111,7 @@ namespace Front_SGBM
                     return Resultado<bool>.Ok(true);
                 }
 
-                Categorias? categoria = _categorias?.FirstOrDefault(c => c.Descripcion == texto);
+                Categorias? categoria = _categorias?.FirstOrDefault(c => c.Descripcion.Equals(texto, StringComparison.OrdinalIgnoreCase));
 
                 if (categoria == null)
                 {
@@ -1119,7 +1119,7 @@ namespace Front_SGBM
                     categoria = new Categorias { Indole = "Productos", Descripcion = texto };
                 }
 
-                _productoSeleccionado.Categorias = categoria;
+                _productoSeleccionado!.Categorias = categoria;
                 _productoSeleccionado.idCategoria = categoria.IdCategoria;
                 errorProvider1.SetError(cbEditCategoria, string.Empty);
                 return Resultado<bool>.Ok(true);

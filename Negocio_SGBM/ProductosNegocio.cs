@@ -13,59 +13,79 @@ namespace Negocio_SGBM
         /// <summary>
         /// Valida que la información del producto sea correcta antes de procesarla.
         /// </summary>
-        private static Resultado<bool> ComprobarProducto(Productos? producto, bool registro)
+        private static Resultado<Productos> ComprobarProducto(Productos? producto, bool registro)
         {
             if (producto == null)
-                return Resultado<bool>.Fail("La información del producto no llega a la consulta.");
+                return Resultado<Productos>.Fail("La información del producto no llega a la consulta.");
 
+            // Validaciones de texto
             if (string.IsNullOrWhiteSpace(producto.CodProducto))
-                return Resultado<bool>.Fail("El código del producto no puede estar vacío.");
+                return Resultado<Productos>.Fail("El código del producto no puede estar vacío.");
             if (producto.CodProducto.Length > 99)
-                return Resultado<bool>.Fail("El código del producto supera la longitud máxima permitida.");
+                return Resultado<Productos>.Fail("El código del producto supera la longitud máxima permitida.");
 
             if (string.IsNullOrWhiteSpace(producto.Descripcion))
-                return Resultado<bool>.Fail("La descripción del producto no puede estar vacía.");
+                return Resultado<Productos>.Fail("La descripción del producto no puede estar vacía.");
             if (producto.Descripcion.Length > 99)
-                return Resultado<bool>.Fail("La descripción del producto supera la longitud máxima permitida.");
+                return Resultado<Productos>.Fail("La descripción del producto supera la longitud máxima permitida.");
 
+            // Validaciones de dinero
             if (producto.PrecioVenta < 0)
-                return Resultado<bool>.Fail($"El precio de venta {producto.PrecioVenta:0.00} no está permitido.");
+                return Resultado<Productos>.Fail($"El precio de venta {producto.PrecioVenta:0.00} no está permitido.");
             if (producto.Costo < 0)
-                return Resultado<bool>.Fail($"El costo {producto.Costo:0.00} no está permitido.");
+                return Resultado<Productos>.Fail($"El costo {producto.Costo:0.00} no está permitido.");
 
+            // Validación de Modo Modificación
             if (!registro && (producto.IdProducto == null || producto.IdProducto < 1))
-                return Resultado<bool>.Fail("Error con el Id del producto a manipular.");
+                return Resultado<Productos>.Fail("Error con el Id del producto a manipular.");
 
-            return Resultado<bool>.Ok(true);
+            // --- GESTIÓN DE CATEGORÍAS ---
+            if (producto.idCategoria == null || producto.idCategoria < 1)
+            {
+                producto.idCategoria = null;
+                if (producto.Categorias?.IdCategoria != null && producto.Categorias.IdCategoria > 0)
+                {
+                    producto.idCategoria = producto.Categorias.IdCategoria;
+                    producto.Categorias = null; // Soltamos el objeto
+                }
+            }
+
+            // --- GESTIÓN DE UNIDADES DE MEDIDA ---
+            if (producto.IdUnidadMedida == null || producto.IdUnidadMedida < 1)
+            {
+                producto.IdUnidadMedida = null;
+                if (producto.UnidadesMedidas != null && producto.UnidadesMedidas.IdUnidadMedida > 0)
+                {
+                    producto.IdUnidadMedida = producto.UnidadesMedidas.IdUnidadMedida;
+                    producto.UnidadesMedidas = null; // Soltamos el objeto para no confundir a EF Core
+                }
+                else
+                {
+                    // Por seguridad, si el ID era inválido, aseguramos que el objeto también sea null
+                    producto.UnidadesMedidas = null;
+                }
+            }
+
+            // --- REGLAS DE NEGOCIO PARA CANTIDADES ---
+            if (producto.IdUnidadMedida == null)
+            {
+                // Si no hay unidad, limpiamos las medidas
+                producto.Medida = null;
+                producto.CantidadMedida = null;
+            }
+            else
+            {
+                // Si HAY unidad, validamos que no le hayan puesto números negativos absurdos
+                if (producto.Medida < 0)
+                    return Resultado<Productos>.Fail("La medida por envase no puede ser negativa.");
+
+                if (producto.CantidadMedida < 0)
+                    return Resultado<Productos>.Fail("La cantidad de medida suelta no puede ser negativa.");
+            }
+
+            return Resultado<Productos>.Ok(producto);
         }
-
-        /// <summary>
-        /// Prepara el producto para ser persistido en la base de datos.
-        /// Convierte las relaciones en claves foráneas y normaliza valores.
-        /// </summary>
-        private static Productos PrepararProducto(Productos producto)
-        {
-            if (producto.Categorias != null)
-                producto.idCategoria = producto.Categorias.IdCategoria;
-            if (producto.idCategoria != null)
-                producto.Categorias = null;
-
-            if (producto.UnidadesMedidas != null)
-                producto.IdUnidadMedida = producto.UnidadesMedidas.IdUnidadMedida;
-            if (producto.IdUnidadMedida != null)
-                producto.UnidadesMedidas = null;
-
-            if (producto.Proveedores != null)
-                producto.IdProveedor = producto.Proveedores.IdProveedor;
-            if (producto.IdProveedor != null)
-                producto.Proveedores = null;
-
-            if (producto.Comision != null)
-                producto.Comision = producto.Comision > 1 ? producto.Comision / 100 : producto.Comision;
-
-            return producto;
-        }
-
+                
         /// <summary>
         /// Obtiene la lista simple de productos desde la capa de datos.
         /// </summary>
@@ -93,8 +113,6 @@ namespace Negocio_SGBM
             try
             {
                 var resultadoDatos = ProductosDatos.ObtenerCodigoMayorSugerido();
-                if (!resultadoDatos.Success)
-                    return Resultado<string>.Fail(resultadoDatos.Mensaje);
 
                 var mayor = resultadoDatos.Data;
                 if (string.IsNullOrWhiteSpace(mayor))
@@ -160,6 +178,7 @@ namespace Negocio_SGBM
             if (!validacion.Success)
                 return Resultado<bool>.Fail(validacion.Mensaje);
 
+            producto = validacion.Data;
             try
             {
                 producto!.Activo = !producto.Activo;
@@ -182,12 +201,12 @@ namespace Negocio_SGBM
             if (!validacion.Success)
                 return Resultado<int>.Fail(validacion.Mensaje);
 
+            producto = validacion.Data;
             try
             {
-                var p = PrepararProducto(producto!);
-                p.IdProducto = null;
+                producto.IdProducto = null;
 
-                return ProductosDatos.RegistrarProducto(p);
+                return ProductosDatos.RegistrarProducto(producto);
             }
             catch (Exception ex)
             {
@@ -206,12 +225,10 @@ namespace Negocio_SGBM
             if (!validacion.Success)
                 return Resultado<bool>.Fail(validacion.Mensaje);
 
+            producto = validacion.Data;
             try
             {
-                var p = PrepararProducto(producto!);
-                p.IdProducto = producto.IdProducto;
-
-                return ProductosDatos.ModificarProducto(p);
+                return ProductosDatos.ModificarProducto(producto);
             }
             catch (Exception ex)
             {

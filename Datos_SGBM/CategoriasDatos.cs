@@ -45,9 +45,8 @@ namespace Datos_SGBM
                         var msg = string.IsNullOrWhiteSpace(indoleCrit)
                             ? "No se encontraron categorías."
                             : $"No se encontraron categorías con índole '{indole}'.";
-                        return Resultado<List<Categorias>>.Fail(msg);
+                        return Resultado<List<Categorias>>.Ok(new List<Categorias>(), msg);
                     }
-
                     return Resultado<List<Categorias>>.Ok(lista);
                 }
             }
