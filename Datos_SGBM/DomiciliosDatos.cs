@@ -307,7 +307,7 @@ namespace Datos_SGBM
                 return Resultado<Localidades?>.Fail("No viaja el nombre de la localidad a consultar (capa datos).");
 
             // Normalizar para comparación segura
-            var nombreNormalized = nombre.Trim().ToLowerInvariant();
+            var nombreNormalized = nombre.Trim().ToLower();
 
             try
             {
@@ -322,7 +322,7 @@ namespace Datos_SGBM
                     }
 
                     var localidad = contexto.Localidades
-                        .FirstOrDefault(l => l.Localidad != null && l.Localidad.Trim().ToLowerInvariant() == nombreNormalized);
+                        .FirstOrDefault(l => l.Localidad != null && l.Localidad.Trim().ToLower() == nombreNormalized);
 
                     if (localidad == null)
                         return Resultado<Localidades?>.Fail($"No se encontró la localidad con el nombre '{nombre.Trim()}'.");

@@ -918,6 +918,9 @@ namespace Front_SGBM
             // Asigna el estado si existe.
             SeleccionarEstado();
 
+            // Asigna el tipo de empleado si existe.
+            SeleccionarTipoEmpleado();
+
             // Asigna los datos de domicilio si existen.
             if (_domicilio != null)
             {
@@ -998,6 +1001,33 @@ namespace Front_SGBM
                 // Deshabilita el combo en caso de error
                 cbEstados.Enabled = false;
                 return;
+            }
+        }
+
+        private void SeleccionarTipoEmpleado()
+        {
+            if (_tiposEmpleados == null || _barbero == null)
+                return;
+            try
+            {
+                // Intenta seleccionar el tipo de empleado del barbero
+                if (string.IsNullOrWhiteSpace(_barbero.TipoEmpleado))
+                    _barbero.TipoEmpleado = _tiposEmpleados.FirstOrDefault(); // Asigna el primer tipo disponible si no tiene
+                string? tipo = _tiposEmpleados.FirstOrDefault(t => t.Equals(_barbero.TipoEmpleado, StringComparison.OrdinalIgnoreCase));
+                int indice = 0;
+                if (tipo == null)
+                    _tiposEmpleados.Insert(0, _barbero.TipoEmpleado ?? "No Definido"); // Si el tipo del barbero no está en la lista, lo agrega al inicio
+                else
+                    indice = _tiposEmpleados.IndexOf(tipo);
+                cbTipo.SelectedIndex = indice;
+
+            }
+            catch (Exception ex)
+            {
+                // Registra el error en el log para diagnóstico
+                Logger.LogError(ex.Message);
+                // Deshabilita el combo en caso de error
+                cbTipo.Enabled = false;
             }
         }
 
@@ -1288,6 +1318,8 @@ namespace Front_SGBM
 
                 // 4. Validación de Fecha de Nacimiento (asumimos que gestiona sus propios errores visuales)
                 ComprobarNacimiento();
+
+                _barbero.TipoEmpleado = cbTipo.SelectedItem?.ToString() ?? _barbero.TipoEmpleado; // Asigna el tipo seleccionado o mantiene el actual
 
                 // 5. Validación y Asignación del Estado Laboral
                 // Uso de 'as' para casteo seguro sin excepciones
@@ -1635,6 +1667,7 @@ namespace Front_SGBM
                 {
                     _persona.Domicilios = _domicilio;
                     _persona.IdDomicilio = _domicilio?.IdDomicilio;
+                    _persona.Dni = _persona.Dni ?? txtDni.Text.Trim(); // Asegura que el DNI esté asignado a la persona
                 }
 
                 // Si pasó todas las barreras críticas, luz verde para guardar
@@ -1689,7 +1722,7 @@ namespace Front_SGBM
                 var resultado = EmpleadosNegocio.GetEmpleadoPorDni(dniIngresado);
 
                 // 3. Manejo de errores de negocio o base de datos
-                if (!resultado.Success)
+                if (!resultado.Success && modo == EnumModoForm.Modificacion)
                 {
                     Mensajes.MensajeError(resultado.Mensaje ?? "Ocurrió un problema al intentar buscar el empleado.");
                     return false;
@@ -1744,42 +1777,6 @@ namespace Front_SGBM
                 // Muestra un mensaje de error al usuario.
                 Mensajes.MensajeError("Error al cargar los datos del empleado\n" + ex.Message);
             }
-        }
-
-        /// <summary>
-        /// Inicializa las variables internas del formulario a partir de los datos del objeto <c>_barbero</c>.
-        /// </summary>
-        /// <remarks>
-        /// - Si <c>_barbero</c> o <c>_barbero.Personas</c> son nulos, no realiza ninguna acción.
-        /// - Asigna la persona asociada al barbero, creando una nueva si no existe.
-        /// - Asigna el domicilio de la persona, creando uno nuevo si no existe.
-        /// - Recupera el estado del barbero.
-        /// - Obtiene la localidad y provincia asociadas al domicilio.
-        /// </remarks>
-        private void LlenarVariables()
-        {
-            // Si no hay barbero cargado, no se procede
-            if (_barbero == null || _barbero?.Personas == null)
-            {
-                LimpiarValores(false);
-                return;
-            }
-
-            // Asigna la persona asociada al barbero
-            _persona = _barbero.Personas;
-
-            // Asigna el domicilio de la persona, o crea uno nuevo si no existe
-            _domicilio = _persona.Domicilios ?? new();
-
-            // Recupera el estado actual del barbero
-            _estado = _barbero.Estados;
-
-            // Obtiene la localidad asociada al domicilio
-            _localidad = _domicilio?.Localidades;
-
-            // Obtiene la provincia asociada a la localidad del domicilio
-            _provincia = _domicilio == null ? null : _domicilio.Localidades?.Provincias;
-
         }
 
         /// <summary>
@@ -1858,6 +1855,12 @@ namespace Front_SGBM
                 {
                     Mensajes.MensajeExito($"El DNI: {txtDni.Text} ya es un cliente registrado. Cargando datos");
                     PrepararModificacion();
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(txtDni.Text.Trim()))
+                {
+                    Mensajes.MensajeError("El campo DNI no puede estar vacío para registrar un nuevo empleado.");
                     return;
                 }
 

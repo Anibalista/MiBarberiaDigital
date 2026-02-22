@@ -193,7 +193,7 @@ namespace Datos_SGBM
 
                     return cambios > 0
                         ? Resultado<bool>.Ok(true)
-                        : Resultado<bool>.Fail("No se realizaron cambios al servicio.");
+                        : Resultado<bool>.Ok(true, "No se realizaron cambios al servicio.");
                 }
             }
             catch (Exception ex)
@@ -258,7 +258,7 @@ namespace Datos_SGBM
             if (string.IsNullOrWhiteSpace(nombreServicio))
                 return Resultado<Servicios?>.Fail("El nombre del servicio no puede estar vacío.");
 
-            var nombreCrit = nombreServicio.Trim().ToLowerInvariant();
+            var nombreCrit = nombreServicio.Trim().ToLower();
 
             try
             {
@@ -275,7 +275,7 @@ namespace Datos_SGBM
                     var servicio = contexto.Servicios
                                            .Include(s => s.Categorias)
                                            .FirstOrDefault(s => s.NombreServicio != null
-                                                             && s.NombreServicio.ToLowerInvariant() == nombreCrit);
+                                                             && s.NombreServicio.ToLower() == nombreCrit);
 
                     if (servicio == null)
                         return Resultado<Servicios?>.Fail("No se encontró el servicio con el nombre proporcionado.");
@@ -306,7 +306,7 @@ namespace Datos_SGBM
         /// - Este método orquesta la búsqueda avanzada y delega la lógica específica a métodos privados:
         ///   <see cref="BuscarPorNombreCosto"/> para la rama especial "nombre costo" y <see cref="BuscarPorCampoDirecto"/> para los demás campos.
         /// - El <see cref="Contexto"/> se crea y valida aquí; los métodos privados reciben el contexto ya inicializado para evitar abrir múltiples contextos.
-        /// - **Normalización**: el parámetro <paramref name="campo"/> se normaliza con <c>Trim().ToLowerInvariant()</c> para facilitar la detección de la rama a ejecutar.
+        /// - **Normalización**: el parámetro <paramref name="campo"/> se normaliza con <c>Trim().ToLower())</c> para facilitar la detección de la rama a ejecutar.
         /// - **Política de errores**: las excepciones se capturan, se registran con <c>Logger</c> y se devuelven dentro de <see cref="Resultado{T}"/>; no se lanzan excepciones hacia capas superiores.
         /// - **Comportamiento ante campos no reconocidos**: si el campo no coincide con la rama especial, se delega a <c>BuscarPorCampoDirecto</c>, que por su política puede devolver todos los registros (sujeto a filtro de categoría) o aplicar los filtros reconocidos.
         /// - **Rendimiento**: para búsquedas que impliquen tablas relacionadas (por ejemplo CostosServicios) se usan <c>Include</c> y proyecciones con <c>Distinct()</c> para evitar duplicados y N+1.
@@ -329,7 +329,7 @@ namespace Datos_SGBM
                 if (string.IsNullOrWhiteSpace(campo))
                     return Resultado<List<Servicios>>.Fail("Debe indicar el campo a filtrar.");
 
-                string campoLower = campo.Trim().ToLowerInvariant();
+                string campoLower = campo.Trim().ToLower();
 
                 if (campoLower.Contains("nombre costo"))
                 {

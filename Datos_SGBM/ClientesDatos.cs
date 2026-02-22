@@ -192,8 +192,8 @@ namespace Datos_SGBM
                 }
 
                 // Normalizar criterios
-                var dniTrimLower = dni?.Trim().ToLowerInvariant();
-                var nombresTrimLower = nombres?.Trim().ToLowerInvariant();
+                var dniTrimLower = dni?.Trim().ToLower();
+                var nombresTrimLower = nombres?.Trim().ToLower();
 
                 // Base query con includes
                 var query = contexto.Clientes

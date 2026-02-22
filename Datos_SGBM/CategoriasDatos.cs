@@ -29,13 +29,13 @@ namespace Datos_SGBM
                         return Resultado<List<Categorias>>.Fail(rc.Mensaje);
                     }
 
-                    var indoleCrit = string.IsNullOrWhiteSpace(indole) ? null : indole.Trim().ToLowerInvariant();
+                    var indoleCrit = string.IsNullOrWhiteSpace(indole) ? null : indole.Trim().ToLower();
 
                     IQueryable<Categorias> query = contexto.Categorias.AsQueryable();
 
                     if (!string.IsNullOrWhiteSpace(indoleCrit))
                     {
-                        query = query.Where(c => c.Indole != null && c.Indole.ToLowerInvariant() == indoleCrit);
+                        query = query.Where(c => c.Indole != null && c.Indole.ToLower() == indoleCrit);
                     }
 
                     var lista = query.OrderBy(c => c.Descripcion).ToList();

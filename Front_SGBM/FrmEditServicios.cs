@@ -138,7 +138,8 @@ namespace Front_SGBM
 
                 // Valores monetarios y porcentuales con dos decimales
                 txtPrecio.Text = _servicio.PrecioVenta.ToString("0.00");
-                txtComision.Text = _servicio.Comision.ToString("0.00");
+
+                txtComision.Text = (_servicio.Comision * 100).ToString("0.00");
 
                 checkActivo.Checked = _servicio.Activo;
 
@@ -265,7 +266,6 @@ namespace Front_SGBM
                 // Si la capa negocio devolvió un error, mostrarlo y asignar lista vacía
                 if (!resultado.Success)
                 {
-                    Mensajes.MensajeError(resultado.Mensaje);
                     bindingSourceProductos.DataSource = new List<Productos>();
                     cbProductos.SelectedIndex = -1;
                     return;
@@ -323,7 +323,6 @@ namespace Front_SGBM
                 // Si la capa negocio devolvió un error, mostrarlo y asignar lista vacía
                 if (!resultado.Success)
                 {
-                    Mensajes.MensajeError(resultado.Mensaje);
                     bindingSourceCategorias.DataSource = new List<Categorias>();
                     cbCategoria.SelectedIndex = -1;
                     return;
@@ -416,21 +415,22 @@ namespace Front_SGBM
                 if (!resultado.Success)
                 {
                     Logger.LogError($"Error de negocio al obtener insumos para el servicio {_servicio.IdServicio}: {resultado.Mensaje}");
-                    Mensajes.MensajeError("No se pudo recuperar la información de costos desde el servidor.");
                     return;
                 }
 
                 // 5. Asignación segura de datos
                 _costos = resultado.Data ?? new List<CostosServicios>();
 
-                // 6. Si el negocio envió un mensaje informativo (aunque sea exitoso), lo mostramos
+                // 6. Recalcular totales (Ya sin el parámetro 'ref' que quitamos antes)
+                SumarCostos();
+
+                // 7. Si el negocio envió un mensaje informativo (aunque sea exitoso), lo mostramos
                 if (!string.IsNullOrWhiteSpace(resultado.Mensaje))
                 {
                     Mensajes.MensajeAdvertencia(resultado.Mensaje);
                 }
 
-                // 7. Recalcular totales (Ya sin el parámetro 'ref' que quitamos antes)
-                SumarCostos();
+                
             }
             catch (Exception ex)
             {
@@ -870,7 +870,7 @@ namespace Front_SGBM
 
                 // 4. Limpieza de selección y actualización de UI
                 _costoServicio = null;
-
+                cargando = false; // Desbloqueamos para que la grilla pueda actualizarse sin interferencias
                 RefrescarGrilla();
 
                 // Refactorización sugerida: SumarCostos ya no debería necesitar un 'ref mensaje' 
@@ -1678,6 +1678,7 @@ namespace Front_SGBM
                 // Refrescar la grilla para que la vista quede consistente con el estado interno
                 try
                 {
+                    cargando = false; // Asegurar que el flag quede en false antes de refrescar la grilla
                     RefrescarGrilla();
                 }
                 catch (Exception ex)
@@ -1791,6 +1792,7 @@ namespace Front_SGBM
 
                 // Agregar y refrescar vista
                 _costos.Add(_costoServicio);
+                cargando = false; // Asegurar que el flag quede en false antes de refrescar la grilla
                 RefrescarGrilla();
 
                 // Recalcular totales y limpiar campos de insumo
@@ -1802,10 +1804,6 @@ namespace Front_SGBM
                 var msg = "Error al cargar el insumo-resultado: " + ex.ToString();
                 Mensajes.MensajeError(msg);
                 Logger.LogError(msg);
-            }
-            finally
-            {
-                cargando = false;
             }
         }
 

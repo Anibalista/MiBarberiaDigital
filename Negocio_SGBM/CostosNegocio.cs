@@ -26,21 +26,45 @@ namespace Negocio_SGBM
         /// <summary>
         /// Valida un costo antes de registrar o modificar.
         /// </summary>
-        private static Resultado<bool> ComprobarCosto(CostosServicios? costo, bool registro)
+        private static Resultado<CostosServicios> ComprobarCosto(CostosServicios? costo, bool registro)
         {
             if (costo == null)
-                return Resultado<bool>.Fail("No llega el costo del servicio a la consulta.");
+                return Resultado<CostosServicios>.Fail("No llega el costo del servicio a la consulta.");
 
             if (costo.Costo <= 0)
-                return Resultado<bool>.Fail("El monto del costo del servicio debe ser mayor a cero.");
+                return Resultado<CostosServicios>.Fail("El monto del costo del servicio debe ser mayor a cero.");
 
             if (string.IsNullOrWhiteSpace(costo.Descripcion))
-                return Resultado<bool>.Fail("La descripción del costo del servicio no puede estar vacía.");
+                return Resultado<CostosServicios>.Fail("La descripción del costo del servicio no puede estar vacía.");
+
+            if (costo.IdServicio < 1)
+                return Resultado<CostosServicios>.Fail("El Id del servicio asociado al costo no es válido.");
+
+            if (costo.IdProducto.HasValue && costo.IdProducto > 0)
+            {
+                costo.Productos = null; // Evitar inconsistencias al registrar/modificar con un producto asociado
+            }
+
+            if (costo.Productos != null)
+            {
+                if (costo.Productos.IdProducto.HasValue && costo.Productos.IdProducto > 0)
+                {
+                    costo.IdProducto = costo.Productos.IdProducto;
+                    costo.Productos = null; // Evitar redundancia al tener el IdProducto
+                } else
+                {
+                    costo.IdProducto = null; // Si el producto no tiene Id válido, no asociar
+                    costo.Productos = null;
+                }
+                    
+            }
 
             if (!registro && (costo.IdCostoServicio == null || costo.IdCostoServicio < 1))
-                return Resultado<bool>.Fail("Error al ligar el costo al servicio.");
+                return Resultado<CostosServicios>.Fail("Error al ligar el costo al servicio.");
 
-            return Resultado<bool>.Ok(true);
+            var resutado = Resultado<CostosServicios>.Ok(costo);
+
+            return resutado;
         }
 
         /// <summary>
@@ -78,22 +102,19 @@ namespace Negocio_SGBM
             {
                 var errores = new List<string>();
 
-                foreach (var costo in costos)
+                foreach (var c in costos)
                 {
-                    costo.IdCostoServicio = null;
-                    costo.IdServicio = idServicio;
+                    c.IdCostoServicio = null;
+                    c.IdServicio = idServicio;
 
-                    var validacion = ComprobarCosto(costo, true);
+                    var validacion = ComprobarCosto(c, true);
                     if (!validacion.Success)
                     {
                         errores.Add(validacion.Mensaje);
                         continue;
                     }
 
-                    if (costo.Productos != null)
-                        costo.IdProducto = costo.Productos.IdProducto;
-                    if (costo.IdProducto != null)
-                        costo.Productos = null;
+                    CostosServicios costo = validacion.Data;
 
                     var resultadoDatos = CostosDatos.RegistrarCosto(costo);
                     if (!resultadoDatos.Success || resultadoDatos.Data <= 0)
@@ -122,13 +143,10 @@ namespace Negocio_SGBM
             if (!validacion.Success)
                 return Resultado<bool>.Fail(validacion.Mensaje);
 
+            costo = validacion.Data;
             try
             {
-                if (costo!.Productos != null)
-                    costo.IdProducto = costo.Productos.IdProducto;
-                if (costo.IdProducto != null)
-                    costo.Productos = null;
-
+                
                 var resultadoDatos = CostosDatos.ModificarCosto(costo);
                 if (!resultadoDatos.Success)
                     return Resultado<bool>.Fail($"Costo no modificado.\n{resultadoDatos.Mensaje}");
@@ -151,14 +169,9 @@ namespace Negocio_SGBM
             var validacion = ComprobarCosto(costo, false);
             if (!validacion.Success)
                 return Resultado<bool>.Fail(validacion.Mensaje);
-
+            costo = validacion.Data;
             try
             {
-                if (costo!.Productos != null)
-                    costo.IdProducto = costo.Productos.IdProducto;
-                if (costo.IdProducto != null)
-                    costo.Productos = null;
-
                 var resultadoDatos = CostosDatos.EliminarFisico(costo);
                 if (!resultadoDatos.Success)
                     return Resultado<bool>.Fail($"Costo no eliminado.\n{resultadoDatos.Mensaje}");

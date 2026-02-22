@@ -53,11 +53,11 @@ namespace Front_SGBM
             pnlHeader = new Panel();
             flpMenu = new FlowLayoutPanel();
             btnVentas = new Button();
-            btnClientes = new Button();
             btnCajas = new Button();
             btnServicios = new Button();
             btnProductos = new Button();
             btnReportes = new Button();
+            btnClientes = new Button();
             btnContabilidad = new Button();
             btnSalir = new Button();
             pnlTitulo = new Panel();
@@ -93,7 +93,7 @@ namespace Front_SGBM
             // 
             clientesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { abmClientesToolStripMenuItem, nuevoClienteToolStripMenuItem });
             clientesToolStripMenuItem.Name = "clientesToolStripMenuItem";
-            clientesToolStripMenuItem.Size = new Size(151, 22);
+            clientesToolStripMenuItem.Size = new Size(180, 22);
             clientesToolStripMenuItem.Text = "Clientes";
             // 
             // abmClientesToolStripMenuItem
@@ -114,7 +114,7 @@ namespace Front_SGBM
             // 
             serviciosToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aBMServiciosToolStripMenuItem, nuevoServicioToolStripMenuItem });
             serviciosToolStripMenuItem.Name = "serviciosToolStripMenuItem";
-            serviciosToolStripMenuItem.Size = new Size(151, 22);
+            serviciosToolStripMenuItem.Size = new Size(180, 22);
             serviciosToolStripMenuItem.Text = "Servicios";
             // 
             // aBMServiciosToolStripMenuItem
@@ -135,7 +135,7 @@ namespace Front_SGBM
             // 
             productosToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aBMProductosToolStripMenuItem });
             productosToolStripMenuItem.Name = "productosToolStripMenuItem";
-            productosToolStripMenuItem.Size = new Size(151, 22);
+            productosToolStripMenuItem.Size = new Size(180, 22);
             productosToolStripMenuItem.Text = "Productos";
             // 
             // aBMProductosToolStripMenuItem
@@ -149,14 +149,14 @@ namespace Front_SGBM
             // 
             colaboradoresToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { nuevoModificarToolStripMenuItem });
             colaboradoresToolStripMenuItem.Name = "colaboradoresToolStripMenuItem";
-            colaboradoresToolStripMenuItem.Size = new Size(151, 22);
+            colaboradoresToolStripMenuItem.Size = new Size(180, 22);
             colaboradoresToolStripMenuItem.Text = "Colaboradores";
             // 
             // nuevoModificarToolStripMenuItem
             // 
             nuevoModificarToolStripMenuItem.Name = "nuevoModificarToolStripMenuItem";
-            nuevoModificarToolStripMenuItem.Size = new Size(165, 22);
-            nuevoModificarToolStripMenuItem.Text = "Nuevo-ModificarCosto";
+            nuevoModificarToolStripMenuItem.Size = new Size(180, 22);
+            nuevoModificarToolStripMenuItem.Text = "Nuevo-Modificar";
             nuevoModificarToolStripMenuItem.Click += nuevoModificarToolStripMenuItem_Click;
             // 
             // contabilidadToolStripMenuItem
@@ -242,16 +242,6 @@ namespace Front_SGBM
             btnVentas.UseVisualStyleBackColor = true;
             btnVentas.Click += BtnVentas_Click;
             // 
-            // btnClientes
-            // 
-            btnClientes.Location = new Point(563, 3);
-            btnClientes.Name = "btnClientes";
-            btnClientes.Size = new Size(106, 34);
-            btnClientes.TabIndex = 2;
-            btnClientes.Text = "Clientes";
-            btnClientes.UseVisualStyleBackColor = true;
-            btnClientes.Click += BtnClientes_Click;
-            // 
             // btnCajas
             // 
             btnCajas.Location = new Point(115, 3);
@@ -289,6 +279,16 @@ namespace Front_SGBM
             btnReportes.TabIndex = 6;
             btnReportes.Text = "Reportes";
             btnReportes.UseVisualStyleBackColor = true;
+            // 
+            // btnClientes
+            // 
+            btnClientes.Location = new Point(563, 3);
+            btnClientes.Name = "btnClientes";
+            btnClientes.Size = new Size(106, 34);
+            btnClientes.TabIndex = 2;
+            btnClientes.Text = "Clientes";
+            btnClientes.UseVisualStyleBackColor = true;
+            btnClientes.Click += BtnClientes_Click;
             // 
             // btnContabilidad
             // 

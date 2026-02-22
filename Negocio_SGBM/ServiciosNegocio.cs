@@ -26,36 +26,63 @@ namespace Negocio_SGBM
         /// <summary>
         /// Valida un servicio antes de registrar o modificar.
         /// </summary>
-        private static Resultado<bool> ComprobarServicio(Servicios? servicio, bool registro)
+        private static Resultado<Servicios> ComprobarServicio(Servicios? servicio, bool registro)
         {
             if (servicio == null)
-                return Resultado<bool>.Fail("La información del servicio no llega a la consulta.");
+                return Resultado<Servicios>.Fail("La información del servicio no llega a la consulta.");
 
             if (servicio.PrecioVenta < 0)
-                return Resultado<bool>.Fail("El precio del servicio no puede ser negativo.");
+                return Resultado<Servicios>.Fail("El precio del servicio no puede ser negativo.");
             if (servicio.Costos < 0)
-                return Resultado<bool>.Fail("El costo del servicio no puede ser negativo.");
+                return Resultado<Servicios>.Fail("El costo del servicio no puede ser negativo.");
             if (servicio.Margen < 0)
-                return Resultado<bool>.Fail("El margen del servicio no puede ser negativo.");
+                return Resultado<Servicios>.Fail("El margen del servicio no puede ser negativo.");
             if (servicio.Comision < 0)
-                return Resultado<bool>.Fail("La comisión del servicio no puede ser negativa.");
+                return Resultado<Servicios>.Fail("La comisión del servicio no puede ser negativa.");
             if (servicio.DuracionMinutos < 0)
-                return Resultado<bool>.Fail("La duración del servicio no puede ser negativa.");
+                return Resultado<Servicios>.Fail("La duración del servicio no puede ser negativa.");
             if (servicio.Puntaje < 0)
-                return Resultado<bool>.Fail("El puntaje del servicio no puede ser negativo.");
+                return Resultado<Servicios>.Fail("El puntaje del servicio no puede ser negativo.");
 
-            if (servicio.IdCategoria < 0)
+            if (servicio.IdCategoria < 1) // El servicio no tiene un ID asignado directamente (es 0)
             {
+                // Si no hay ID, sí o sí debe venir el objeto Categorias para crearlo o extraer su ID
                 if (servicio.Categorias == null)
-                    return Resultado<bool>.Fail("Error con el Id de la Categoría del Servicio.");
+                    return Resultado<Servicios>.Fail("Debe asignar una categoría válida al servicio.");
+
+                // Validamos la nueva categoría
                 if (string.IsNullOrWhiteSpace(servicio.Categorias.Descripcion))
-                    return Resultado<bool>.Fail("Error con la Categoría del Servicio a registrar.");
+                    return Resultado<Servicios>.Fail("La categoría a registrar no tiene descripción.");
+
+                if (servicio.Categorias.Descripcion.Length > 99)
+                    return Resultado<Servicios>.Fail("La descripción de la categoría no puede exceder los 99 caracteres.");
+
+                // Usamos .HasValue para verificar de forma segura si el int? tiene un número.
+                // Si tiene valor y es mayor a 0, significa que la categoría YA EXISTE en la BD.
+                if (servicio.Categorias.IdCategoria.HasValue && servicio.Categorias.IdCategoria.Value > 0)
+                {
+                    servicio.IdCategoria = servicio.Categorias.IdCategoria.Value;
+                    servicio.Categorias = null; // Soltamos el objeto para que EF solo use el ID
+                }
+                else
+                {
+                    // Si llegamos aquí, IdCategoria es 'null' o '0'. 
+                    // Es una categoría GENUINAMENTE NUEVA.
+                    servicio.IdCategoria = 0;
+
+                    // Forzamos el ID de la categoría a 0 (aunque venga en null) porque SQL Server 
+                    // prefiere el 0 explícito para generar el Identity de las Foreign Keys al vuelo.
+                    servicio.Categorias.IdCategoria = null;
+                }
             }
 
             if (!registro && (servicio.IdServicio == null || servicio.IdServicio < 1))
-                return Resultado<bool>.Fail("Error con el Id del Servicio a manipular.");
+                return Resultado<Servicios>.Fail("Error con el Id del Servicio a manipular.");
 
-            return Resultado<bool>.Ok(true);
+            var resultado = Resultado<Servicios>.Ok(servicio);
+
+
+            return resultado;
         }
 
         /// <summary>
@@ -104,15 +131,10 @@ namespace Negocio_SGBM
             if (!validacion.Success)
                 return Resultado<bool>.Fail(validacion.Mensaje);
 
+            servicio = validacion.Data;
+
             try
             {
-                // Normalizar categoría
-                if (servicio!.Categorias != null)
-                {
-                    servicio.IdCategoria = servicio.Categorias.IdCategoria ?? 0;
-                    servicio.Categorias = null;
-                }
-
                 var resultadoDatos = ServiciosDatos.RegistrarServicio(servicio);
                 if (!resultadoDatos.Success)
                     return Resultado<bool>.Fail($"Servicio no registrado.\n{resultadoDatos.Mensaje}");
@@ -149,6 +171,7 @@ namespace Negocio_SGBM
             if (!validacion.Success)
                 return Resultado<bool>.Fail(validacion.Mensaje);
 
+            servicio = validacion.Data;
             try
             {
                 var resultadoDatos = ServiciosDatos.ModificarServicio(servicio!);

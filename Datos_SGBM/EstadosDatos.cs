@@ -77,8 +77,8 @@ namespace Datos_SGBM
                 }
 
                 // Normalizar criterios de búsqueda
-                var indoleTrimLower = indole.Trim().ToLowerInvariant();
-                var descripcionTrimLower = descripcion.Trim().ToLowerInvariant();
+                var indoleTrimLower = indole.Trim().ToLower();
+                var descripcionTrimLower = descripcion.Trim().ToLower();
 
                 // Búsqueda segura frente a nulls en las columnas
                 var estado = contexto.Estados
@@ -127,11 +127,11 @@ namespace Datos_SGBM
                 }
 
                 // Normalizar el valor de búsqueda
-                var indoleTrim = indole.Trim();
+                var indoleTrim = indole.Trim().ToLower();
 
                 // Búsqueda case-insensitive y segura frente a nulls en la columna Indole
                 var estados = contexto.Estados
-                                      .Where(e => e.Indole != null && e.Indole.Equals(indoleTrim, StringComparison.OrdinalIgnoreCase))
+                                      .Where(e => e.Indole != null && e.Indole.ToLower() == indoleTrim)
                                       .ToList();
 
                 if (estados == null || estados.Count < 1)

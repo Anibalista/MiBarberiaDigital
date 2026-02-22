@@ -161,7 +161,7 @@ namespace Datos_SGBM
             var nombresCrit = string.IsNullOrWhiteSpace(nombres) ? null : nombres.Trim();
 
             // Convertir nombres a minúsculas invariante
-            var nombresCritLower = nombresCrit?.ToLowerInvariant();
+            var nombresCritLower = nombresCrit?.ToLower();
 
             try
             {
@@ -191,8 +191,8 @@ namespace Datos_SGBM
                     {
                         query = query.Where(p =>
                             (p.Dni != null && p.Dni.Contains(dniCrit)) ||
-                            (p.Nombres != null && p.Nombres.ToLowerInvariant().Contains(nombresCritLower)) ||
-                            (p.Apellidos != null && p.Apellidos.ToLowerInvariant().Contains(nombresCritLower))
+                            (p.Nombres != null && p.Nombres.ToLower().Contains(nombresCritLower)) ||
+                            (p.Apellidos != null && p.Apellidos.ToLower().Contains(nombresCritLower))
                         );
                     }
                     else if (!string.IsNullOrWhiteSpace(dniCrit))
@@ -202,8 +202,8 @@ namespace Datos_SGBM
                     else
                     {
                         query = query.Where(p =>
-                            (p.Nombres != null && p.Nombres.ToLowerInvariant().Contains(nombresCritLower)) ||
-                            (p.Apellidos != null && p.Apellidos.ToLowerInvariant().Contains(nombresCritLower))
+                            (p.Nombres != null && p.Nombres.ToLower().Contains(nombresCritLower)) ||
+                            (p.Apellidos != null && p.Apellidos.ToLower().Contains(nombresCritLower))
                         );
                     }
 
@@ -319,6 +319,7 @@ namespace Datos_SGBM
                     existente.Apellidos = persona.Apellidos;
                     existente.FechaNac = persona.FechaNac;
                     existente.IdDomicilio = persona.IdDomicilio;
+                    existente.Domicilios = persona.Domicilios;
 
                     int cambios = contexto.SaveChanges();
 

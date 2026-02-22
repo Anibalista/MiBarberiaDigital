@@ -357,9 +357,12 @@ namespace Negocio_SGBM
                 empleado.Estados = null;
 
                 var resultadoEmpleado = EmpleadosDatos.ModificarEmpleado(empleado);
-                if (!resultadoEmpleado.Success)
-                    return Resultado<bool>.Fail(resultadoEmpleado.Mensaje);
-
+                if (!resultadoEmpleado.Success && !resultadoModPersona.Success)
+                {
+                    Logger.LogError($"No se pudo modificar el empleado ni revertir los cambios en la persona. Detalles:\nModificar empleado: {resultadoEmpleado.Mensaje}\nDatos Persona: {resultadoModPersona.Mensaje}");
+                    return Resultado<bool>.Fail("Error en la modificación (revise Logs)");                     
+                }
+                
                 var resultadoContactos = PersonasNegocio.GestionarContactosPorPersona(persona, contactos);
                 if (!resultadoContactos.Success)
                     Logger.LogError($"Problemas al gestionar contactos del empleado: {resultadoContactos.Mensaje}");

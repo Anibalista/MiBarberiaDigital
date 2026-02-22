@@ -189,10 +189,10 @@
             linkContactos.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             linkContactos.Location = new Point(572, 131);
             linkContactos.Name = "linkContactos";
-            linkContactos.Size = new Size(176, 19);
+            linkContactos.Size = new Size(139, 19);
             linkContactos.TabIndex = 6;
             linkContactos.TabStop = true;
-            linkContactos.Text = "ModificarCosto Contactos";
+            linkContactos.Text = "Modificar Contactos";
             linkContactos.VisitedLinkColor = Color.Blue;
             linkContactos.LinkClicked += LinkContactos_LinkClicked;
             // 
