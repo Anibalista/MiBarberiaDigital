@@ -1,334 +1,71 @@
 ﻿using EF_SGBM;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
+using Utilidades;
 
 namespace Datos_SGBM
 {
+    /// <summary>
+    /// Clase auxiliar para comprobar que el contexto y sus entidades estén disponibles.
+    /// </summary>
     public class ComprobacionContexto
     {
-        private Contexto contexto;
+        private readonly Contexto contexto;
 
+        /// <summary>
+        /// Constructor que recibe el contexto de base de datos.
+        /// </summary>
+        /// <param name="contexto">Instancia del contexto a validar.</param>
         public ComprobacionContexto(Contexto contexto)
         {
             this.contexto = contexto;
         }
 
-        public bool Comprobar(ref string mensaje)
+        /// <summary>
+        /// Comprueba si la entidad existe en el contexto y devuelve un resultado tipado.
+        /// </summary>
+        /// <typeparam name="T">Tipo genérico de la entidad a comprobar.</typeparam>
+        /// <param name="entidad">Entidad a validar (ejemplo: Productos, UnidadesMedidas).</param>
+        /// <param name="nombreEntidad">
+        /// Nombre de la entidad, capturado automáticamente por CallerArgumentExpression.
+        /// </param>
+        /// <returns>
+        /// Resultado con Success = true si la entidad existe,
+        /// o Success = false con un mensaje de error en caso contrario.
+        /// </returns>
+        public Resultado<T> ComprobarEntidad<T>(
+            T entidad,
+            [CallerArgumentExpression("entidad")] string nombreEntidad = "")
         {
             if (contexto == null)
-            {
-                mensaje = "No se conecta a la BD";
-                return false;
-            }
-            return true;
+                return Resultado<T>.Fail("No se conecta a la BD");
+
+            if (entidad == null)
+                return Resultado<T>.Fail($"No se conecta al registro de {nombreEntidad}");
+
+            return Resultado<T>.Ok(entidad);
         }
 
-        public bool ComprobarCajas(ref string mensaje)
+        /// <summary>
+        /// Comprueba varias entidades a la vez. Recibe pares (entidad, nombre) y devuelve el primer fallo o Ok(true).
+        /// Uso recomendado: new ComprobacionContexto(contexto).ComprobarEntidades((contexto.Domicilios, nameof(contexto.Domicilios)), (contexto.Localidades, nameof(contexto.Localidades)));
+        /// </summary>
+        /// <param name="entidades">Lista de tuplas (entidad, nombreEntidad).</param>
+        /// <returns>Resultado con Ok(true) si todas las entidades existen, o Fail con el mensaje del primer error.</returns>
+        public Resultado<bool> ComprobarEntidades(params (object entidad, string nombre)[] entidades)
         {
-            if (contexto.Cajas == null)
-            {
-                mensaje = "No se conecta al registro de Cajas";
-                return false;
-            }
-            return true;
-        }
+            if (contexto == null)
+                return Resultado<bool>.Fail("No se conecta a la BD");
 
-        public bool ComprobarCategorias(ref string mensaje)
-        {
-            if (contexto.Categorias == null)
-            {
-                mensaje = "No se conecta al registro de Cajas";
-                return false;
-            }
-            return true;
-        }
+            if (entidades == null || entidades.Length == 0)
+                return Resultado<bool>.Fail("No se especificaron entidades para comprobar.");
 
-        public bool ComprobarClientes(ref string mensaje)
-        {
-            if (contexto.Clientes == null)
+            foreach (var (entidad, nombre) in entidades)
             {
-                mensaje = "No se conecta al registro de Clientes";
-                return false;
+                if (entidad == null)
+                    return Resultado<bool>.Fail($"No se conecta al registro de {nombre}");
             }
-            return true;
-        }
 
-        public bool ComprobarContactos(ref string mensaje)
-        {
-            if (contexto.Contactos == null)
-            {
-                mensaje = "No se conecta al registro de Contactos";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarCredenciales(ref string mensaje)
-        {
-            if (contexto.Credenciales == null)
-            {
-                mensaje = "No se conecta al registro de Credenciales";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarCuotasMembresias(ref string mensaje)
-        {
-            if (contexto.CuotasMembresias == null)
-            {
-                mensaje = "No se conecta al registro de Cuotas de Membresias";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarDetallesFacturas(ref string mensaje)
-        {
-            if (contexto.DetallesFacturas == null)
-            {
-                mensaje = "No se conecta al registro de Detalles de Facturas";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarDetallesVentas(ref string mensaje)
-        {
-            if (contexto.DetallesVentas == null)
-            {
-                mensaje = "No se conecta al registro de Detalles de Ventas";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarDomicilios(ref string mensaje)
-        {
-            if (contexto.Domicilios == null)
-            {
-                mensaje = "No se conecta al registro de Domicilios";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarEmpleados(ref string mensaje)
-        {
-            if (contexto.Empleados == null)
-            {
-                mensaje = "No se conecta al registro de Empleados";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarEstados(ref string mensaje)
-        {
-            if (contexto.Estados == null)
-            {
-                mensaje = "No se conecta al registro de Estados";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarFacturas(ref string mensaje)
-        {
-            if (contexto.Facturas == null)
-            {
-                mensaje = "No se conecta al registro de Facturas";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarFondosMembresias(ref string mensaje)
-        {
-            if (contexto.FondosMembresias == null)
-            {
-                mensaje = "No se conecta al registro de Fondos de Membresias";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarInsumos(ref string mensaje)
-        {
-            if (contexto.Insumos == null)
-            {
-                mensaje = "No se conecta al registro de Insumos";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarLocalidades(ref string mensaje)
-        {
-            if (contexto.Localidades == null)
-            {
-                mensaje = "No se conecta al registro de Localidades";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarMediosPago(ref string mensaje)
-        {
-            if (contexto.MediosPagos == null)
-            {
-                mensaje = "No se conecta al registro de Medios de Pago";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarMembresias(ref string mensaje)
-        {
-            if (contexto.Membresias == null)
-            {
-                mensaje = "No se conecta al registro de Membresias";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarMembresiasServicios(ref string mensaje)
-        {
-            if (contexto.MembresiasServicios == null)
-            {
-                mensaje = "No se conecta al registro intermedio de Membresias-Servicios";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarNiveles(ref string mensaje)
-        {
-            if (contexto.Niveles == null)
-            {
-                mensaje = "No se conecta al registro de Niveles";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarPersonas(ref string mensaje)
-        {
-            if (contexto.Personas == null)
-            {
-                mensaje = "No se conecta al registro de Personas";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarProductos(ref string mensaje)
-        {
-            if (contexto.Productos == null)
-            {
-                mensaje = "No se conecta al registro de Productos";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarProveedores(ref string mensaje)
-        {
-            if (contexto.Proveedores == null)
-            {
-                mensaje = "No se conecta al registro de Proveedores";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarServicios(ref string mensaje)
-        {
-            if (contexto.Servicios == null)
-            {
-                mensaje = "No se conecta al registro de Servicios";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarTiposMembresias(ref string mensaje)
-        {
-            if (contexto.TiposMembresias == null)
-            {
-                mensaje = "No se conecta al registro de Tipos de Membresias";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarTiposTransacciones(ref string mensaje)
-        {
-            if (contexto.TiposTransacciones == null)
-            {
-                mensaje = "No se conecta al registro de Tipos de Transacción";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarTransacciones(ref string mensaje)
-        {
-            if (contexto.Transacciones == null)
-            {
-                mensaje = "No se conecta al registro de Transacciones";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarUsuarios(ref string mensaje)
-        {
-            if (contexto.Usuarios == null)
-            {
-                mensaje = "No se conecta al registro de Usuarios";
-                return false;
-            }
-            return true;
-        }
-        public bool ComprobarUnidadesMedidas(ref string mensaje)
-        {
-            if (contexto.UnidadesMedidas == null)
-            {
-                mensaje = "No se conecta al registro de Unidades de Medida";
-                return false;
-            }
-            return true;
-        }
-
-        public bool ComprobarVentas(ref string mensaje)
-        {
-            if (contexto.Ventas == null)
-            {
-                mensaje = "No se conecta al registro de Ventas";
-                return false;
-            }
-            return true;
-        }
-
-        internal bool ComprobarServiciosInsumos(ref string mensaje)
-        {
-            if (contexto.ServiciosInsumos == null)
-            {
-                mensaje = "No se conecta al registro intermedio de insumos";
-                return false;
-            }
-            if (contexto.Insumos == null)
-            {
-                mensaje = "No se conecta al registro de insumos";
-                return false;
-            }
-            return true;
+            return Resultado<bool>.Ok(true);
         }
     }
 }

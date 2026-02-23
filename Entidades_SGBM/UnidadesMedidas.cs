@@ -1,23 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Entidades_SGBM
 {
     public class UnidadesMedidas
     {
         [Key]
-        public int? IdUnidadMedida { get; set; }
+        public int IdUnidadMedida { get; set; }
+
+        [MaxLength(10)]
+        public string Unidad { get; set; }
 
         [MaxLength(50)]
-        public string Unidad { get; set; }
+        public string? Descripcion { get; set; }
 
         public override string ToString()
         {
-            return Unidad;
+            return Unidad + (Descripcion == null ? "" : $" - {Descripcion}");
         }
     }
 }

@@ -19,6 +19,8 @@ namespace Entidades_SGBM
         [ForeignKey("Estados")]
         public int IdEstado { get; set; }
 
+        public bool esMiembro { get; set; }
+
         public Personas? Personas { get; set; }
         public Estados? Estados { get; set; }
 

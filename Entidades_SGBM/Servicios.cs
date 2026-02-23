@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Entidades_SGBM
 {
@@ -37,6 +32,9 @@ namespace Entidades_SGBM
 
         [ForeignKey("Categorias")]
         public int IdCategoria { get; set; }
+
+        [Column(TypeName = "bit")]
+        public bool Activo {  get; set; }
 
         public Categorias? Categorias { get; set; }
 

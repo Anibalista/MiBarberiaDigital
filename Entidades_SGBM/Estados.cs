@@ -10,7 +10,7 @@ namespace Entidades_SGBM
     public class Estados
     {
         [Key]
-        public int? IdEstado { get; set; }
+        public int IdEstado { get; set; }
 
         [MaxLength(50)]
         public string Indole { get; set; }

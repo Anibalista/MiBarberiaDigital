@@ -11,7 +11,7 @@ namespace Entidades_SGBM
     public class Localidades
     {
         [Key]
-        public int? IdLocalidad { get; set; }
+        public int IdLocalidad { get; set; }
 
         [MaxLength(150)]
         public string Localidad { get; set; }

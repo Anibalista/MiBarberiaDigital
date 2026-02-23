@@ -37,8 +37,18 @@ namespace Entidades_SGBM
         [ForeignKey("Proveedores")]
         public int? IdProveedor { get; set; }
 
+        [ForeignKey("Categorias")]
+        public int? idCategoria { get; set; }
+
+        [Column(TypeName ="bit")]
+        public bool Activo { get; set; }
+
+        [Column(TypeName = "decimal(4,2)")]
+        public decimal? Comision { get; set; }
+
         public UnidadesMedidas? UnidadesMedidas { get; set; }
         public Proveedores? Proveedores { get; set; }
+        public Categorias? Categorias { get; set; }
 
         public override string ToString()
         {

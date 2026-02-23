@@ -7,9 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Datos_SGBM\Datos_SGBM.csproj" />
-    <ProjectReference Include="..\Dominio_SGBM\Dominio_SGBM.csproj" />
     <ProjectReference Include="..\Entidades_SGBM\Entidades_SGBM.csproj" />
+    <ProjectReference Include="..\Utilidades\Utilidades.csproj" />
   </ItemGroup>
 
 </Project>

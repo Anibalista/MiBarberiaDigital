@@ -33,9 +33,12 @@ namespace Entidades_SGBM
         [ForeignKey("FondosMembresias")]
         public int? IdFondoMembresia { get; set; }
 
+        [ForeignKey("Ventas")]
+        public int IdVenta { get; set; }
+
         public Productos? Productos { get; set; }
         public Servicios? Servicios { get; set; }
-        public FondosMembresias? FondosMembresias { get; set; }
+        public Ventas? Ventas { get; set; }
 
     }
 }

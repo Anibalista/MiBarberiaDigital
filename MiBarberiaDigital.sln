@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Front_SGBM", "FrmEditClientes\Front_SGBM.csproj", "{313F537C-8663-4EAC-9A4F-ACCEFE87953C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Front_SGBM", "Front_SGBM\Front_SGBM.csproj", "{313F537C-8663-4EAC-9A4F-ACCEFE87953C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Negocio_SGBM", "Negocio_SGBM\Negocio_SGBM.csproj", "{5177E0A4-E38C-413E-B6EB-70C4827C0B5F}"
 EndProject
@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Entidades_SGBM", "Entidades
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EF_SGBM", "EF_SGBM\EF_SGBM.csproj", "{E21FB4DF-9829-42B0-897A-977F39879A28}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dominio_SGBM", "Dominio_SGBM\Dominio_SGBM.csproj", "{C7FEAB7D-4CC6-401C-A8C0-7DAC6DCE927C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilidades", "Utilidades\Utilidades.csproj", "{7CAF2B7F-D167-4F62-AD55-D463A53D0376}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +41,10 @@ Global
 		{E21FB4DF-9829-42B0-897A-977F39879A28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E21FB4DF-9829-42B0-897A-977F39879A28}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E21FB4DF-9829-42B0-897A-977F39879A28}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C7FEAB7D-4CC6-401C-A8C0-7DAC6DCE927C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C7FEAB7D-4CC6-401C-A8C0-7DAC6DCE927C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C7FEAB7D-4CC6-401C-A8C0-7DAC6DCE927C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C7FEAB7D-4CC6-401C-A8C0-7DAC6DCE927C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CAF2B7F-D167-4F62-AD55-D463A53D0376}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CAF2B7F-D167-4F62-AD55-D463A53D0376}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CAF2B7F-D167-4F62-AD55-D463A53D0376}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CAF2B7F-D167-4F62-AD55-D463A53D0376}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -26,5 +26,20 @@ namespace Entidades_SGBM
         [Column(TypeName = "decimal(12,2)")]
         public decimal TotalMP { get; set; }
 
+        [ForeignKey("TiposCajas")]
+        public int IdTipo { get; set; }
+
+        public TiposCajas? TiposCajas { get; set;}
+
+        [NotMapped]
+        public string? Tipo
+        {
+            get
+            {
+                if (TiposCajas != null)
+                    return TiposCajas.Tipo;
+                return null;
+            }
+        }
     }
 }
