@@ -139,6 +139,7 @@ namespace Datos_SGBM
                                     .Include(c => c.Personas)
                                         .ThenInclude(p => p.Domicilios)
                                             .ThenInclude(d => d.Localidades)
+                                                .ThenInclude(l => l.Provincias) // incluir provincia si es necesario para la capa superior
                                     .OrderBy(c => c.Personas.Apellidos)
                                     .ThenBy(c => c.Personas.Nombres)
                                     .ToList();
@@ -201,6 +202,7 @@ namespace Datos_SGBM
                                     .Include(c => c.Personas)
                                         .ThenInclude(p => p.Domicilios)
                                             .ThenInclude(d => d.Localidades)
+                                                .ThenInclude(l => l.Provincias)
                                     .AsQueryable();
 
                 // Aplicar filtros según los parámetros recibidos

@@ -32,12 +32,12 @@
             panelTitulo = new Panel();
             labelTitulo = new Label();
             panelBotones = new Panel();
-            btnCancelar = new Button();
-            btnGuardar = new Button();
+            BtnCancelar = new Button();
+            BtnGuardar = new Button();
             groupBox1 = new GroupBox();
-            cbEstados = new ComboBox();
+            CbEstados = new ComboBox();
             bindingEstados = new BindingSource(components);
-            linkContactos = new LinkLabel();
+            LinkContactos = new LinkLabel();
             label6 = new Label();
             label5 = new Label();
             dateTimePicker1 = new DateTimePicker();
@@ -45,11 +45,11 @@
             txtApellido = new TextBox();
             label3 = new Label();
             txtNombre = new TextBox();
-            btnBuscar = new Button();
-            txtDni = new TextBox();
+            BtnBuscar = new Button();
+            TxtDni = new TextBox();
             label2 = new Label();
             groupBox2 = new GroupBox();
-            dataGridContactos = new DataGridView();
+            DataGridContactos = new DataGridView();
             whatsappDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             telefonoDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             instagramDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
@@ -57,10 +57,10 @@
             emailDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             bindingContactos = new BindingSource(components);
             groupBox3 = new GroupBox();
-            cbProvincia = new ComboBox();
+            CbProvincia = new ComboBox();
             bindingProvincias = new BindingSource(components);
             label15 = new Label();
-            cbLocalidad = new ComboBox();
+            CbLocalidad = new ComboBox();
             bindingLocalidades = new BindingSource(components);
             txtPiso = new TextBox();
             label14 = new Label();
@@ -80,7 +80,7 @@
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)bindingEstados).BeginInit();
             groupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)dataGridContactos).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)DataGridContactos).BeginInit();
             ((System.ComponentModel.ISupportInitialize)bindingContactos).BeginInit();
             groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)bindingProvincias).BeginInit();
@@ -93,7 +93,7 @@
             panelTitulo.Controls.Add(labelTitulo);
             panelTitulo.Location = new Point(0, 0);
             panelTitulo.Name = "panelTitulo";
-            panelTitulo.Size = new Size(717, 42);
+            panelTitulo.Size = new Size(779, 42);
             panelTitulo.TabIndex = 0;
             // 
             // labelTitulo
@@ -109,42 +109,42 @@
             // panelBotones
             // 
             panelBotones.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            panelBotones.Controls.Add(btnCancelar);
-            panelBotones.Controls.Add(btnGuardar);
+            panelBotones.Controls.Add(BtnCancelar);
+            panelBotones.Controls.Add(BtnGuardar);
             panelBotones.Location = new Point(0, 550);
             panelBotones.Name = "panelBotones";
-            panelBotones.Size = new Size(717, 72);
+            panelBotones.Size = new Size(779, 72);
             panelBotones.TabIndex = 1;
             // 
-            // btnCancelar
+            // BtnCancelar
             // 
-            btnCancelar.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnCancelar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnCancelar.Location = new Point(485, 18);
-            btnCancelar.Name = "btnCancelar";
-            btnCancelar.Size = new Size(146, 42);
-            btnCancelar.TabIndex = 1;
-            btnCancelar.Tag = "btnPrincipalR";
-            btnCancelar.Text = "Cancelar";
-            btnCancelar.UseVisualStyleBackColor = true;
-            btnCancelar.Click += BtnCancelar_Click;
+            BtnCancelar.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            BtnCancelar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            BtnCancelar.Location = new Point(547, 18);
+            BtnCancelar.Name = "BtnCancelar";
+            BtnCancelar.Size = new Size(146, 42);
+            BtnCancelar.TabIndex = 1;
+            BtnCancelar.Tag = "btnPrincipalR";
+            BtnCancelar.Text = "Cancelar";
+            BtnCancelar.UseVisualStyleBackColor = true;
+            BtnCancelar.Click += BtnCancelar_Click;
             // 
-            // btnGuardar
+            // BtnGuardar
             // 
-            btnGuardar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnGuardar.Location = new Point(77, 18);
-            btnGuardar.Name = "btnGuardar";
-            btnGuardar.Size = new Size(146, 42);
-            btnGuardar.TabIndex = 0;
-            btnGuardar.Tag = "btnPrincipalV";
-            btnGuardar.Text = "Guardar";
-            btnGuardar.UseVisualStyleBackColor = true;
-            btnGuardar.Click += BtnGuardar_Click;
+            BtnGuardar.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            BtnGuardar.Location = new Point(77, 18);
+            BtnGuardar.Name = "BtnGuardar";
+            BtnGuardar.Size = new Size(146, 42);
+            BtnGuardar.TabIndex = 0;
+            BtnGuardar.Tag = "btnPrincipalV";
+            BtnGuardar.Text = "Guardar";
+            BtnGuardar.UseVisualStyleBackColor = true;
+            BtnGuardar.Click += BtnGuardar_Click;
             // 
             // groupBox1
             // 
-            groupBox1.Controls.Add(cbEstados);
-            groupBox1.Controls.Add(linkContactos);
+            groupBox1.Controls.Add(CbEstados);
+            groupBox1.Controls.Add(LinkContactos);
             groupBox1.Controls.Add(label6);
             groupBox1.Controls.Add(label5);
             groupBox1.Controls.Add(dateTimePicker1);
@@ -152,49 +152,49 @@
             groupBox1.Controls.Add(txtApellido);
             groupBox1.Controls.Add(label3);
             groupBox1.Controls.Add(txtNombre);
-            groupBox1.Controls.Add(btnBuscar);
-            groupBox1.Controls.Add(txtDni);
+            groupBox1.Controls.Add(BtnBuscar);
+            groupBox1.Controls.Add(TxtDni);
             groupBox1.Controls.Add(label2);
             groupBox1.Location = new Point(0, 48);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(717, 153);
+            groupBox1.Size = new Size(779, 153);
             groupBox1.TabIndex = 2;
             groupBox1.TabStop = false;
             groupBox1.Text = "Datos del Cliente";
             // 
-            // cbEstados
+            // CbEstados
             // 
-            cbEstados.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            cbEstados.DataSource = bindingEstados;
-            cbEstados.DisplayMember = "Estado";
-            cbEstados.DropDownStyle = ComboBoxStyle.DropDownList;
-            cbEstados.FormattingEnabled = true;
-            cbEstados.Location = new Point(471, 70);
-            cbEstados.Name = "cbEstados";
-            cbEstados.Size = new Size(237, 23);
-            cbEstados.TabIndex = 5;
-            cbEstados.ValueMember = "IdEstado";
+            CbEstados.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            CbEstados.DataSource = bindingEstados;
+            CbEstados.DisplayMember = "Estado";
+            CbEstados.DropDownStyle = ComboBoxStyle.DropDownList;
+            CbEstados.FormattingEnabled = true;
+            CbEstados.Location = new Point(533, 70);
+            CbEstados.Name = "CbEstados";
+            CbEstados.Size = new Size(237, 23);
+            CbEstados.TabIndex = 5;
+            CbEstados.ValueMember = "IdEstado";
             // 
             // bindingEstados
             // 
             bindingEstados.DataSource = typeof(Entidades_SGBM.Estados);
             // 
-            // linkContactos
+            // LinkContactos
             // 
-            linkContactos.ActiveLinkColor = Color.Blue;
-            linkContactos.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            linkContactos.AutoSize = true;
-            linkContactos.BackColor = Color.Transparent;
-            linkContactos.DisabledLinkColor = Color.Black;
-            linkContactos.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            linkContactos.Location = new Point(572, 131);
-            linkContactos.Name = "linkContactos";
-            linkContactos.Size = new Size(139, 19);
-            linkContactos.TabIndex = 6;
-            linkContactos.TabStop = true;
-            linkContactos.Text = "Modificar Contactos";
-            linkContactos.VisitedLinkColor = Color.Blue;
-            linkContactos.LinkClicked += LinkContactos_LinkClicked;
+            LinkContactos.ActiveLinkColor = Color.Blue;
+            LinkContactos.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            LinkContactos.AutoSize = true;
+            LinkContactos.BackColor = Color.Transparent;
+            LinkContactos.DisabledLinkColor = Color.Black;
+            LinkContactos.Font = new Font("Roboto Condensed", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            LinkContactos.Location = new Point(634, 131);
+            LinkContactos.Name = "LinkContactos";
+            LinkContactos.Size = new Size(139, 19);
+            LinkContactos.TabIndex = 6;
+            LinkContactos.TabStop = true;
+            LinkContactos.Text = "Modificar Contactos";
+            LinkContactos.VisitedLinkColor = Color.Blue;
+            LinkContactos.LinkClicked += LinkContactos_LinkClicked;
             // 
             // label6
             // 
@@ -208,7 +208,7 @@
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(370, 32);
+            label5.Location = new Point(409, 34);
             label5.Name = "label5";
             label5.Size = new Size(81, 15);
             label5.TabIndex = 8;
@@ -218,7 +218,7 @@
             // 
             dateTimePicker1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             dateTimePicker1.Format = DateTimePickerFormat.Short;
-            dateTimePicker1.Location = new Point(471, 28);
+            dateTimePicker1.Location = new Point(533, 28);
             dateTimePicker1.MaxDate = new DateTime(2199, 12, 31, 0, 0, 0, 0);
             dateTimePicker1.MinDate = new DateTime(1910, 1, 1, 0, 0, 0, 0);
             dateTimePicker1.Name = "dateTimePicker1";
@@ -260,26 +260,26 @@
             txtNombre.Size = new Size(243, 23);
             txtNombre.TabIndex = 2;
             // 
-            // btnBuscar
+            // BtnBuscar
             // 
-            btnBuscar.Location = new Point(245, 28);
-            btnBuscar.Name = "btnBuscar";
-            btnBuscar.Size = new Size(75, 23);
-            btnBuscar.TabIndex = 1;
-            btnBuscar.Tag = "btnNormal";
-            btnBuscar.Text = "Buscar";
-            btnBuscar.UseVisualStyleBackColor = true;
-            btnBuscar.Click += BtnBuscar_Click;
+            BtnBuscar.Location = new Point(245, 28);
+            BtnBuscar.Name = "BtnBuscar";
+            BtnBuscar.Size = new Size(75, 23);
+            BtnBuscar.TabIndex = 1;
+            BtnBuscar.Tag = "btnNormal";
+            BtnBuscar.Text = "Buscar";
+            BtnBuscar.UseVisualStyleBackColor = true;
+            BtnBuscar.Click += BtnBuscar_Click;
             // 
-            // txtDni
+            // TxtDni
             // 
-            txtDni.Location = new Point(77, 29);
-            txtDni.MaxLength = 14;
-            txtDni.Name = "txtDni";
-            txtDni.Size = new Size(116, 23);
-            txtDni.TabIndex = 0;
-            txtDni.TextAlign = HorizontalAlignment.Center;
-            txtDni.KeyPress += TxtDni_KeyPress;
+            TxtDni.Location = new Point(77, 29);
+            TxtDni.MaxLength = 14;
+            TxtDni.Name = "TxtDni";
+            TxtDni.Size = new Size(116, 23);
+            TxtDni.TabIndex = 0;
+            TxtDni.TextAlign = HorizontalAlignment.Center;
+            TxtDni.KeyPress += Numeric_KeyPress;
             // 
             // label2
             // 
@@ -293,36 +293,36 @@
             // groupBox2
             // 
             groupBox2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
-            groupBox2.Controls.Add(dataGridContactos);
+            groupBox2.Controls.Add(DataGridContactos);
             groupBox2.Location = new Point(0, 207);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(717, 182);
+            groupBox2.Size = new Size(779, 182);
             groupBox2.TabIndex = 3;
             groupBox2.TabStop = false;
             groupBox2.Text = "Datos de Contacto";
             // 
-            // dataGridContactos
+            // DataGridContactos
             // 
-            dataGridContactos.AllowUserToAddRows = false;
-            dataGridContactos.AllowUserToDeleteRows = false;
-            dataGridContactos.AllowUserToOrderColumns = true;
-            dataGridContactos.AutoGenerateColumns = false;
-            dataGridContactos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridContactos.Columns.AddRange(new DataGridViewColumn[] { whatsappDataGridViewTextBoxColumn, telefonoDataGridViewTextBoxColumn, instagramDataGridViewTextBoxColumn, facebookDataGridViewTextBoxColumn, emailDataGridViewTextBoxColumn });
-            dataGridContactos.DataSource = bindingContactos;
-            dataGridContactos.Dock = DockStyle.Fill;
-            dataGridContactos.Location = new Point(3, 19);
-            dataGridContactos.Name = "dataGridContactos";
-            dataGridContactos.ReadOnly = true;
-            dataGridContactos.RowHeadersVisible = false;
-            dataGridContactos.Size = new Size(711, 160);
-            dataGridContactos.TabIndex = 1;
+            DataGridContactos.AllowUserToAddRows = false;
+            DataGridContactos.AllowUserToDeleteRows = false;
+            DataGridContactos.AllowUserToOrderColumns = true;
+            DataGridContactos.AutoGenerateColumns = false;
+            DataGridContactos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            DataGridContactos.Columns.AddRange(new DataGridViewColumn[] { whatsappDataGridViewTextBoxColumn, telefonoDataGridViewTextBoxColumn, instagramDataGridViewTextBoxColumn, facebookDataGridViewTextBoxColumn, emailDataGridViewTextBoxColumn });
+            DataGridContactos.DataSource = bindingContactos;
+            DataGridContactos.Dock = DockStyle.Fill;
+            DataGridContactos.Location = new Point(3, 19);
+            DataGridContactos.Name = "DataGridContactos";
+            DataGridContactos.ReadOnly = true;
+            DataGridContactos.RowHeadersVisible = false;
+            DataGridContactos.Size = new Size(773, 160);
+            DataGridContactos.TabIndex = 1;
             // 
             // whatsappDataGridViewTextBoxColumn
             // 
             whatsappDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             whatsappDataGridViewTextBoxColumn.DataPropertyName = "Whatsapp";
-            whatsappDataGridViewTextBoxColumn.FillWeight = 13F;
+            whatsappDataGridViewTextBoxColumn.FillWeight = 19F;
             whatsappDataGridViewTextBoxColumn.HeaderText = "Whatsapp";
             whatsappDataGridViewTextBoxColumn.MinimumWidth = 80;
             whatsappDataGridViewTextBoxColumn.Name = "whatsappDataGridViewTextBoxColumn";
@@ -362,7 +362,7 @@
             // 
             emailDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             emailDataGridViewTextBoxColumn.DataPropertyName = "Email";
-            emailDataGridViewTextBoxColumn.FillWeight = 26F;
+            emailDataGridViewTextBoxColumn.FillWeight = 20F;
             emailDataGridViewTextBoxColumn.HeaderText = "Email";
             emailDataGridViewTextBoxColumn.MinimumWidth = 150;
             emailDataGridViewTextBoxColumn.Name = "emailDataGridViewTextBoxColumn";
@@ -375,9 +375,9 @@
             // groupBox3
             // 
             groupBox3.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            groupBox3.Controls.Add(cbProvincia);
+            groupBox3.Controls.Add(CbProvincia);
             groupBox3.Controls.Add(label15);
-            groupBox3.Controls.Add(cbLocalidad);
+            groupBox3.Controls.Add(CbLocalidad);
             groupBox3.Controls.Add(txtPiso);
             groupBox3.Controls.Add(label14);
             groupBox3.Controls.Add(txtDepto);
@@ -391,22 +391,22 @@
             groupBox3.Controls.Add(label21);
             groupBox3.Location = new Point(0, 395);
             groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(717, 149);
+            groupBox3.Size = new Size(779, 149);
             groupBox3.TabIndex = 4;
             groupBox3.TabStop = false;
             groupBox3.Text = "Datos de Domicilio";
             // 
-            // cbProvincia
+            // CbProvincia
             // 
-            cbProvincia.DataSource = bindingProvincias;
-            cbProvincia.DisplayMember = "Provincia";
-            cbProvincia.FormattingEnabled = true;
-            cbProvincia.Location = new Point(77, 108);
-            cbProvincia.Name = "cbProvincia";
-            cbProvincia.Size = new Size(243, 23);
-            cbProvincia.TabIndex = 5;
-            cbProvincia.ValueMember = "IdProvincia";
-            cbProvincia.SelectedIndexChanged += CbProvincia_SelectedIndexChanged;
+            CbProvincia.DataSource = bindingProvincias;
+            CbProvincia.DisplayMember = "Provincia";
+            CbProvincia.FormattingEnabled = true;
+            CbProvincia.Location = new Point(77, 108);
+            CbProvincia.Name = "CbProvincia";
+            CbProvincia.Size = new Size(243, 23);
+            CbProvincia.TabIndex = 5;
+            CbProvincia.ValueMember = "IdProvincia";
+            CbProvincia.SelectedIndexChanged += CbProvincia_SelectedIndexChanged;
             // 
             // bindingProvincias
             // 
@@ -421,16 +421,16 @@
             label15.TabIndex = 16;
             label15.Text = "Provincia";
             // 
-            // cbLocalidad
+            // CbLocalidad
             // 
-            cbLocalidad.DataSource = bindingLocalidades;
-            cbLocalidad.DisplayMember = "Localidad";
-            cbLocalidad.FormattingEnabled = true;
-            cbLocalidad.Location = new Point(471, 70);
-            cbLocalidad.Name = "cbLocalidad";
-            cbLocalidad.Size = new Size(237, 23);
-            cbLocalidad.TabIndex = 6;
-            cbLocalidad.ValueMember = "IdLocalidad";
+            CbLocalidad.DataSource = bindingLocalidades;
+            CbLocalidad.DisplayMember = "Localidad";
+            CbLocalidad.FormattingEnabled = true;
+            CbLocalidad.Location = new Point(471, 70);
+            CbLocalidad.Name = "CbLocalidad";
+            CbLocalidad.Size = new Size(237, 23);
+            CbLocalidad.TabIndex = 6;
+            CbLocalidad.ValueMember = "IdLocalidad";
             // 
             // bindingLocalidades
             // 
@@ -533,9 +533,9 @@
             // pnlContent
             // 
             pnlContent.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            pnlContent.Location = new Point(723, 0);
+            pnlContent.Location = new Point(785, 0);
             pnlContent.Name = "pnlContent";
-            pnlContent.Size = new Size(488, 622);
+            pnlContent.Size = new Size(426, 622);
             pnlContent.TabIndex = 5;
             // 
             // errorProvider1
@@ -564,7 +564,7 @@
             groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)bindingEstados).EndInit();
             groupBox2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)dataGridContactos).EndInit();
+            ((System.ComponentModel.ISupportInitialize)DataGridContactos).EndInit();
             ((System.ComponentModel.ISupportInitialize)bindingContactos).EndInit();
             groupBox3.ResumeLayout(false);
             groupBox3.PerformLayout();
@@ -579,15 +579,15 @@
         private Panel panelTitulo;
         private Label labelTitulo;
         private Panel panelBotones;
-        private Button btnGuardar;
-        private Button btnCancelar;
+        private Button BtnGuardar;
+        private Button BtnCancelar;
         private GroupBox groupBox1;
         private Label label4;
         private TextBox txtApellido;
         private Label label3;
         private TextBox txtNombre;
-        private Button btnBuscar;
-        private TextBox txtDni;
+        private Button BtnBuscar;
+        private TextBox TxtDni;
         private Label label2;
         private Label label5;
         private DateTimePicker dateTimePicker1;
@@ -604,23 +604,23 @@
         private TextBox txtBarrio;
         private TextBox txtCalle;
         private Label label21;
-        private ComboBox cbProvincia;
+        private ComboBox CbProvincia;
         private Label label15;
-        private ComboBox cbLocalidad;
-        private LinkLabel linkContactos;
-        private DataGridView dataGridContactos;
+        private ComboBox CbLocalidad;
+        private LinkLabel LinkContactos;
+        private DataGridView DataGridContactos;
+        private BindingSource bindingContactos;
+        private BindingSource bindingProvincias;
+        private BindingSource bindingLocalidades;
+        private ComboBox CbEstados;
+        private Label label6;
+        private BindingSource bindingEstados;
+        private Panel pnlContent;
+        private ErrorProvider errorProvider1;
         private DataGridViewTextBoxColumn whatsappDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn telefonoDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn instagramDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn facebookDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn emailDataGridViewTextBoxColumn;
-        private BindingSource bindingContactos;
-        private BindingSource bindingProvincias;
-        private BindingSource bindingLocalidades;
-        private ComboBox cbEstados;
-        private Label label6;
-        private BindingSource bindingEstados;
-        private Panel pnlContent;
-        private ErrorProvider errorProvider1;
     }
 }

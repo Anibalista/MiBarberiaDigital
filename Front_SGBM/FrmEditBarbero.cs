@@ -51,7 +51,7 @@ namespace Front_SGBM
         /// </summary>
         private void FrmEditBarbero_Load(object sender, EventArgs e)
         {
-            cargarFormulario(); // Carga datos iniciales según el modo.
+            CargarFormulario(); // Carga datos iniciales según el modo.
             IniciarFechas();    // Reaplica límites de fechas.
         }
 
@@ -90,7 +90,7 @@ namespace Front_SGBM
         /// Configura el formulario de barbero según el modo actual (registro o modificación).
         /// Asigna el título correspondiente y carga los datos iniciales necesarios.
         /// </summary>
-        private void cargarFormulario()
+        private void CargarFormulario()
         {
             // Determina el título según el modo del formulario.
             string titulo = modo == EnumModoForm.Modificacion ? "Modificación" : "Registro";
@@ -734,7 +734,7 @@ namespace Front_SGBM
                     LimpiarValores(true);
                     LimpiarCampos();
                     modo = EnumModoForm.Alta;
-                    cargarFormulario();
+                    CargarFormulario();
                     ActivarCamposEditables(false);
 
                     return; // Cortamos la ejecución para no cerrar la ventana
