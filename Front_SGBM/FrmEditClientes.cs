@@ -173,7 +173,7 @@ namespace Front_SGBM
                 CargarEstados();
 
                 // 3. Volcado de datos si aplica
-                if (modo == EnumModoForm.Modificacion || modo == EnumModoForm.Consulta)
+                if (_cliente?.Personas != null)
                 {
                     CargarDatosCliente();
                 }
@@ -421,7 +421,164 @@ namespace Front_SGBM
         #endregion
 
         #region Comprobaciones y validaciones
-        
+
+        /// <summary>
+        /// Comprueba el DNI ingresado y orquesta la navegación del formulario según la existencia previa de la Persona/Cliente.
+        /// </summary>
+        private bool ComprobarDni(out string mensaje)
+        {
+            mensaje = string.Empty;
+            try
+            {
+                var resultado = DniExiste();
+                if (!resultado.Success)
+                {
+                    mensaje = resultado.Mensaje;
+                    return false;
+                }
+
+                // Extraemos el objeto (Puede ser nulo si es un DNI nuevo)
+                var clienteBD = resultado.Data;
+
+                // ==============================================================================
+                // ESCENARIO 1: NO EXISTE NI PERSONA NI CLIENTE (DNI TOTALMENTE NUEVO)
+                // ==============================================================================
+                if (clienteBD == null)
+                {
+                    if (modo == EnumModoForm.Alta)
+                    {
+                        return true; //1.1 Camino libre, todo perfecto para seguir.
+                    }
+                    else // Modificación
+                    {
+                        // 1.2 Preguntamos si quiere alterar el DNI del cliente que está editando
+                        DialogResult resp = Mensajes.Respuesta("El DNI ingresado es un número nuevo.\n¿Desea cambiar el DNI del cliente actual a este nuevo número?");
+                        if (resp == DialogResult.Yes) return true;
+
+                        mensaje = "Cambio de DNI cancelado.";
+                        return false;
+                    }
+                }
+
+                // ==============================================================================
+                // ESCENARIO 2: EL CLIENTE YA EXISTE COMPLETAMENTE (Tiene IdCliente)
+                // ==============================================================================
+                if (clienteBD.IdCliente != null && clienteBD.IdCliente > 0)
+                {
+                    if (modo == EnumModoForm.Alta)
+                    {
+                        // 2.1 Iba a crear uno nuevo, pero encontró a uno existente
+                        string nombre = $"{clienteBD.Personas?.Nombres} {clienteBD.Personas?.Apellidos}";
+                        DialogResult resp = Mensajes.Respuesta($"El DNI ingresado ya pertenece al cliente: {nombre}.\n¿Desea pasar al modo Modificación para editar a este cliente?");
+
+                        if (resp == DialogResult.Yes)
+                        {
+                            modo = EnumModoForm.Modificacion;
+                            _cliente = clienteBD;
+                            return true;
+                        }
+                        mensaje = "Operación cancelada. El DNI ya está en uso.";
+                        return false;
+                    }
+                    else // Modificación
+                    {
+                        // 2.2: Validamos si el DNI que tipeó pertenece a ÉSTE mismo cliente
+                        if (_cliente != null && _cliente.IdCliente == clienteBD.IdCliente)
+                        {
+                            return true; // Solo validó su propio DNI, todo OK.
+                        }
+
+                        mensaje = "El DNI ingresado ya pertenece a otro cliente registrado.";
+                        return false;
+                    }
+                }
+
+                // ==============================================================================
+                // ESCENARIO 3: LA PERSONA EXISTE PERO NO ES CLIENTE (Ej: Empleado)
+                // ==============================================================================
+                if (clienteBD.Personas != null)
+                {
+                    if (modo == EnumModoForm.Alta)
+                    {
+                        // 3.1: Encontró a la persona, pero no tiene registro en la tabla Clientes
+                        string nombre = $"{clienteBD.Personas.Nombres} {clienteBD.Personas.Apellidos}";
+                        DialogResult resp = Mensajes.Respuesta($"El DNI ingresado pertenece a {nombre} (Persona registrada, pero no es cliente).\n¿Desea darle de alta como cliente usando esos datos?");
+
+                        if (resp == DialogResult.Yes)
+                        {
+                            modo = EnumModoForm.Alta;
+                            _cliente = clienteBD; // Aquí IdCliente es null o 0, pero tiene la Persona cargada
+
+                            return true;
+                        }
+                        mensaje = "Operación cancelada.";
+                        return false;
+                    }
+                    else // Modificación
+                    {
+                        // 3.2: Quiere ponerle un DNI a su cliente, pero ese DNI ya es de un empleado/proveedor.
+                        mensaje = "El DNI ingresado pertenece a otra persona en el sistema. No se puede asignar a este cliente.";
+                        return false;
+                    }
+                }
+
+                // Por seguridad (no debería llegar aquí)
+                mensaje = "No se pudo verificar el DNI por un caso no contemplado.";
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error crítico en ComprobarDni: {ex.ToString()}");
+                Mensajes.MensajeError("Ocurrió un error técnico inesperado al intentar verificar el DNI.");
+                return false;
+            }
+        }
+
+
+        private Resultado<Clientes?> DniExiste()
+        {
+            try
+            {
+                if (!ValidarCampoNumerico(TxtDni, out string dni))
+                {
+                    return Resultado<Clientes?>.Fail("Ingrese un Dni válido");
+                }
+
+                var resultado = ClientesNegocio.GetClientePorDni(dni);
+
+                if (!resultado.Success)
+                {
+                    Logger.LogError($"Error de negocio al verificar existencia de DNI: {resultado.Mensaje}");
+                    return Resultado<Clientes?>.Fail(resultado.Mensaje); // Pasamos el mensaje de negocio
+                }
+
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error técnico al verificar existencia de DNI: {ex.ToString()}");
+                return Resultado<Clientes?>.Fail("Ocurrió un error inesperado al intentar verificar el DNI.");
+            }
+        }
+
+        private bool ValidarCampoNumerico(Control control, out string texto)
+        {
+            texto = control.Text.Trim();
+            if (string.IsNullOrWhiteSpace(texto))
+            {
+                ErrorCampo(control, "Este campo no puede estar vacío.");
+                return false;
+            }
+            if (!texto.All(char.IsDigit))
+            {
+                ErrorCampo(control, "Este campo solo acepta números.");
+                return false;
+            }
+            control.Text = texto;
+            ErrorCampo(control); // Limpia el error si la validación es exitosa
+            return true;
+        }
+
         private string GetTitulo()
         {
             return modo switch
@@ -466,6 +623,17 @@ namespace Front_SGBM
         {
             // Simplificación moderna: si es null devuelve false, si no, evalúa el Count
             return _contactos?.Count > 0;
+        }
+
+        private bool ValidarNacimiento(DateTime fecha)
+        {
+            DateTime hoy = DateTime.Today;
+            if (fecha >= hoy)
+            {
+                Mensajes.MensajeAdvertencia("La fecha de nacimiento no puede ser posterior al día de hoy.");
+                return false;
+            }
+            return true;
         }
 
 
@@ -560,6 +728,183 @@ namespace Front_SGBM
 
             if (limpiarContactos)
                 _contactos = new(); // Instancia una lista vacía en lugar de null para no romper el binding de la grilla
+        }
+
+        private bool ValidarNombres()
+        {
+            string mensaje = string.Empty;
+            bool exito = true;
+            if (!Validaciones.TextoCorrecto(txtNombre.Text, ref mensaje))
+            {
+                ErrorCampo(txtNombre, mensaje);
+                exito = false;
+            } 
+            else
+                txtNombre.Text = Validaciones.CapitalizarTexto(txtNombre.Text);
+
+            if (!Validaciones.TextoCorrecto(txtApellido.Text, ref mensaje))
+            {
+                ErrorCampo(txtApellido, mensaje);
+                exito = false;
+            }
+            else
+                txtApellido.Text = Validaciones.CapitalizarTexto(txtApellido.Text);
+
+            if (!exito)
+            {
+                Mensajes.MensajeError("Corrija los errores en los campos resaltados.");
+                return false;
+            }
+
+            // Si se pasa la validación, limpiamos cualquier error previo
+            ErrorCampo(txtNombre);
+            ErrorCampo(txtApellido);
+            return true;
+        }
+
+        private bool ProvinciaIngresada()
+        {
+            _provincia = null; // Limpiamos la provincia en memoria antes de intentar asignar la nueva selección
+            string mensaje = string.Empty;
+            string provincia = CbProvincia.Text.Trim();
+            if (!Validaciones.TextoCorrecto(provincia, ref mensaje))
+            {
+                ErrorCampo(CbProvincia, mensaje);
+                return false;
+            }
+            
+            Provincias? p = _provincias?.FirstOrDefault(x => x.Provincia.Equals(provincia, StringComparison.OrdinalIgnoreCase));
+            if (p == null)
+            {
+                p = new Provincias { Provincia = Validaciones.CapitalizarTexto(provincia), IdProvincia = 0 };
+            }
+            _provincia = p;
+            return true;
+        }
+
+        private bool LocalidadIngresada()
+        {
+            _localidad = null;
+            if (!ProvinciaIngresada())
+                return false;
+            
+            string mensaje = string.Empty;
+            string localidad = CbLocalidad.Text.Trim();
+            if (!Validaciones.TextoCorrecto(localidad, ref mensaje))
+            {
+                ErrorCampo(CbLocalidad, mensaje);
+                return false;
+            }
+            Localidades? l = _localidades?.FirstOrDefault(x => x.Localidad.Equals(localidad, StringComparison.OrdinalIgnoreCase));
+            if (l == null)
+            {
+                l = new Localidades { 
+                    Localidad = Validaciones.CapitalizarTexto(localidad),
+                    IdLocalidad = 0,
+                    IdProvincia = _provincia?.IdProvincia ?? 0,
+                    Provincias = _provincia 
+                };
+            }
+            _localidad = l;
+            return true;
+        }
+
+        private bool DomicilioIngresado()
+        {
+            _domicilio = _persona?.Domicilios ?? new();
+            bool exito = false;
+            string mensaje = string.Empty;
+            if (!Validaciones.TextoCorrecto(txtCalle.Text.Trim(), ref mensaje))
+            {
+                ErrorCampo(txtCalle, mensaje);
+            }
+            else
+                _domicilio.Calle = Validaciones.CapitalizarTexto(txtCalle.Text.Trim());
+
+            if (!Validaciones.TextoCorrecto(txtBarrio.Text.Trim(), ref mensaje))
+            {
+                ErrorCampo(txtBarrio, mensaje);
+            }
+            else
+                _domicilio.Barrio = Validaciones.CapitalizarTexto(txtBarrio.Text.Trim());
+
+            if (_domicilio.Calle != null || _domicilio.Barrio != null)
+            {
+                ErrorCampo(txtCalle);
+                ErrorCampo(txtBarrio);
+                exito = true;
+            }
+            bool exitoLocalidad = LocalidadIngresada();
+            
+            if (!exito && !exitoLocalidad)
+            {
+                Mensajes.MensajeAdvertencia("No se registrará el domicilo");
+                _domicilio = null;
+                return true;
+            }
+            _domicilio.IdLocalidad = _localidad?.IdLocalidad ?? 0;
+            _domicilio.Localidades = _localidad;
+            
+            if (!string.IsNullOrWhiteSpace(txtNro.Text))
+                _domicilio.Altura = txtNro.Text.Trim();
+            if (!string.IsNullOrWhiteSpace(txtPiso.Text))
+                _domicilio.Piso = txtPiso.Text.Trim();
+            if (!string.IsNullOrWhiteSpace(txtDepto.Text))
+                _domicilio.Depto = txtDepto.Text.Trim();
+
+            return true;
+        }
+
+        /// <summary>
+        /// Valida y ensambla el objeto _persona con los datos de los controles.
+        /// </summary>
+        private bool ValidarPersona(out string mensaje)
+        {
+            mensaje = string.Empty;
+
+            // 1. Aseguramos instancia (si es null, es un Alta pura)
+            _persona ??= new Personas();
+
+            // 2. Nombres y Apellidos
+            // Llamamos a tu método que ya valida, capitaliza y muestra errores en UI
+            if (!ValidarNombres())
+            {
+                mensaje = "Nombre o Apellido no cumplen con el formato.";
+                return false;
+            }
+
+            // Asignamos los valores (que ya están capitalizados por tu método ValidarNombres)
+            _persona.Nombres = txtNombre.Text.Trim();
+            _persona.Apellidos = txtApellido.Text.Trim();
+
+            // 3. DNI
+            // El DNI ya pasó por ComprobarDni antes de llegar aquí, así que lo asignamos con confianza
+            _persona.Dni = TxtDni.Text.Trim();
+
+            // 4. Fecha de Nacimiento
+            // Una validación mínima: que no sea una fecha futura (aunque el picker ya esté limitado)
+            if (dateTimePicker1.Value > DateTime.Today)
+            {
+                mensaje = "La fecha de nacimiento no puede ser una fecha futura.";
+                ErrorCampo(dateTimePicker1, mensaje);
+                return false;
+            }
+            _persona.FechaNac = dateTimePicker1.Value == DateTime.Today ? null : dateTimePicker1.Value;
+            ErrorCampo(dateTimePicker1); // Limpiamos error
+
+            // 5. Domicilio
+            // El método DomicilioIngresado() ya gestiona la lógica de "todo o nada" 
+            // y asigna el resultado a la variable global _domicilio.
+            if (!DomicilioIngresado())
+            {
+                mensaje = "Error en la validación del domicilio.";
+                return false;
+            }
+
+            // Vinculamos el domicilio procesado a la persona
+            _persona.Domicilios = _domicilio;
+
+            return true;
         }
 
         #endregion

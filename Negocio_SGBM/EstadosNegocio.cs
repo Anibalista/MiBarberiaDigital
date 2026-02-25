@@ -18,7 +18,7 @@ namespace Negocio_SGBM
     /// </summary>
     public class EstadosNegocio
     {
-        #region Consultas
+        #region Consultas e información
 
         /// <summary>
         /// Obtiene un estado según índole y descripción.
@@ -88,5 +88,6 @@ namespace Negocio_SGBM
         }
 
         #endregion
+
     }
 }

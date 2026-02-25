@@ -1,3 +1,5 @@
+version: '3.8' # Buena práctica poner la versión
+
 services:
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -7,3 +9,8 @@ services:
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=TuPasswordSeguro123!
+    volumes:
+      - sql_data:/var/opt/mssql # Guarda los datos
+
+volumes:
+  sql_data: # Declaración del volumen

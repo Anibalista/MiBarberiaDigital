@@ -75,7 +75,7 @@ namespace Negocio_SGBM
 
                 // Buscar cliente por DNI
                 var resultadoCliente = GetClientePorDni(cliente.Personas.Dni);
-                if (resultadoCliente.Data == null)
+                if (resultadoCliente.Data == null || resultadoCliente.Data.IdCliente == null)
                 {
                     cliente.Personas = null;
                     var resultadoRegistroCliente = RegistrarClienteBasico(cliente);
@@ -108,11 +108,14 @@ namespace Negocio_SGBM
         public static Resultado<Clientes?> GetClientePorDni(string? dni)
         {
             var resultadoPersona = PersonasNegocio.GetPersonaPorDni(dni);
-            if (!resultadoPersona.Success || resultadoPersona.Data == null)
+            if (!resultadoPersona.Success)
                 return Resultado<Clientes?>.Fail(resultadoPersona.Mensaje);
 
             var persona = resultadoPersona.Data;
-            if (persona.IdPersona == null)
+            if (persona == null)
+                return Resultado<Clientes?>.Ok(null, "No se encontró una persona con ese DNI.");
+
+            if (persona?.IdPersona == null)
                 return Resultado<Clientes?>.Fail("La persona no tiene Id válido.");
 
             try
@@ -121,11 +124,15 @@ namespace Negocio_SGBM
                 if (!resultadoCliente.Success)
                     return Resultado<Clientes?>.Fail(resultadoCliente.Mensaje);
 
-                var cliente = resultadoCliente.Data;
-                if (cliente != null)
-                    cliente.Personas = persona;
+                if (resultadoCliente.Data != null)
+                    resultadoCliente.Data.Personas = persona;
+                else
+                    return Resultado<Clientes?>.Fail("No se encontró un cliente asociado a ese DNI.");
 
-                return Resultado<Clientes?>.Ok(cliente);
+                if (resultadoCliente.Data.IdCliente == null)
+                    resultadoCliente.Mensaje = "El Dni ingresado está asociado a una persona que no es actualmente un cliente.";
+
+                return resultadoCliente;
             }
             catch (Exception ex)
             {

@@ -92,14 +92,11 @@ namespace Datos_SGBM
                 }
 
                 // Incluir relaciones necesarias y buscar por IdPersona
-                var cliente = contexto.Clientes
-                                      .Include(c => c.Personas)
-                                        .ThenInclude(p => p.Domicilios)
-                                          .ThenInclude(d => d.Localidades)
-                                      .FirstOrDefault(c => c.IdPersona == idPersona);
+                var cliente = contexto.Clientes.Include(c => c.Estados)
+                                        .FirstOrDefault(c => c.IdPersona == idPersona);
 
                 if (cliente == null)
-                    return Resultado<Clientes?>.Fail($"No se encontró un cliente asociado a la persona con Id {idPersona}.");
+                    return Resultado<Clientes?>.Ok(new Clientes(), $"No se encontró un cliente asociado a la persona con Id {idPersona}.");
 
                 return Resultado<Clientes?>.Ok(cliente);
             }

@@ -130,10 +130,7 @@ namespace Datos_SGBM
                                 .ThenInclude(l => l.Provincias)
                         .FirstOrDefault(p => p.Dni == dniNormalized);
 
-                    if (persona == null)
-                        return Resultado<Personas?>.Fail($"No se encontró una persona con DNI: {dniNormalized}");
-
-                    return Resultado<Personas?>.Ok(persona);
+                    return Resultado<Personas?>.Ok(persona, persona == null ? $"No se encontró una persona con DNI: {dniNormalized}" : string.Empty);
                 }
             }
             catch (Exception ex)
