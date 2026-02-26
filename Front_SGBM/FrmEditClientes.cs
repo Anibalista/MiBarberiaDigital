@@ -136,14 +136,102 @@ namespace Front_SGBM
             CerrarFormulario(sender, e);
         }
 
+        /// <summary>
+        /// Verifica el DNI ingresado, buscando coincidencias en la base de datos y preparando el formulario.
+        /// </summary>
         private void BtnBuscar_Click(object sender, EventArgs e)
         {
+            try
+            {
+                // 1. Limpiamos cualquier error visual previo en el campo del DNI
+                ErrorCampo(TxtDni);
 
+                // 2. Ejecutamos nuestra comprobación maestra
+                if (!ComprobarDni(out string mensaje))
+                {
+                    // Si devuelve false, la operación se canceló (ej: el usuario dijo "No" a modificar) o falló.
+                    if (!string.IsNullOrWhiteSpace(mensaje))
+                    {
+                        Mensajes.MensajeAdvertencia(mensaje);
+                    }
+
+                    // Devolvemos el foco al TextBox para que corrija el DNI si quiere
+                    TxtDni.Focus();
+                    return;
+                }
+                string mensajeExito = string.Empty;
+                // 3. Si devuelve true, le damos feedback al usuario según lo que haya encontrado en memoria
+                if (_cliente != null && _cliente.IdCliente > 0)
+                {
+                    mensajeExito = $"Se cargaron los datos del cliente {_cliente.Personas?.Nombres} exitosamente.";
+                }
+                else
+                {
+                    mensajeExito = _persona != null && _persona.IdPersona > 0
+                                   ? "Se encontraron datos previos de esta persona. Puede completar la información faltante para registrarla como cliente."
+                                   : "El DNI está disponible. Puede continuar con la carga de un nuevo cliente.";
+                }
+                Mensajes.MensajeExito(mensajeExito);
+
+                // 4. Pasamos el foco al siguiente campo lógico para agilizar la carga
+                txtNombre.Focus();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error en BtnBuscar_Click: {ex.ToString()}");
+                Mensajes.MensajeError("Ocurrió un problema técnico al intentar buscar el DNI.");
+            }
         }
 
         private void BtnGuardar_Click(object sender, EventArgs e)
         {
+            try
+            {
+                // 1. Comprobamos el DNI (Reutilizamos el método defensivo =)
+                if (!ComprobarDni(out string mensajeDni))
+                {
+                    if (!string.IsNullOrWhiteSpace(mensajeDni))
+                        Mensajes.MensajeAdvertencia(mensajeDni);
+                    return;
+                }
 
+                // 2. Ensamblamos el cliente validando todos sus campos restantes
+                if (!ProcesarCliente(out string mensajeProceso))
+                {
+                    if (!string.IsNullOrWhiteSpace(mensajeProceso))
+                        Mensajes.MensajeAdvertencia(mensajeProceso);
+                    return;
+                }
+
+                // 3. Persistencia en Capa de Negocio
+                bool exito;
+                string mensajeFinal;
+
+                if (modo == EnumModoForm.Alta)
+                {
+                    exito = RegistrarCliente(out mensajeFinal);
+                }
+                else
+                {
+                    exito = ModificarCliente(out mensajeFinal);
+                }
+
+                // 4. Feedback al Usuario
+                if (exito)
+                {
+                    Mensajes.MensajeExito(mensajeFinal);
+                    CerrarFormulario(sender, e); // Volvemos a la grilla
+                }
+                else
+                {
+                    Mensajes.MensajeError(mensajeFinal);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error crítico en BtnGuardar_Click: {ex.ToString()}");
+                Mensajes.MensajeError("Ocurrió un error inesperado al intentar guardar el cliente.");
+            }
         }
 
         #endregion
@@ -300,7 +388,7 @@ namespace Front_SGBM
                     Mensajes.MensajeAdvertencia("No se pudieron cargar los estados del sistema. Se usará un estado por defecto.");
 
                     // RED DE SEGURIDAD (Fallback)
-                    _estados = new List<Estados> { new Estados { Estado = "Activo", Indole = "Clientes" } };
+                    _estados = new List<Estados> { new Estados { Estado = "Activo", Indole = "Clientes", IdEstado = 0 } };
                 }
                 else
                 {
@@ -309,7 +397,13 @@ namespace Front_SGBM
 
                 bindingEstados.DataSource = null;
                 bindingEstados.DataSource = _estados;
-                CbEstados.SelectedIndex = -1;
+
+                Estados? activo = _estados.FirstOrDefault(e => e.Estado.Equals("Activo", StringComparison.OrdinalIgnoreCase));
+
+                if (activo != null)
+                    CbEstados.SelectedValue = activo.IdEstado;
+                else
+                    CbEstados.SelectedIndex = -1;
             }
             catch (Exception ex)
             {
@@ -534,7 +628,6 @@ namespace Front_SGBM
             }
         }
 
-
         private Resultado<Clientes?> DniExiste()
         {
             try
@@ -636,7 +729,132 @@ namespace Front_SGBM
             return true;
         }
 
+        private bool ValidarNombres()
+        {
+            string mensaje = string.Empty;
+            bool exito = true;
+            if (!Validaciones.TextoCorrecto(txtNombre.Text, ref mensaje))
+            {
+                ErrorCampo(txtNombre, mensaje);
+                exito = false;
+            }
+            else
+                txtNombre.Text = Validaciones.CapitalizarTexto(txtNombre.Text);
 
+            if (!Validaciones.TextoCorrecto(txtApellido.Text, ref mensaje))
+            {
+                ErrorCampo(txtApellido, mensaje);
+                exito = false;
+            }
+            else
+                txtApellido.Text = Validaciones.CapitalizarTexto(txtApellido.Text);
+
+            if (!exito)
+            {
+                Mensajes.MensajeError("Corrija los errores en los campos resaltados.");
+                return false;
+            }
+
+            // Si se pasa la validación, limpiamos cualquier error previo
+            ErrorCampo(txtNombre);
+            ErrorCampo(txtApellido);
+            return true;
+        }
+
+        private bool ProvinciaIngresada()
+        {
+            _provincia = null; // Limpiamos la provincia en memoria antes de intentar asignar la nueva selección
+            string mensaje = string.Empty;
+            string provincia = CbProvincia.Text.Trim();
+            if (!Validaciones.TextoCorrecto(provincia, ref mensaje))
+            {
+                ErrorCampo(CbProvincia, mensaje);
+                return false;
+            }
+
+            Provincias? p = _provincias?.FirstOrDefault(x => x.Provincia.Equals(provincia, StringComparison.OrdinalIgnoreCase));
+            if (p == null)
+            {
+                p = new Provincias { Provincia = Validaciones.CapitalizarTexto(provincia), IdProvincia = 0 };
+            }
+            _provincia = p;
+            return true;
+        }
+
+        private bool LocalidadIngresada()
+        {
+            _localidad = null;
+            if (!ProvinciaIngresada())
+                return false;
+
+            string mensaje = string.Empty;
+            string localidad = CbLocalidad.Text.Trim();
+            if (!Validaciones.TextoCorrecto(localidad, ref mensaje))
+            {
+                ErrorCampo(CbLocalidad, mensaje);
+                return false;
+            }
+            Localidades? l = _localidades?.FirstOrDefault(x => x.Localidad.Equals(localidad, StringComparison.OrdinalIgnoreCase));
+            if (l == null)
+            {
+                l = new Localidades
+                {
+                    Localidad = Validaciones.CapitalizarTexto(localidad),
+                    IdLocalidad = 0,
+                    IdProvincia = _provincia?.IdProvincia ?? 0,
+                    Provincias = _provincia
+                };
+            }
+            _localidad = l;
+            return true;
+        }
+
+        private bool DomicilioIngresado()
+        {
+            _domicilio = _persona?.Domicilios ?? new();
+            bool exito = false;
+            string mensaje = string.Empty;
+            if (!Validaciones.TextoCorrecto(txtCalle.Text.Trim(), ref mensaje))
+            {
+                ErrorCampo(txtCalle, mensaje);
+            }
+            else
+                _domicilio.Calle = Validaciones.CapitalizarTexto(txtCalle.Text.Trim());
+
+            if (!Validaciones.TextoCorrecto(txtBarrio.Text.Trim(), ref mensaje))
+            {
+                ErrorCampo(txtBarrio, mensaje);
+            }
+            else
+                _domicilio.Barrio = Validaciones.CapitalizarTexto(txtBarrio.Text.Trim());
+
+            if (_domicilio.Calle != null || _domicilio.Barrio != null)
+            {
+                ErrorCampo(txtCalle);
+                ErrorCampo(txtBarrio);
+                exito = true;
+            }
+            bool exitoLocalidad = LocalidadIngresada();
+
+            if (!exito && !exitoLocalidad)
+            {
+                Mensajes.MensajeAdvertencia("No se registrará el domicilo");
+                _domicilio = null;
+                return true;
+            }
+            _domicilio.IdLocalidad = _localidad?.IdLocalidad ?? 0;
+            _domicilio.Localidades = _localidad;
+
+            if (!string.IsNullOrWhiteSpace(txtNro.Text))
+                _domicilio.Altura = txtNro.Text.Trim();
+            if (!string.IsNullOrWhiteSpace(txtPiso.Text))
+                _domicilio.Piso = txtPiso.Text.Trim();
+            if (!string.IsNullOrWhiteSpace(txtDepto.Text))
+                _domicilio.Depto = txtDepto.Text.Trim();
+
+            return true;
+        }
+                
         #endregion
 
         #region Armado de objetos para BD y desarmado para UI
@@ -730,131 +948,6 @@ namespace Front_SGBM
                 _contactos = new(); // Instancia una lista vacía en lugar de null para no romper el binding de la grilla
         }
 
-        private bool ValidarNombres()
-        {
-            string mensaje = string.Empty;
-            bool exito = true;
-            if (!Validaciones.TextoCorrecto(txtNombre.Text, ref mensaje))
-            {
-                ErrorCampo(txtNombre, mensaje);
-                exito = false;
-            } 
-            else
-                txtNombre.Text = Validaciones.CapitalizarTexto(txtNombre.Text);
-
-            if (!Validaciones.TextoCorrecto(txtApellido.Text, ref mensaje))
-            {
-                ErrorCampo(txtApellido, mensaje);
-                exito = false;
-            }
-            else
-                txtApellido.Text = Validaciones.CapitalizarTexto(txtApellido.Text);
-
-            if (!exito)
-            {
-                Mensajes.MensajeError("Corrija los errores en los campos resaltados.");
-                return false;
-            }
-
-            // Si se pasa la validación, limpiamos cualquier error previo
-            ErrorCampo(txtNombre);
-            ErrorCampo(txtApellido);
-            return true;
-        }
-
-        private bool ProvinciaIngresada()
-        {
-            _provincia = null; // Limpiamos la provincia en memoria antes de intentar asignar la nueva selección
-            string mensaje = string.Empty;
-            string provincia = CbProvincia.Text.Trim();
-            if (!Validaciones.TextoCorrecto(provincia, ref mensaje))
-            {
-                ErrorCampo(CbProvincia, mensaje);
-                return false;
-            }
-            
-            Provincias? p = _provincias?.FirstOrDefault(x => x.Provincia.Equals(provincia, StringComparison.OrdinalIgnoreCase));
-            if (p == null)
-            {
-                p = new Provincias { Provincia = Validaciones.CapitalizarTexto(provincia), IdProvincia = 0 };
-            }
-            _provincia = p;
-            return true;
-        }
-
-        private bool LocalidadIngresada()
-        {
-            _localidad = null;
-            if (!ProvinciaIngresada())
-                return false;
-            
-            string mensaje = string.Empty;
-            string localidad = CbLocalidad.Text.Trim();
-            if (!Validaciones.TextoCorrecto(localidad, ref mensaje))
-            {
-                ErrorCampo(CbLocalidad, mensaje);
-                return false;
-            }
-            Localidades? l = _localidades?.FirstOrDefault(x => x.Localidad.Equals(localidad, StringComparison.OrdinalIgnoreCase));
-            if (l == null)
-            {
-                l = new Localidades { 
-                    Localidad = Validaciones.CapitalizarTexto(localidad),
-                    IdLocalidad = 0,
-                    IdProvincia = _provincia?.IdProvincia ?? 0,
-                    Provincias = _provincia 
-                };
-            }
-            _localidad = l;
-            return true;
-        }
-
-        private bool DomicilioIngresado()
-        {
-            _domicilio = _persona?.Domicilios ?? new();
-            bool exito = false;
-            string mensaje = string.Empty;
-            if (!Validaciones.TextoCorrecto(txtCalle.Text.Trim(), ref mensaje))
-            {
-                ErrorCampo(txtCalle, mensaje);
-            }
-            else
-                _domicilio.Calle = Validaciones.CapitalizarTexto(txtCalle.Text.Trim());
-
-            if (!Validaciones.TextoCorrecto(txtBarrio.Text.Trim(), ref mensaje))
-            {
-                ErrorCampo(txtBarrio, mensaje);
-            }
-            else
-                _domicilio.Barrio = Validaciones.CapitalizarTexto(txtBarrio.Text.Trim());
-
-            if (_domicilio.Calle != null || _domicilio.Barrio != null)
-            {
-                ErrorCampo(txtCalle);
-                ErrorCampo(txtBarrio);
-                exito = true;
-            }
-            bool exitoLocalidad = LocalidadIngresada();
-            
-            if (!exito && !exitoLocalidad)
-            {
-                Mensajes.MensajeAdvertencia("No se registrará el domicilo");
-                _domicilio = null;
-                return true;
-            }
-            _domicilio.IdLocalidad = _localidad?.IdLocalidad ?? 0;
-            _domicilio.Localidades = _localidad;
-            
-            if (!string.IsNullOrWhiteSpace(txtNro.Text))
-                _domicilio.Altura = txtNro.Text.Trim();
-            if (!string.IsNullOrWhiteSpace(txtPiso.Text))
-                _domicilio.Piso = txtPiso.Text.Trim();
-            if (!string.IsNullOrWhiteSpace(txtDepto.Text))
-                _domicilio.Depto = txtDepto.Text.Trim();
-
-            return true;
-        }
-
         /// <summary>
         /// Valida y ensambla el objeto _persona con los datos de los controles.
         /// </summary>
@@ -883,14 +976,14 @@ namespace Front_SGBM
 
             // 4. Fecha de Nacimiento
             // Una validación mínima: que no sea una fecha futura (aunque el picker ya esté limitado)
+            // Si el usuario logró ingresar una fecha futura (ej: pegando texto), mostramos un mensaje y no asignamos esa fecha a la persona.
             if (dateTimePicker1.Value > DateTime.Today)
             {
                 mensaje = "La fecha de nacimiento no puede ser una fecha futura.";
                 ErrorCampo(dateTimePicker1, mensaje);
-                return false;
-            }
-            _persona.FechaNac = dateTimePicker1.Value == DateTime.Today ? null : dateTimePicker1.Value;
-            ErrorCampo(dateTimePicker1); // Limpiamos error
+                _persona.FechaNac = null;
+            } else
+                _persona.FechaNac = dateTimePicker1.Value;
 
             // 5. Domicilio
             // El método DomicilioIngresado() ya gestiona la lógica de "todo o nada" 
@@ -903,6 +996,62 @@ namespace Front_SGBM
 
             // Vinculamos el domicilio procesado a la persona
             _persona.Domicilios = _domicilio;
+
+            return true;
+        }
+
+        private Estados? ObtenerEstadoSeleccionado()
+        {
+            try
+            {
+                Estados? estadoSeleccionado = CbEstados.SelectedItem as Estados;
+                if (estadoSeleccionado != null)
+                    return estadoSeleccionado;
+                estadoSeleccionado = _estados?.FirstOrDefault(e => e.Estado.Equals("Activo", StringComparison.OrdinalIgnoreCase));
+                if (estadoSeleccionado != null)
+                    return estadoSeleccionado;
+                return new Estados { IdEstado = 0, Estado = "Activo", Indole = "Clientes" };
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error al obtener el estado seleccionado: {ex.ToString()}");
+                Mensajes.MensajeError("Ocurrió un error al intentar determinar el estado seleccionado.");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Orquesta el ensamblado final del objeto Cliente, uniendo la Persona, Domicilio, Contactos y Estado.
+        /// </summary>
+        private bool ProcesarCliente(out string mensaje)
+        {
+            mensaje = string.Empty;
+
+            // 1. Validamos y armamos la entidad base (Personas + Domicilios + Contactos)
+            if (!ValidarPersona(out mensaje))
+            {
+                return false; // ValidarPersona ya se encargó de marcar los errores en la UI
+            }
+
+            // 2. Procesamos el Estado (Regla: Si no hay selección, forzamos "Activo")
+            _estado = CbEstados.SelectedItem as Estados;
+            if (_estado == null || _estado.IdEstado < 1)
+            {
+                _estado = _estados?.FirstOrDefault(e => e.Estado.Equals("Activo", StringComparison.OrdinalIgnoreCase) && e.Indole == "Clientes")
+                          ?? new Estados { Estado = "Activo", Indole = "Clientes", IdEstado = 1 }; // IdEstado=1 como supuesto valor default en BD
+            }
+
+            // 3. Empaquetamos todo en el Cliente
+            _cliente ??= new Clientes();
+            _cliente.Personas = _persona;
+
+            // Solo pasamos el ID del estado y soltamos el objeto para evitar conflictos con Entity Framework
+            _cliente.IdEstado = _estado.IdEstado;
+            _cliente.Estados = null;
+
+            // Nota sobre la comparación de cambios:
+            // El objeto _cliente ya está 100% armado con los datos de la pantalla.
+            // La capa de Negocio será la encargada de comparar este _cliente entrante contra el que existe en la BD.
 
             return true;
         }
@@ -1042,69 +1191,46 @@ namespace Front_SGBM
         #region Métodos privados de lógica y orquestación
 
         /// <summary>
-        /// Orquesta la validación, construcción y registro de un nuevo cliente en la base de datos.
+        /// Envía el cliente ensamblado a la capa de negocio para su inserción en la BD.
         /// </summary>
-        /// <remarks>
-        /// <para>
-        /// <b>Flujo de ejecución:</b>
-        /// <list type="number">
-        /// <item>Ejecuta <see cref="ComprobarCliente"/> para validar los datos vitales (DNI, Nombres, Nacimiento).</item>
-        /// <item>Evalúa el domicilio. Si está incompleto o vacío, se anula para no guardar basura en la BD.</item>
-        /// <item>Empaqueta todas las entidades en memoria mediante <see cref="ArmarObjetoCliente"/>.</item>
-        /// <item>Envía el paquete a la capa de negocio y evalúa la respuesta.</item>
-        /// </list>
-        /// </para>
-        /// </remarks>
-        /// <param name="mensaje">Parámetro de salida (<c>out</c>) que contendrá el mensaje de éxito o el detalle del error.</param>
-        /// <returns><c>true</c> si el registro fue exitoso; de lo contrario, <c>false</c>.</returns>
         private bool RegistrarCliente(out string mensaje)
         {
-            // 1. Inicialización obligatoria del parámetro de salida
             mensaje = string.Empty;
-
             try
             {
-                return true; // Placeholder para indicar que el proceso se completó sin errores. Reemplazar con la lógica real.
+                // Llamada a capa de negocio
+                var resultado = ClientesNegocio.RegistrarCliente(_cliente, _contactos);
+
+                mensaje = resultado.Mensaje;
+                return resultado.Success;
             }
             catch (Exception ex)
             {
-                // Red de seguridad
                 Logger.LogError($"Error crítico en RegistrarCliente: {ex.ToString()}");
-                mensaje = "Ocurrió un error técnico inesperado al intentar guardar el cliente.";
+                mensaje = "Error técnico al registrar el cliente.";
                 return false;
             }
         }
 
         /// <summary>
-        /// Orquesta la validación, actualización en memoria y modificación de un cliente existente en la base de datos.
+        /// Envía el cliente ensamblado a la capa de negocio para su actualización.
         /// </summary>
-        /// <remarks>
-        /// <para>
-        /// <b>Flujo de ejecución:</b>
-        /// <list type="number">
-        /// <item>Ejecuta <see cref="ComprobarCliente"/> para validar los datos vitales en modo Modificación (<c>false</c>).</item>
-        /// <item>Intenta reconstruir el domicilio con <see cref="ArmarObjetoDomicilio"/>. Si falla, lo anula.</item>
-        /// <item>Actualiza el empaquetado de las entidades en memoria mediante <see cref="ArmarObjetoCliente"/>.</item>
-        /// <item>Envía el paquete a la capa de negocio y evalúa la respuesta mediante el patrón Resultado.</item>
-        /// </list>
-        /// </para>
-        /// </remarks>
-        /// <param name="mensaje">Parámetro de salida (<c>out</c>) que contendrá el mensaje de éxito o el detalle del error.</param>
-        /// <returns><c>true</c> si la modificación fue exitosa; de lo contrario, <c>false</c>.</returns>
         private bool ModificarCliente(out string mensaje)
         {
-            // 1. Inicialización obligatoria del parámetro de salida
             mensaje = string.Empty;
-
             try
             {
-                return true; // Placeholder para indicar que el proceso se completó sin errores. Reemplazar con la lógica real.
+                // En ClientesNegocio.Modificar debería implementar el "HayCambios()"
+                // comparando el _cliente que le mandas, contra el de la base de datos.
+                var resultado = ClientesNegocio.ModificarCliente(_cliente, _contactos);
+
+                mensaje = resultado.Mensaje;
+                return resultado.Success;
             }
             catch (Exception ex)
             {
-                // Red de seguridad
                 Logger.LogError($"Error crítico en ModificarCliente: {ex.ToString()}");
-                mensaje = "Ocurrió un error técnico inesperado al intentar actualizar el cliente.";
+                mensaje = "Error técnico al actualizar el cliente.";
                 return false;
             }
         }

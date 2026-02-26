@@ -35,6 +35,71 @@ namespace Negocio_SGBM
         }
 
         /// <summary>
+        /// Compara las propiedades vitales de dos objetos Cliente (y sus relaciones) para determinar si hubo modificaciones.
+        /// </summary>
+        private static bool HayCambios(Clientes clienteUI, Clientes clienteBD, List<Contactos>? contactos)
+        {
+            // 1. Cambios a nivel Cliente (ej: Cambio de estado Activo/Inactivo)
+            if (clienteUI.IdEstado != clienteBD.IdEstado) return true;
+
+            var pUI = clienteUI.Personas;
+            var pBD = clienteBD.Personas;
+
+            // Failsafe estructural
+            if (pUI == null || pBD == null) return true;
+
+            // 2. Cambios a nivel Persona
+            if (pUI.Dni != pBD.Dni) return true;
+            if (pUI.Nombres != pBD.Nombres) return true;
+            if (pUI.Apellidos != pBD.Apellidos) return true;
+
+            // Comparación segura de fechas (ignorando horas por si acaso)
+            if (pUI.FechaNac?.Date != pBD.FechaNac?.Date) return true;
+
+            // 3. Cambios a nivel Domicilio
+            var dUI = pUI.Domicilios;
+            var dBD = pBD.Domicilios;
+
+            if (dUI == null && dBD != null) return true; // El usuario borró el domicilio
+            if (dUI != null && dBD == null) return true; // El usuario agregó un domicilio nuevo
+
+            if (dUI != null && dBD != null)
+            {
+                if (dUI.IdLocalidad != dBD.IdLocalidad) return true;
+
+                // Usamos (?? "") para evitar crasheos si la BD tiene nulos y la UI manda vacíos
+                if ((dUI.Calle ?? "") != (dBD.Calle ?? "")) return true;
+                if ((dUI.Barrio ?? "") != (dBD.Barrio ?? "")) return true;
+                if ((dUI.Altura ?? "") != (dBD.Altura ?? "")) return true;
+                if ((dUI.Piso ?? "") != (dBD.Piso ?? "")) return true;
+                if ((dUI.Depto ?? "") != (dBD.Depto ?? "")) return true;
+            }
+
+            // 4. Cambios a nivel Contactos
+            var contactosDB = ContactosNegocio.GetContactosPorPersona(pBD);
+            if (contactos == null && contactosDB.Data != null && contactosDB.Data.Count > 0) return true; // El usuario borró todos los contactos
+            if (contactos != null && (contactosDB.Data == null || contactosDB.Data.Count == 0)) return true; // El usuario agregó contactos nuevos
+            if (contactos != null && contactosDB.Data != null)
+            {
+                // Comparamos cada contacto enviado por la UI con su contraparte en la BD
+                foreach (var contactoUI in contactos)
+                {
+                    var contactoBD = contactosDB.Data.FirstOrDefault(c => c.IdContacto == contactoUI.IdContacto);
+                    if (contactoBD == null) return true; // El usuario agregó un contacto nuevo
+                    if ((contactoUI.Telefono ?? "") != (contactoBD.Telefono ?? "")) return true;
+                    if ((contactoUI.Whatsapp ?? "") != (contactoBD.Whatsapp ?? "")) return true;
+                    if ((contactoUI.Email ?? "") != (contactoBD.Email ?? "")) return true;
+                    if ((contactoUI.Instagram ?? "") != (contactoBD.Instagram ?? "")) return true;
+                    if ((contactoUI.Facebook ?? "") != (contactoBD.Facebook ?? "")) return true;
+                    if (contactoUI.ExtranjeroWhatsapp != contactoBD.ExtranjeroWhatsapp) return true;
+                }
+            }
+
+            // Si pasó todos los filtros, son gemelos idénticos.
+            return false;
+        }
+
+        /// <summary>
         /// Importa un cliente: valida persona, registra o modifica según corresponda,
         /// y registra contacto si se proporciona.
         /// </summary>
@@ -371,7 +436,7 @@ namespace Negocio_SGBM
         /// <summary>
         /// Modifica un cliente existente junto con sus contactos asociados.
         /// </summary>
-        public static Resultado<bool> ModificarCliente(Clientes? cliente, List<Contactos>? contactos)
+        public static Resultado<bool> ModificarCliente(Clientes cliente, List<Contactos>? contactos)
         {
             var validacion = ComprobarCliente(cliente, false);
             if (!validacion.Success)
@@ -380,8 +445,20 @@ namespace Negocio_SGBM
             cliente = validacion.Data!;
             try
             {
-                if (cliente.IdEstado < 1)
-                    return Resultado<bool>.Fail("El estado del cliente no se ha podido encontrar.");
+                // 1. Obtenemos el cliente original de la Base de Datos con TODAS sus relaciones
+                var resultadoOriginal = GetClientePorDni(cliente.Personas?.Dni);
+
+                if (!resultadoOriginal.Success || resultadoOriginal.Data == null)
+                    return Resultado<bool>.Fail("No se encontró el cliente original para modificar.");
+
+                var clienteBD = resultadoOriginal.Data;
+
+                // 2. DIRTY TRACKING
+                if (!HayCambios(cliente, clienteBD, contactos))
+                {
+                    // Retornamos Success = true, pero con un mensaje que la UI puede mostrar
+                    return Resultado<bool>.Ok(true, "No se detectaron cambios en los datos del cliente. No se realizó ninguna actualización.");
+                }
 
                 var resultadoPersona = PersonasNegocio.GetPersonaPorDni(cliente.Personas!.Dni);
                 var persona = resultadoPersona.Data;
@@ -410,9 +487,8 @@ namespace Negocio_SGBM
             }
             catch (Exception ex)
             {
-                var msg = $"Error inesperado al modificar cliente:\n{ex.ToString()}";
-                Logger.LogError(msg);
-                return Resultado<bool>.Fail(msg);
+                Logger.LogError($"Error al modificar cliente:\n{ex.ToString()}");
+                return Resultado<bool>.Fail("Ocurrió un error inesperado al modificar el cliente.");
             }
         }
     }
