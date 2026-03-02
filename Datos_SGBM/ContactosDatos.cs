@@ -133,6 +133,40 @@ namespace Datos_SGBM
             }
         }
 
+        /// <summary> 
+        /// Obtiene la lista de contactos asociados a una lista de personas.
+        /// </summary>
+        public static Resultado<List<Contactos>> GetContactosPorListaPersonas(List<int> idsPersonas)
+        {
+            if (idsPersonas.Count < 1)
+                return Resultado<List<Contactos>>.Fail("No llegan los datos de personas para la consulta de contactos.");
+            try
+            {
+                using (var contexto = new Contexto())
+                {
+                    var comprobacion = new ComprobacionContexto(contexto);
+                    var rc = comprobacion.ComprobarEntidad(contexto.Contactos, nameof(contexto.Contactos));
+                    if (!rc.Success)
+                    {
+                        Logger.LogError(rc.Mensaje);
+                        return Resultado<List<Contactos>>.Fail(rc.Mensaje);
+                    }
+                    var contactos = contexto.Contactos
+                        .Where(c => c.IdPersona != null && idsPersonas.Contains(c.IdPersona.Value))
+                        .ToList();
+                    if (contactos == null || contactos.Count < 1)
+                        return Resultado<List<Contactos>>.Fail("No se encontraron contactos para las personas indicadas.");
+                    return Resultado<List<Contactos>>.Ok(contactos);
+                }
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error al obtener contactos por lista de personas:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<List<Contactos>>.Fail(msg);
+            }
+        }
+
         #endregion
 
         #region Interacción con BD (registro, modificación, etc)

@@ -171,9 +171,14 @@ namespace Front_SGBM
                                    ? "Se encontraron datos previos de esta persona. Puede completar la información faltante para registrarla como cliente."
                                    : "El DNI está disponible. Puede continuar con la carga de un nuevo cliente.";
                 }
+                if (_cliente?.Personas != null)
+                {
+                    CargarDatosCliente(); // Cargamos el cliente encontrado en memoria (puede ser uno nuevo o uno existente según la lógica de ComprobarDni)
+                }
                 Mensajes.MensajeExito(mensajeExito);
 
-                // 4. Pasamos el foco al siguiente campo lógico para agilizar la carga
+                // 4. Activamos los campos y pasamos el foco al siguiente campo lógico para agilizar la carga
+                ActivarCampos(true);
                 txtNombre.Focus();
             }
             catch (Exception ex)
@@ -187,6 +192,9 @@ namespace Front_SGBM
         {
             try
             {
+                // 0. Limpiamos errores visuales previos
+                errorProvider1.Clear();
+
                 // 1. Comprobamos el DNI (Reutilizamos el método defensivo =)
                 if (!ComprobarDni(out string mensajeDni))
                 {
@@ -264,10 +272,12 @@ namespace Front_SGBM
                 if (_cliente?.Personas != null)
                 {
                     CargarDatosCliente();
+                } else
+                {
+                    ActivarCampos(false); // Si no hay cliente, desactivamos los campos hasta que se busque uno o se confirme el alta
                 }
 
                 // 4. Configuración visual final
-                ActivarCampos(modo != EnumModoForm.Consulta);
                 labelTitulo.Text = $"{GetTitulo()} de Cliente";
             }
             catch (Exception ex)
@@ -977,13 +987,16 @@ namespace Front_SGBM
             // 4. Fecha de Nacimiento
             // Una validación mínima: que no sea una fecha futura (aunque el picker ya esté limitado)
             // Si el usuario logró ingresar una fecha futura (ej: pegando texto), mostramos un mensaje y no asignamos esa fecha a la persona.
-            if (dateTimePicker1.Value > DateTime.Today)
+            DateTime fecha = dateTimePicker1.Value;
+            if (fecha > DateTime.Today)
             {
                 mensaje = "La fecha de nacimiento no puede ser una fecha futura.";
                 ErrorCampo(dateTimePicker1, mensaje);
                 _persona.FechaNac = null;
-            } else
-                _persona.FechaNac = dateTimePicker1.Value;
+            } else if (fecha == DateTime.Today)
+                _persona.FechaNac = null;
+            else
+                _persona.FechaNac = fecha;
 
             // 5. Domicilio
             // El método DomicilioIngresado() ya gestiona la lógica de "todo o nada" 
@@ -1078,7 +1091,7 @@ namespace Front_SGBM
         private void ActivarCampos(bool activar)
         {
             // 1. Controles de Datos Personales y Estado
-            TxtDni.Enabled = activar;
+            TxtDni.Enabled = modo != EnumModoForm.Consulta;
             txtNombre.Enabled = activar;
             txtApellido.Enabled = activar;
             dateTimePicker1.Enabled = activar;
@@ -1104,7 +1117,6 @@ namespace Front_SGBM
 
             // 3. Controles de Interacción y Acciones (Botones/Links)
             LinkContactos.Visible = activar;
-            BtnBuscar.Visible = activar;
             BtnGuardar.Visible = activar;
 
             // Adaptación semántica del botón secundario

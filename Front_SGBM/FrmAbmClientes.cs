@@ -297,11 +297,43 @@ namespace Front_SGBM
         }
 
         /// <summary>
-        /// Evento de botón Exportar: pendiente de implementación.
+        /// Exporta los datos visibles en la grilla a un archivo de Excel.
         /// </summary>
         private void btnExportar_Click(object sender, EventArgs e)
         {
-            // TODO: Implementar exportación de clientes.
+            // 1. Verificamos que haya datos cargados en memoria
+            if (_clientes == null || !_clientes.Any())
+            {
+                Mensajes.MensajeAdvertencia("No hay clientes cargados en la lista para exportar.");
+                return;
+            }
+
+            try
+            {
+                // 2. Exportamos SOLO lo que el usuario filtró en la grilla
+                // y no toda la base de datos, puedes sacando la lista del BindingSource:
+                var listaAExportar = bindingClientes.List.OfType<Personas>().Select(p => _clientes.First(c => c.IdPersona == p.IdPersona)).ToList();
+
+                // Opcional: Para hacerla sencilla y exportar toda la lista actual (_clientes):
+                // var resultado = ArchivosOfficce.ExportarClientesAExcel(_clientes);
+
+                var resultado = ArchivosOfficce.ExportarClientesAExcel(listaAExportar);
+
+                // 3. Feedback
+                if (resultado.Success)
+                {
+                    Mensajes.MensajeExito(resultado.Mensaje);
+                }
+                else
+                {
+                    Mensajes.MensajeAdvertencia(resultado.Mensaje);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error desde la UI al intentar exportar: {ex.ToString()}");
+                Mensajes.MensajeError("Error inesperado al exportar los datos.");
+            }
         }
 
         /// <summary>
@@ -352,6 +384,7 @@ namespace Front_SGBM
                 if (_persona == null) return;
 
                 _cliente = _clientes?.FirstOrDefault(c => c.IdPersona == _persona.IdPersona);
+                
             }
             catch (Exception ex)
             {

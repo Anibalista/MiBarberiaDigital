@@ -34,6 +34,27 @@ namespace Negocio_SGBM
         }
 
         /// <summary>
+        /// Obtiene todos los contactos asociados a una lista de IDs de personas en una sola consulta a la base de datos.
+        /// </summary>
+        public static Resultado<List<Contactos>> GetContactosPorListaPersonas(List<int> idsPersonas)
+        {
+            if (idsPersonas == null || !idsPersonas.Any())
+                return Resultado<List<Contactos>>.Ok(new List<Contactos>()); // Retorna lista vacía sin ir a BD
+
+            try
+            {                
+                return ContactosDatos.GetContactosPorListaPersonas(idsPersonas);
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error al obtener contactos por lote:\\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<List<Contactos>>.Fail(msg);
+            }
+        }
+
+
+        /// <summary>
         /// Obtiene contactos filtrados por número fijo y/o WhatsApp.
         /// </summary>
         public static Resultado<List<Contactos>> GetContactosPorNumero(string? fijo, string? whatsapp)
