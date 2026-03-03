@@ -222,6 +222,38 @@ namespace Datos_SGBM
             }
         }
 
+        /// <summary>
+        /// Obtiene todos los dnis registrados en la base de datos
+        /// como un HashSet para facilitar validaciones de existencia.
+        /// </summary>
+        public static Resultado<HashSet<string>> GetDnisRegistrados()
+        {
+            try
+            {
+                using (var contexto = new Contexto())
+                {
+                    var comprobacion = new ComprobacionContexto(contexto);
+                    var rc = comprobacion.ComprobarEntidad(contexto.Personas, nameof(contexto.Personas));
+                    if (!rc.Success)
+                    {
+                        Logger.LogError(rc.Mensaje);
+                        return Resultado<HashSet<string>>.Fail(rc.Mensaje);
+                    }
+                    var dnis = contexto.Personas
+                        .Where(p => p.Dni != null)
+                        .Select(p => p.Dni!.Trim())
+                        .ToHashSet();
+                    return Resultado<HashSet<string>>.Ok(dnis);
+                }
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error al obtener los DNIs registrados:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<HashSet<string>>.Fail(msg);
+            }
+        }
+
         #endregion
 
         #region Edición (registro y modificación)

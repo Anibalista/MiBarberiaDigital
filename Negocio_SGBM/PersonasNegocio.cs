@@ -92,6 +92,23 @@ namespace Negocio_SGBM
             }
         }
 
+        /// <summary>
+        /// Obtiene una colección rápida (HashSet) con todos los DNI registrados en el sistema.
+        /// Útil para validaciones masivas (ej. Importación desde Excel).
+        /// </summary>
+        public static Resultado<HashSet<string>> GetTodosLosDnis()
+        {
+            try
+            {
+                return PersonasDatos.GetDnisRegistrados();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error al obtener DNIs masivos: {ex.Message}");
+                return Resultado<HashSet<string>>.Fail("Error al preparar la validación de DNIs.");
+            }
+        }
+
         #endregion
 
         #region Métodos Mixtos

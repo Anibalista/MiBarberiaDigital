@@ -277,22 +277,55 @@ namespace Front_SGBM
         }
 
         /// <summary>
-        /// Evento de botón Importar: ejecuta la importación de clientes desde archivo externo.
+        /// Evento de botón Importar: ejecuta la importación masiva de clientes desde un archivo Excel/CSV.
         /// </summary>
         private void btnImportar_Click(object sender, EventArgs e)
         {
-            ImportarClientes importados = new ImportarClientes();
-            if (!importados.hayArchivo) return;
-
-            var resultado = importados.ImportarArchivoClientes();
-
-            if (!resultado.Success)
+            try
             {
-                MessageBox.Show($"Error: {resultado.Mensaje}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // 1. Abrimos el selector de archivos
+                string? rutaArchivo = ArchivosOfficce.SeleccionarArchivoXLSX();
+
+                // Si la ruta es nula o vacía, es porque el usuario le dio a "Cancelar" en la ventana
+                if (string.IsNullOrWhiteSpace(rutaArchivo)) return;
+
+                // 2. Cambiamos el cursor a "Cargando" para darle feedback visual al usuario
+                Cursor.Current = Cursors.WaitCursor;
+
+                // 3. Instanciamos el importador pasándole la ruta
+                ImportarClientes importador = new ImportarClientes(rutaArchivo);
+
+                if (!importador.hayArchivo)
+                {
+                    Mensajes.MensajeAdvertencia("El archivo seleccionado no es válido o no existe.");
+                    return;
+                }
+
+                // 4. Ejecutamos la magia
+                var resultado = importador.ImportarArchivoClientes();
+
+                // 5. Devolvemos el feedback usando la clase centralizada
+                if (!resultado.Success)
+                {
+                    Mensajes.MensajeError($"Se detuvo la importación por el siguiente error:\n{resultado.Mensaje}");
+                }
+                else
+                {
+                    // El resultado.Mensaje trae el resumen armado (Nuevos: X, Actualizados: Y, etc)
+                    Mensajes.MensajeExito(resultado.Mensaje);
+
+                    btnBuscar_Click(sender, e); // Refrescamos la grilla para mostrar los cambios
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show(resultado.Mensaje, "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Logger.LogError($"Error desde la UI al intentar importar clientes: {ex.ToString()}");
+                Mensajes.MensajeError("Ocurrió un problema inesperado al procesar el archivo.");
+            }
+            finally
+            {
+                // 6. Aseguramos que el cursor vuelva a la normalidad pase lo que pase
+                Cursor.Current = Cursors.Default;
             }
         }
 

@@ -491,5 +491,50 @@ namespace Negocio_SGBM
                 return Resultado<bool>.Fail("Ocurrió un error inesperado al modificar el cliente.");
             }
         }
+
+        /// <summary>
+        /// Procesa un lote masivo de clientes provenientes de una importación (Ej: Excel).
+        /// Delega a la base de datos la inserción y modificación masiva (Batching).
+        /// </summary>
+        public static Resultado<bool> ImportarLote(
+            List<(Clientes cliente, Contactos? contacto)> nuevos,
+            List<(Clientes cliente, Contactos? contacto)> modificados)
+        {
+            string resumen = string.Empty;
+            int errores = 0;
+
+            // 1. MANDAMOS LAS ALTAS MASIVAS
+            if (nuevos.Any())
+            {
+                var resAltas = ClientesDatos.RegistrarLoteMasivo(nuevos);
+                if (resAltas.Success)
+                    resumen += resAltas.Mensaje + "\n";
+                else
+                {
+                    errores++;
+                    resumen += "[Error en Altas] " + resAltas.Mensaje + "\n";
+                }
+            }
+
+            // 2. MANDAMOS LAS MODIFICACIONES MASIVAS
+            if (modificados.Any())
+            {
+                var resMod = ClientesDatos.ModificarLoteMasivo(modificados);
+                if (resMod.Success)
+                    resumen += resMod.Mensaje + "\n";
+                else
+                {
+                    errores++;
+                    resumen += "[Error en Modificaciones] " + resMod.Mensaje + "\n";
+                }
+            }
+
+            if (errores > 0)
+            {
+                return Resultado<bool>.Fail("El proceso terminó con advertencias:\n" + resumen);
+            }
+
+            return Resultado<bool>.Ok(true, "Importación masiva completada con éxito.\n" + resumen);
+        }
     }
 }

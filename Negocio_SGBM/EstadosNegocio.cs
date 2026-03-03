@@ -40,6 +40,39 @@ namespace Negocio_SGBM
             }
         }
 
+        ///<summary>
+        /// Obtiene el estado Activo para una índole específica o lo crea si no existe.
+        ///</summary>
+        public static Resultado<Estados> GetEstadoActivo(string? indole)
+        {
+            if (string.IsNullOrWhiteSpace(indole))
+                return Resultado<Estados>.Fail("Problemas con la información de estados en la capa negocio.");
+            try
+            {
+                var resultado = EstadosDatos.GetEstado(indole, "Activo");
+                if (resultado.Success && resultado.Data != null)
+                    return Resultado<Estados>.Ok(resultado.Data);
+                
+                Estados nuevoEstado = new Estados
+                {
+                    IdEstado = 0, // El IdEstado debe ser asignado en la capa de datos
+                    Indole = indole,
+                    Estado = "Activo"
+                };
+                nuevoEstado.IdEstado = EstadosDatos.RegistrarEstado(nuevoEstado).Data;
+                if (nuevoEstado.IdEstado > 0)
+                    return Resultado<Estados>.Ok(nuevoEstado);
+                else
+                    return Resultado<Estados>.Fail("No se pudo crear el estado Activo.");
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error inesperado al obtener estado activo:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<Estados>.Fail(msg);
+            }
+        }
+
         /// <summary>
         /// Obtiene todos los estados de una índole específica.
         /// </summary>

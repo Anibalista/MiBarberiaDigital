@@ -411,5 +411,127 @@ namespace Datos_SGBM
                 return Resultado<bool>.Fail(msg);
             }
         }
+
+        /// <summary>
+        /// Registra masivamente un lote de nuevos clientes, asegurando la correcta vinculación de sus contactos.
+        /// </summary>
+        public static Resultado<int> RegistrarLoteMasivo(List<(Clientes cliente, Contactos? contacto)> nuevos)
+        {
+            if (!nuevos.Any()) return Resultado<int>.Ok(0);
+
+            try
+            {
+                using (var contexto = new Contexto())
+                {
+                    foreach (var item in nuevos)
+                    {
+                        // 1. Agregamos el cliente (EF Core agregará automáticamente a la Persona y Domicilio anidados)
+                        contexto.Clientes.Add(item.cliente);
+
+                        // 2. Si tiene contacto, le asignamos LA REFERENCIA de la persona.
+                        // Así, cuando EF Core genere el IdPersona, lo insertará correctamente en el Contacto.
+                        if (item.contacto != null)
+                        {
+                            item.contacto.Personas = item.cliente.Personas;
+                            contexto.Contactos.Add(item.contacto);
+                        }
+                    }
+
+                    // Un solo viaje a la BD para insertar todo el lote
+                    int cambios = contexto.SaveChanges();
+                    return Resultado<int>.Ok(nuevos.Count, $"Se registraron {nuevos.Count} clientes nuevos exitosamente.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error en RegistrarLoteMasivo:\n{ex.ToString()}");
+                return Resultado<int>.Fail("Ocurrió un error técnico al registrar el lote de nuevos clientes.");
+            }
+        }
+
+        /// <summary>
+        /// Modifica masivamente un lote de clientes existentes, trayéndolos previamente de la BD para no romper referencias.
+        /// </summary>
+        public static Resultado<int> ModificarLoteMasivo(List<(Clientes cliente, Contactos? contacto)> modificados)
+        {
+            if (!modificados.Any()) return Resultado<int>.Ok(0);
+
+            try
+            {
+                using (var contexto = new Contexto())
+                {
+                    // 1. Obtenemos todos los DNIs que vienen en el excel para este lote
+                    var dnis = modificados.Select(m => m.cliente.Personas!.Dni).ToList();
+
+                    // 2. Traemos todos esos clientes existentes de la BD en UN SOLO VIAJE
+                    var clientesBD = contexto.Clientes
+                        .Include(c => c.Personas)
+                            .ThenInclude(p => p.Domicilios)
+                        .Where(c => dnis.Contains(c.Personas!.Dni))
+                        .ToList();
+
+                    // 3. Traemos los contactos de esos clientes en UN SOLO VIAJE
+                    var idsPersonasBD = clientesBD.Select(c => c.IdPersona).ToList();
+                    var contactosBD = contexto.Contactos.Where(c => idsPersonasBD.Contains(c.IdPersona.Value)).ToList();
+
+                    int actualizados = 0;
+
+                    // 4. Cruzamos datos en memoria y actualizamos
+                    foreach (var item in modificados)
+                    {
+                        var clienteExistente = clientesBD.FirstOrDefault(c => c.Personas!.Dni == item.cliente.Personas!.Dni);
+                        if (clienteExistente == null) continue;
+
+                        var personaBD = clienteExistente.Personas!;
+                        var personaExcel = item.cliente.Personas!;
+
+                        // Actualizamos campos de la Persona
+                        personaBD.Nombres = personaExcel.Nombres;
+                        personaBD.Apellidos = personaExcel.Apellidos;
+                        if (personaExcel.FechaNac != null) personaBD.FechaNac = personaExcel.FechaNac;
+
+                        // Actualizamos Domicilio
+                        if (personaExcel.Domicilios != null)
+                        {
+                            if (personaBD.Domicilios == null)
+                                personaBD.Domicilios = new Domicilios(); // Si no tenía, le creamos la instancia
+
+                            personaBD.Domicilios.Calle = personaExcel.Domicilios.Calle;
+                            personaBD.Domicilios.IdLocalidad = personaExcel.Domicilios.IdLocalidad;
+                        }
+
+                        // Actualizamos Contactos
+                        if (item.contacto != null)
+                        {
+                            var contactoBD = contactosBD.FirstOrDefault(c => c.IdPersona == personaBD.IdPersona);
+                            if (contactoBD == null)
+                            {
+                                // Si no tenía contacto, lo agregamos
+                                item.contacto.IdPersona = personaBD.IdPersona;
+                                contexto.Contactos.Add(item.contacto);
+                            }
+                            else
+                            {
+                                // Si ya tenía, lo pisamos con lo nuevo
+                                contactoBD.Telefono = item.contacto.Telefono ?? contactoBD.Telefono;
+                                contactoBD.Whatsapp = item.contacto.Whatsapp ?? contactoBD.Whatsapp;
+                                contactoBD.Email = item.contacto.Email ?? contactoBD.Email;
+                            }
+                        }
+                        actualizados++;
+                    }
+
+                    // Guardamos todos los updates/inserts generados en memoria de un solo golpe
+                    contexto.SaveChanges();
+
+                    return Resultado<int>.Ok(actualizados, $"Se actualizaron {actualizados} clientes exitosamente.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error en ModificarLoteMasivo:\n{ex.ToString()}");
+                return Resultado<int>.Fail("Ocurrió un error al actualizar el lote de clientes modificados.");
+            }
+        }
     }
 }
