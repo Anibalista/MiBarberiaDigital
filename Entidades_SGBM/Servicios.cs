@@ -15,7 +15,10 @@ namespace Entidades_SGBM
         public string? Descripcion { get; set; }
 
         [Column(TypeName = "decimal(12,2)")]
-        public decimal PrecioVenta { get; set; }
+        public decimal PrecioLista { get; set; }
+
+        [Column(TypeName = "decimal(12,2)")]
+        public decimal? PrecioContado { get; set; }
 
         [Column(TypeName = "decimal(12,2)")]
         public decimal Costos {  get; set; }

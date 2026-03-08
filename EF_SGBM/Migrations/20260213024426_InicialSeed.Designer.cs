@@ -662,7 +662,7 @@ namespace EF_SGBM.Migrations
                     b.Property<int?>("Medida")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("PrecioVenta")
+                    b.Property<decimal>("PrecioLista")
                         .HasColumnType("decimal(12,2)");
 
                     b.Property<int>("Stock")
@@ -871,7 +871,7 @@ namespace EF_SGBM.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
-                    b.Property<decimal>("PrecioVenta")
+                    b.Property<decimal>("PrecioLista")
                         .HasColumnType("decimal(12,2)");
 
                     b.Property<int>("Puntaje")

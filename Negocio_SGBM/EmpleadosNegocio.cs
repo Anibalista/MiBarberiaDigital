@@ -12,10 +12,10 @@ namespace Negocio_SGBM
         private static Resultado<Empleados?> ComprobarEmpleado(Empleados? empleado, bool registro)
         {
             if (empleado == null)
-                return Resultado<Empleados?>.Fail("Problema al enviar datos de empleado entre capas.");
+                return Resultado<Empleados?>.Fail("Problema al enviar datos de barbero entre capas.");
 
             if (empleado.Personas == null)
-                return Resultado<Empleados?>.Fail("Problema al enviar datos de la persona relacionada al empleado entre capas.");
+                return Resultado<Empleados?>.Fail("Problema al enviar datos de la persona relacionada al barbero entre capas.");
 
             if (empleado.IdEstado > 0)
                 empleado.Estados = null;
@@ -24,10 +24,10 @@ namespace Negocio_SGBM
                 empleado.IdEstado = empleado.Estados.IdEstado;
 
             if (empleado.IdEstado < 1 && !registro)
-                return Resultado<Empleados?>.Fail("Error al asignar un estado al empleado en la capa negocio.");
+                return Resultado<Empleados?>.Fail("Error al asignar un estado al barbero en la capa negocio.");
 
             if (!registro && empleado.IdEmpleado == null)
-                return Resultado<Empleados?>.Fail("Error al mover el Id del empleado a la capa negocio.");
+                return Resultado<Empleados?>.Fail("Error al mover el Id del barbero a la capa negocio.");
             else if (registro)
                 empleado.IdEmpleado = null;
 
@@ -69,7 +69,7 @@ namespace Negocio_SGBM
                 }
 
                 if (empleado.IdPersona < 1)
-                    return Resultado<bool>.Fail("No se pudo asignar persona al empleado.");
+                    return Resultado<bool>.Fail("No se pudo asignar persona al barbero.");
 
                 var resultadoEmpleado = GetEmpleadoPorDni(empleado.Personas.Dni);
                 if (resultadoEmpleado.Data == null)
@@ -88,12 +88,12 @@ namespace Negocio_SGBM
                         Logger.LogError($"No se pudo registrar contacto para el DNI {empleado.Personas.Dni}: {resultadoContacto.Mensaje}");
                 }
 
-                return Resultado<bool>.Ok(true, "Empleado importado correctamente.");
+                return Resultado<bool>.Ok(true, "Barbero importado correctamente.");
             }
             catch (Exception ex)
             {
-                var msg = $"Error inesperado al importar empleado:\n{ex.ToString()}";
-                Logger.LogError(msg);
+                var msg = "Error inesperado al importar barbero";
+                Logger.LogError($"{msg}:\n{ex.ToString()}");
                 return Resultado<bool>.Fail(msg);
             }
         }
@@ -122,8 +122,8 @@ namespace Negocio_SGBM
             }
             catch (Exception ex)
             {
-                var msg = $"Error inesperado al obtener empleado por DNI:\n{ex.ToString()}";
-                Logger.LogError(msg);
+                var msg = "Error inesperado al obtener barbero por DNI";
+                Logger.LogError($"{msg}:\n{ex.ToString()}");
                 return Resultado<Empleados?>.Fail(msg);
             }
         }
@@ -156,8 +156,8 @@ namespace Negocio_SGBM
             }
             catch (Exception ex)
             {
-                var msg = $"Error inesperado al obtener empleados por domicilio:\n{ex.ToString()}";
-                Logger.LogError(msg);
+                var msg = "Error inesperado al obtener barberos por domicilio";
+                Logger.LogError($"{msg}:\n{ex.ToString()}");
                 return Resultado<List<Empleados>>.Fail(msg);
             }
         }
@@ -193,11 +193,69 @@ namespace Negocio_SGBM
             }
             catch (Exception ex)
             {
-                var msg = $"Error inesperado al obtener empleados por contactos:\n{ex.ToString()}";
-                Logger.LogError(msg);
+                var msg = "Error inesperado al obtener barberos por contactos";
+                Logger.LogError($"{msg}:\n{ex.ToString()}");
                 return Resultado<List<Empleados>>.Fail(msg);
             }
         }
+
+        ///<summary>
+        ///Obtiene una lista de todos los empleados registrados, con opción de incluir o excluir los anulados.
+        ///</summary>
+        public static Resultado<List<Empleados>> GetEmpleados(bool incluirAnulados)
+        {
+            try
+            {
+                var resultado = EmpleadosDatos.GetEmpleados();
+                if (!resultado.Success || resultado.Data == null)
+                    return Resultado<List<Empleados>>.Fail(resultado.Mensaje);
+                var empleados = resultado.Data;
+                if (!incluirAnulados)
+                    empleados = empleados.Where(e => e.Estados != null && e.Estados.Estado == "Activo").ToList();
+                else
+                    empleados = empleados.Where(e => e.Estados != null && (e.Estados.Estado == "Activo" || e.Estados.Estado == "Anulado")).ToList();
+
+                if (empleados.Count == 0)
+                    return Resultado<List<Empleados>>.Fail("No se encontraron barberos");
+
+                return Resultado<List<Empleados>>.Ok(empleados);
+            }
+            catch (Exception ex)
+            {
+                var msg = "Error inesperado al obtener barberos";
+                Logger.LogError(msg + ex.ToString());
+                return Resultado<List<Empleados>>.Fail(msg);
+            }
+        }
+
+        ///<summary>
+        ///Obtiene una lista de todos los empleados activos registrados.
+        ///</summary>
+        public static Resultado<List<Empleados>> GetEmpleados()
+        {
+            try
+            {
+                var resultado = EmpleadosDatos.GetEmpleados();
+                if (!resultado.Success || resultado.Data == null)
+                    return Resultado<List<Empleados>>.Fail(resultado.Mensaje);
+
+                var empleados = resultado.Data;
+                empleados = empleados.Where(e => e.Estados != null && e.Estados.Estado == "Activo").ToList();
+
+                if (empleados.Count == 0)
+                    return Resultado<List<Empleados>>.Fail("No se encontraron barberos activos.");
+
+                return Resultado<List<Empleados>>.Ok(empleados);
+            }
+            catch (Exception ex)
+            {
+                var msg = "Error inesperado al obtener barberos";
+                Logger.LogError(msg + ex.ToString());
+                return Resultado<List<Empleados>>.Fail(msg);
+            }
+        }
+
+
 
         /// <summary>
         /// Registra un nuevo empleado junto con sus contactos asociados.
@@ -240,7 +298,7 @@ namespace Negocio_SGBM
                 }
 
                 if (empleado.IdPersona < 1)
-                    return Resultado<int>.Fail("No se pudo asignar persona al empleado.");
+                    return Resultado<int>.Fail("No se pudo asignar persona al barbero.");
 
                 // Estado
                 var resultadoEstado = EstadosNegocio.GetEstado("Empleados", "Activo");
@@ -269,14 +327,14 @@ namespace Negocio_SGBM
                 // Gestionar contactos
                 var resultadoContactos = PersonasNegocio.GestionarContactosPorPersona(persona, contactos);
                 if (!resultadoContactos.Success)
-                    Logger.LogError($"Problemas al gestionar contactos del empleado: {resultadoContactos.Mensaje}");
+                    Logger.LogError($"Problemas al gestionar contactos del barbero: {resultadoContactos.Mensaje}");
 
-                return Resultado<int>.Ok(resultadoEmpleado.Data, "Empleado registrado correctamente.");
+                return Resultado<int>.Ok(resultadoEmpleado.Data, "Barbero registrado correctamente.");
             }
             catch (Exception ex)
             {
-                var msg = $"Error inesperado al registrar empleado:\n{ex.ToString()}";
-                Logger.LogError(msg);
+                var msg = "Error inesperado al registrar barbero";
+                Logger.LogError($"{msg}:\n{ex.ToString()}");
                 return Resultado<int>.Fail(msg);
             }
         }
@@ -316,12 +374,12 @@ namespace Negocio_SGBM
                 if (!resultadoEmpleado.Success || resultadoEmpleado.Data < 1)
                     return Resultado<int>.Fail(resultadoEmpleado.Mensaje);
 
-                return Resultado<int>.Ok(resultadoEmpleado.Data, "Empleado básico registrado correctamente.");
+                return Resultado<int>.Ok(resultadoEmpleado.Data, "Barbero básico registrado correctamente.");
             }
             catch (Exception ex)
             {
-                var msg = $"Error inesperado al registrar empleado básico:\n{ex.ToString()}";
-                Logger.LogError(msg);
+                var msg = "Error inesperado al registrar barbero básico";
+                Logger.LogError($"{msg}:\n{ex.ToString()}");
                 return Resultado<int>.Fail(msg);
             }
         }
@@ -339,7 +397,7 @@ namespace Negocio_SGBM
             try
             {
                 if (empleado.IdEstado < 1)
-                    return Resultado<bool>.Fail("El estado del empleado no se ha podido encontrar.");
+                    return Resultado<bool>.Fail("El estado del barbero no se ha podido encontrar.");
 
                 var resultadoPersona = PersonasNegocio.GetPersonaPorDni(empleado.Personas!.Dni);
                 var persona = resultadoPersona.Data;
@@ -367,12 +425,12 @@ namespace Negocio_SGBM
                 if (!resultadoContactos.Success)
                     Logger.LogError($"Problemas al gestionar contactos del empleado: {resultadoContactos.Mensaje}");
 
-                return Resultado<bool>.Ok(true, "Empleado modificado correctamente.");
+                return Resultado<bool>.Ok(true, "Barbero modificado correctamente.");
             }
             catch (Exception ex)
             {
-                var msg = $"Error inesperado al modificar empleado:\n{ex.ToString()}";
-                Logger.LogError(msg);
+                var msg = "Error inesperado al modificar barbero";
+                Logger.LogError($"{msg}:\n{ex.ToString()}");
                 return Resultado<bool>.Fail(msg);
             }
         }

@@ -29,7 +29,12 @@ namespace Entidades_SGBM
         [ForeignKey("TiposCajas")]
         public int IdTipo { get; set; }
 
+        [ForeignKey("Empleados")]
+        public int? IdEmpleado { get; set; }
+
         public TiposCajas? TiposCajas { get; set;}
+
+        public Empleados? Empleados { get; set; }
 
         [NotMapped]
         public string? Tipo

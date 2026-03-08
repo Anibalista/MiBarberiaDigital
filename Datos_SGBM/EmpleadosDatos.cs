@@ -172,6 +172,54 @@ namespace Datos_SGBM
         }
 
         /// <summary>
+        /// Obtiene todos los Empleados ordenados por nombre.
+        /// </summary>
+        /// <returns>
+        /// <see cref="Resultado{T}"/> con la lista de <see cref="Empleados"/> incluyendo <see cref="Estados"/> y
+        /// <see cref="Personas"/>, o un <see cref="Resultado{T}"/> con el mensaje de error.
+        /// </returns>
+        /// <remarks>
+        /// - Valida la disponibilidad del <see cref="Contexto"/> y del <see cref="DbSet{Empleados}"/>
+        ///   mediante la clase <see cref="ComprobacionContexto"/> antes de ejecutar la consulta.
+        /// - No usa parámetros por referencia para mensajes; todos los mensajes de error se devuelven dentro de <see cref="Resultado{T}"/>.
+        /// - Registra detalles técnicos con <c>Logger</c> y devuelve mensajes amigables para la capa superior.
+        /// </remarks>
+        public static Resultado<List<Empleados>> GetEmpleadosSinDomicilio()
+        {
+            try
+            {
+                using var contexto = new Contexto();
+
+                // Validar disponibilidad del DbSet mediante la clase ComprobacionContexto
+                var comprobacion = new ComprobacionContexto(contexto);
+                var rc = comprobacion.ComprobarEntidad(contexto.Empleados, nameof(contexto.Empleados));
+                if (!rc.Success)
+                {
+                    Logger.LogError(rc.Mensaje);
+                    return Resultado<List<Empleados>>.Fail(rc.Mensaje);
+                }
+
+                // Incluir relaciones necesarias y ordenar por Apellidos, Nombres
+                var lista = contexto.Empleados
+                                    .Include(e => e.Estados)
+                                    .Include(e => e.Personas)
+                                    .OrderBy(e => e.Personas.Nombres)
+                                    .ToList();
+
+                if (lista == null || lista.Count == 0)
+                    return Resultado<List<Empleados>>.Fail("No se encontraron empleados.");
+
+                return Resultado<List<Empleados>>.Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error al obtener empleados (capa datos):\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<List<Empleados>>.Fail(msg);
+            }
+        }
+
+        /// <summary>
         /// Registra un nuevo Empleado en la base de datos.
         /// </summary>
         /// <param name="empleado">Objeto <see cref="Empleados"/> a registrar (no puede ser nulo).</param>

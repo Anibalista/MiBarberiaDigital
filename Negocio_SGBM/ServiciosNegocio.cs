@@ -31,7 +31,7 @@ namespace Negocio_SGBM
             if (servicio == null)
                 return Resultado<Servicios>.Fail("La información del servicio no llega a la consulta.");
 
-            if (servicio.PrecioVenta < 0)
+            if (servicio.PrecioLista < 0)
                 return Resultado<Servicios>.Fail("El precio del servicio no puede ser negativo.");
             if (servicio.Costos < 0)
                 return Resultado<Servicios>.Fail("El costo del servicio no puede ser negativo.");

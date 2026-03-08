@@ -49,7 +49,7 @@
             lblTitulo.Anchor = AnchorStyles.Top;
             lblTitulo.AutoSize = true;
             lblTitulo.Font = new Font("Roboto Condensed", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblTitulo.Location = new Point(51, 12);
+            lblTitulo.Location = new Point(80, 12);
             lblTitulo.Name = "lblTitulo";
             lblTitulo.Size = new Size(211, 29);
             lblTitulo.TabIndex = 0;
@@ -78,22 +78,24 @@
             btnCancelar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             btnCancelar.Location = new Point(23, 329);
             btnCancelar.Name = "btnCancelar";
-            btnCancelar.Size = new Size(286, 54);
-            btnCancelar.TabIndex = 3;
+            btnCancelar.Size = new Size(344, 54);
+            btnCancelar.TabIndex = 4;
             btnCancelar.Tag = "btnPrincipalR";
             btnCancelar.Text = "CANCELAR";
             btnCancelar.UseVisualStyleBackColor = true;
+            btnCancelar.Click += BtnCancelar_Click;
             // 
             // btnAbrir
             // 
             btnAbrir.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             btnAbrir.Location = new Point(23, 258);
             btnAbrir.Name = "btnAbrir";
-            btnAbrir.Size = new Size(286, 54);
-            btnAbrir.TabIndex = 4;
+            btnAbrir.Size = new Size(344, 54);
+            btnAbrir.TabIndex = 3;
             btnAbrir.Tag = "btnPrincipalV";
             btnAbrir.Text = "ABRIR CAJA";
             btnAbrir.UseVisualStyleBackColor = true;
+            btnAbrir.Click += BtnAbrir_Click;
             // 
             // lblMonto
             // 
@@ -113,9 +115,10 @@
             cbTipo.FormattingEnabled = true;
             cbTipo.Location = new Point(123, 69);
             cbTipo.Name = "cbTipo";
-            cbTipo.Size = new Size(189, 23);
-            cbTipo.TabIndex = 6;
+            cbTipo.Size = new Size(244, 23);
+            cbTipo.TabIndex = 0;
             cbTipo.ValueMember = "IdTipo";
+            cbTipo.SelectedIndexChanged += CbTipo_SelectedIndexChanged;
             // 
             // bindingTipoCajas
             // 
@@ -130,9 +133,10 @@
             cbResponsable.FormattingEnabled = true;
             cbResponsable.Location = new Point(123, 130);
             cbResponsable.Name = "cbResponsable";
-            cbResponsable.Size = new Size(189, 23);
-            cbResponsable.TabIndex = 7;
+            cbResponsable.Size = new Size(244, 23);
+            cbResponsable.TabIndex = 1;
             cbResponsable.ValueMember = "IdEmpleado";
+            cbResponsable.SelectedIndexChanged += CbResponsable_SelectedIndexChanged;
             // 
             // bindingEmpleados
             // 
@@ -143,14 +147,14 @@
             txtMonto.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             txtMonto.Location = new Point(123, 188);
             txtMonto.Name = "txtMonto";
-            txtMonto.Size = new Size(189, 23);
-            txtMonto.TabIndex = 8;
+            txtMonto.Size = new Size(244, 23);
+            txtMonto.TabIndex = 2;
             // 
             // FrmAbrirCaja
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(322, 410);
+            ClientSize = new Size(380, 410);
             Controls.Add(txtMonto);
             Controls.Add(cbResponsable);
             Controls.Add(cbTipo);
@@ -160,7 +164,7 @@
             Controls.Add(lblResponsable);
             Controls.Add(lblTipo);
             Controls.Add(lblTitulo);
-            FormBorderStyle = FormBorderStyle.FixedDialog;
+            FormBorderStyle = FormBorderStyle.None;
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "FrmAbrirCaja";

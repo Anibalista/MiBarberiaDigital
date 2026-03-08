@@ -72,7 +72,8 @@ namespace EF_SGBM
                 new Estados { IdEstado = 8, Indole = "Servicios", Estado = "Inactivo" },
                 new Estados { IdEstado = 9, Indole = "Ventas", Estado = "En Curso" },
                 new Estados { IdEstado = 10, Indole = "Ventas", Estado = "Finalizada" },
-                new Estados { IdEstado = 11, Indole = "Ventas", Estado = "Anulada" }
+                new Estados { IdEstado = 11, Indole = "Ventas", Estado = "Anulada" },
+                new Estados { IdEstado = 12, Indole = "Ventas", Estado = "Facturada" }
             );
 
             // --- UNIDADES DE MEDIDA ---

@@ -180,7 +180,7 @@ namespace Datos_SGBM
                     // Actualizar solo campos escalares para no sobrescribir la navegación Categorias
                     existente.NombreServicio = string.IsNullOrWhiteSpace(servicio.NombreServicio) ? existente.NombreServicio : servicio.NombreServicio.Trim();
                     existente.Descripcion = string.IsNullOrWhiteSpace(servicio.Descripcion) ? existente.Descripcion : servicio.Descripcion.Trim();
-                    existente.PrecioVenta = servicio.PrecioVenta;
+                    existente.PrecioLista = servicio.PrecioLista;
                     existente.Costos = servicio.Costos;
                     existente.Margen = servicio.Margen;
                     existente.Comision = servicio.Comision;
@@ -466,7 +466,7 @@ namespace Datos_SGBM
             {
                 // Filtro numérico sobre PrecioVenta
                 if (decimal.TryParse(valor, out var numero))
-                    query = FiltrosHelper.AplicarFiltroNumerico(query, s => s.PrecioVenta, criterio, numero);
+                    query = FiltrosHelper.AplicarFiltroNumerico(query, s => s.PrecioLista, criterio, numero);
                 // Si no parsea, se omite el filtro numérico (política: no lanzar aquí)
             }
             else if (campoLower.Contains("puntaje"))

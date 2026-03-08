@@ -137,7 +137,7 @@ namespace Front_SGBM
                 txtPuntaje.Text = _servicio.Puntaje.ToString();
 
                 // Valores monetarios y porcentuales con dos decimales
-                txtPrecio.Text = _servicio.PrecioVenta.ToString("0.00");
+                txtPrecio.Text = _servicio.PrecioLista.ToString("0.00");
 
                 txtComision.Text = (_servicio.Comision * 100).ToString("0.00");
 
@@ -679,7 +679,7 @@ namespace Front_SGBM
                 txtMargen.Text = margenFinal.ToString("N2");
 
                 // Asignamos el valor al objeto para tenerlo listo
-                _servicio.PrecioVenta = precioVenta;
+                _servicio.PrecioLista = precioVenta;
                 _servicio.Comision = porcentajeComision / 100m; // Guardamos como fracción (0.15 en vez de 15)
                 _servicio.Costos = costos;
                 _servicio.Margen = margenFinal;

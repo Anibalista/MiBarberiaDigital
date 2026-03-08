@@ -340,7 +340,7 @@
             // precioVenta
             // 
             precioVenta.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            precioVenta.DataPropertyName = "PrecioVenta";
+            precioVenta.DataPropertyName = "PrecioLista";
             precioVenta.FillWeight = 10F;
             precioVenta.HeaderText = "PVP";
             precioVenta.Name = "precioVenta";
