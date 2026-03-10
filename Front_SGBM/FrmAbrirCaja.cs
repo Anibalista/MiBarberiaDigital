@@ -203,19 +203,5 @@ namespace Front_SGBM
             }
         }
 
-        private void CbResponsable_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (cerrando) return; // Evitamos que se ejecute al cerrar el formulario
-            if (cbTipo.SelectedIndex < 0 || cbResponsable.SelectedIndex < 0)
-            {
-                btnAbrir.Enabled = false;
-                txtMonto.Enabled = false;
-            }
-            else
-            {
-                btnAbrir.Enabled = true;
-                txtMonto.Enabled = true;
-            }
-        }
     }
 }

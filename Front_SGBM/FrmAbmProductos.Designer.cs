@@ -242,7 +242,7 @@
             // precioVentaDataGridViewTextBoxColumn
             // 
             precioVentaDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            precioVentaDataGridViewTextBoxColumn.DataPropertyName = "PrecioLista";
+            precioVentaDataGridViewTextBoxColumn.DataPropertyName = "Precio";
             precioVentaDataGridViewTextBoxColumn.FillWeight = 13F;
             precioVentaDataGridViewTextBoxColumn.HeaderText = "Precio de Venta";
             precioVentaDataGridViewTextBoxColumn.Name = "precioVentaDataGridViewTextBoxColumn";

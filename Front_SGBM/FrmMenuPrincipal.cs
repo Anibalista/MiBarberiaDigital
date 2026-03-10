@@ -143,6 +143,12 @@ namespace Front_SGBM
             frm.Show();
         }
 
+        public void AbrirFrmEditVentas()
+        {
+            FrmEditVentas frm = (FrmEditVentas)AbrirFrmHijo<FrmEditVentas>(true);
+            frm.Show();
+        }
+
         //Opciones
         private void NuevoClienteToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -175,7 +181,28 @@ namespace Front_SGBM
 
         private void BtnVentas_Click(object sender, EventArgs e)
         {
+            // 1. Defino las opciones del submenú
+            var opcionesVentas = new List<EstiloAplicacion.OpcionMenu>
+            {
+                // OPCIÓN A: Nueva Venta -> Abre FrmEditVentas
+                new EstiloAplicacion.OpcionMenu("Nueva Venta", (s, args) =>
+                {
+                    // Uso tu método genérico. 'false' porque no queremos cerrar instancias previas forzosamente
+                    Form frm = AbrirFrmHijo<FrmEditVentas>(false);
+                    if (frm != null)
+                        frm.Show(); // Importante: Aseguramos que se muestre
+                })/*,
 
+                // OPCIÓN B: Ventas del Día -> Abre FrmVentasDiarias
+                new EstiloAplicacion.OpcionMenu("Ventas del Día", (s, args) =>
+                {
+                    Form frm = AbrirFrmHijo<FrmVentasDiarias>(false);
+                    frm.Show();
+                })*/
+            };
+
+            // 2. Llamamos al Toggle para mostrar el menú debajo del botón
+            EstiloAplicacion.ToggleSubMenu(this, (Button)sender, opcionesVentas);
         }
 
         private void BtnClientes_Click(object sender, EventArgs e)
@@ -292,6 +319,11 @@ namespace Front_SGBM
             };
 
             EstiloAplicacion.ToggleSubMenu(this, (Button)sender, opcionesClientes);
+        }
+
+        private void nuevaVentaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AbrirFrmEditVentas();
         }
     }
 }

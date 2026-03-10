@@ -136,7 +136,6 @@
             cbResponsable.Size = new Size(244, 23);
             cbResponsable.TabIndex = 1;
             cbResponsable.ValueMember = "IdEmpleado";
-            cbResponsable.SelectedIndexChanged += CbResponsable_SelectedIndexChanged;
             // 
             // bindingEmpleados
             // 

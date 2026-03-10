@@ -64,6 +64,7 @@ namespace Front_SGBM
             lblSubTitulo = new Label();
             lblTitulo = new Label();
             pnlContent = new Panel();
+            nuevaVentaToolStripMenuItem = new ToolStripMenuItem();
             menuStrip.SuspendLayout();
             statusStrip.SuspendLayout();
             pnlHeader.SuspendLayout();
@@ -155,7 +156,7 @@ namespace Front_SGBM
             // nuevoModificarToolStripMenuItem
             // 
             nuevoModificarToolStripMenuItem.Name = "nuevoModificarToolStripMenuItem";
-            nuevoModificarToolStripMenuItem.Size = new Size(180, 22);
+            nuevoModificarToolStripMenuItem.Size = new Size(165, 22);
             nuevoModificarToolStripMenuItem.Text = "Nuevo-Modificar";
             nuevoModificarToolStripMenuItem.Click += nuevoModificarToolStripMenuItem_Click;
             // 
@@ -173,6 +174,7 @@ namespace Front_SGBM
             // 
             // ventasToolStripMenuItem
             // 
+            ventasToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { nuevaVentaToolStripMenuItem });
             ventasToolStripMenuItem.Name = "ventasToolStripMenuItem";
             ventasToolStripMenuItem.Size = new Size(53, 23);
             ventasToolStripMenuItem.Text = "Ventas";
@@ -348,6 +350,13 @@ namespace Front_SGBM
             pnlContent.Size = new Size(1165, 560);
             pnlContent.TabIndex = 5;
             // 
+            // nuevaVentaToolStripMenuItem
+            // 
+            nuevaVentaToolStripMenuItem.Name = "nuevaVentaToolStripMenuItem";
+            nuevaVentaToolStripMenuItem.Size = new Size(180, 22);
+            nuevaVentaToolStripMenuItem.Text = "Nueva Venta";
+            nuevaVentaToolStripMenuItem.Click += nuevaVentaToolStripMenuItem_Click;
+            // 
             // FrmMenuPrincipal
             // 
             AllowDrop = true;
@@ -423,6 +432,7 @@ namespace Front_SGBM
         private ToolStripMenuItem aBMProductosToolStripMenuItem;
         private ToolStripMenuItem colaboradoresToolStripMenuItem;
         private ToolStripMenuItem nuevoModificarToolStripMenuItem;
+        private ToolStripMenuItem nuevaVentaToolStripMenuItem;
     }
 }
 

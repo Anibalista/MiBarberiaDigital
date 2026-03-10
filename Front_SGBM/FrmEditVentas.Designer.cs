@@ -68,12 +68,12 @@
             serviciosDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             bindingCarrito = new BindingSource(components);
             groupBoxSeleccion = new GroupBox();
+            checkStock = new CheckBox();
             numCantidad = new NumericUpDown();
             lblCantidad = new Label();
             btnSeleccionar = new Button();
             dataGridSeleccion = new DataGridView();
-            textBox1 = new TextBox();
-            errorProvider1 = new ErrorProvider(components);
+            txtFiltro = new TextBox();
             panelHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)bindingEmpleados).BeginInit();
             panel1.SuspendLayout();
@@ -85,7 +85,6 @@
             groupBoxSeleccion.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numCantidad).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridSeleccion).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)errorProvider1).BeginInit();
             SuspendLayout();
             // 
             // panelHeader
@@ -154,6 +153,7 @@
             txtDni.PlaceholderText = "DNI DEL CLIENTE";
             txtDni.Size = new Size(140, 23);
             txtDni.TabIndex = 1;
+            txtDni.KeyPress += TxtDni_KeyPress;
             // 
             // lblTitulo
             // 
@@ -187,28 +187,29 @@
             // 
             lblMensaje.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblMensaje.AutoSize = true;
-            lblMensaje.Location = new Point(385, 80);
+            lblMensaje.Location = new Point(385, 85);
             lblMensaje.Name = "lblMensaje";
             lblMensaje.Size = new Size(0, 15);
             lblMensaje.TabIndex = 12;
             // 
             // btnCancelar
             // 
-            btnCancelar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            btnCancelar.Location = new Point(787, 106);
+            btnCancelar.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnCancelar.Location = new Point(787, 93);
             btnCancelar.Name = "btnCancelar";
-            btnCancelar.Size = new Size(241, 37);
+            btnCancelar.Size = new Size(241, 50);
             btnCancelar.TabIndex = 11;
-            btnCancelar.Tag = "btnNormalR";
+            btnCancelar.Tag = "btnPrincipalR";
             btnCancelar.Text = "CANCELAR";
             btnCancelar.UseVisualStyleBackColor = true;
+            btnCancelar.Click += BtnCancelar_Click;
             // 
             // btnGuardar
             // 
-            btnGuardar.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            btnGuardar.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnGuardar.Location = new Point(787, 15);
             btnGuardar.Name = "btnGuardar";
-            btnGuardar.Size = new Size(241, 85);
+            btnGuardar.Size = new Size(241, 72);
             btnGuardar.TabIndex = 10;
             btnGuardar.Tag = "btnPrincipalV";
             btnGuardar.Text = "CONFIRMAR PAGO";
@@ -217,19 +218,19 @@
             // lblDescuento
             // 
             lblDescuento.AutoSize = true;
-            lblDescuento.Location = new Point(430, 26);
+            lblDescuento.Location = new Point(430, 34);
             lblDescuento.Name = "lblDescuento";
             lblDescuento.Size = new Size(0, 15);
             lblDescuento.TabIndex = 9;
             // 
             // cbMedioPago
             // 
-            cbMedioPago.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            cbMedioPago.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             cbMedioPago.DataSource = bindingMedios;
             cbMedioPago.DisplayMember = "Medio";
             cbMedioPago.DropDownStyle = ComboBoxStyle.DropDownList;
             cbMedioPago.FormattingEnabled = true;
-            cbMedioPago.Location = new Point(165, 77);
+            cbMedioPago.Location = new Point(165, 92);
             cbMedioPago.Name = "cbMedioPago";
             cbMedioPago.Size = new Size(140, 23);
             cbMedioPago.TabIndex = 8;
@@ -241,9 +242,9 @@
             // 
             // lblMedioPago
             // 
-            lblMedioPago.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            lblMedioPago.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblMedioPago.AutoSize = true;
-            lblMedioPago.Location = new Point(25, 80);
+            lblMedioPago.Location = new Point(25, 95);
             lblMedioPago.Name = "lblMedioPago";
             lblMedioPago.Size = new Size(93, 15);
             lblMedioPago.TabIndex = 7;
@@ -251,15 +252,17 @@
             // 
             // txtTotalAbonado
             // 
-            txtTotalAbonado.Location = new Point(165, 23);
+            txtTotalAbonado.Location = new Point(165, 38);
             txtTotalAbonado.Name = "txtTotalAbonado";
             txtTotalAbonado.Size = new Size(140, 23);
             txtTotalAbonado.TabIndex = 6;
+            txtTotalAbonado.KeyPress += TxtTotalAbonado_KeyPress;
             // 
             // lblTotal
             // 
+            lblTotal.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblTotal.AutoSize = true;
-            lblTotal.Location = new Point(25, 26);
+            lblTotal.Location = new Point(25, 41);
             lblTotal.Name = "lblTotal";
             lblTotal.Size = new Size(87, 15);
             lblTotal.TabIndex = 0;
@@ -292,9 +295,9 @@
             groupBoxCarrito.Controls.Add(txtTotalACobrar);
             groupBoxCarrito.Controls.Add(lblTotalAPagar);
             groupBoxCarrito.Controls.Add(dataGridCarrito);
-            groupBoxCarrito.Location = new Point(370, 0);
+            groupBoxCarrito.Location = new Point(430, 0);
             groupBoxCarrito.Name = "groupBoxCarrito";
-            groupBoxCarrito.Size = new Size(670, 379);
+            groupBoxCarrito.Size = new Size(610, 379);
             groupBoxCarrito.TabIndex = 1;
             groupBoxCarrito.TabStop = false;
             groupBoxCarrito.Text = "Carrito de compras";
@@ -321,7 +324,7 @@
             // txtTotalACobrar
             // 
             txtTotalACobrar.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            txtTotalACobrar.Location = new Point(511, 340);
+            txtTotalACobrar.Location = new Point(451, 340);
             txtTotalACobrar.Name = "txtTotalACobrar";
             txtTotalACobrar.Size = new Size(140, 23);
             txtTotalACobrar.TabIndex = 20;
@@ -330,7 +333,7 @@
             // 
             lblTotalAPagar.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             lblTotalAPagar.AutoSize = true;
-            lblTotalAPagar.Location = new Point(400, 343);
+            lblTotalAPagar.Location = new Point(340, 343);
             lblTotalAPagar.Name = "lblTotalAPagar";
             lblTotalAPagar.Size = new Size(85, 15);
             lblTotalAPagar.TabIndex = 19;
@@ -349,9 +352,10 @@
             dataGridCarrito.EditMode = DataGridViewEditMode.EditProgrammatically;
             dataGridCarrito.Location = new Point(6, 22);
             dataGridCarrito.Name = "dataGridCarrito";
+            dataGridCarrito.ReadOnly = true;
             dataGridCarrito.RowHeadersVisible = false;
             dataGridCarrito.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridCarrito.Size = new Size(652, 299);
+            dataGridCarrito.Size = new Size(592, 299);
             dataGridCarrito.TabIndex = 0;
             // 
             // descripcionDataGridViewTextBoxColumn
@@ -361,6 +365,7 @@
             descripcionDataGridViewTextBoxColumn.FillWeight = 40F;
             descripcionDataGridViewTextBoxColumn.HeaderText = "Descripcion";
             descripcionDataGridViewTextBoxColumn.Name = "descripcionDataGridViewTextBoxColumn";
+            descripcionDataGridViewTextBoxColumn.ReadOnly = true;
             // 
             // cantidadDataGridViewTextBoxColumn
             // 
@@ -369,12 +374,14 @@
             cantidadDataGridViewTextBoxColumn.FillWeight = 10F;
             cantidadDataGridViewTextBoxColumn.HeaderText = "Cantidad";
             cantidadDataGridViewTextBoxColumn.Name = "cantidadDataGridViewTextBoxColumn";
+            cantidadDataGridViewTextBoxColumn.ReadOnly = true;
             // 
             // Column1
             // 
             Column1.DataPropertyName = "IdDetalleVenta";
             Column1.HeaderText = "Id";
             Column1.Name = "Column1";
+            Column1.ReadOnly = true;
             Column1.Visible = false;
             // 
             // precioUnitarioDataGridViewTextBoxColumn
@@ -384,6 +391,7 @@
             precioUnitarioDataGridViewTextBoxColumn.FillWeight = 20F;
             precioUnitarioDataGridViewTextBoxColumn.HeaderText = "Precio Unitario";
             precioUnitarioDataGridViewTextBoxColumn.Name = "precioUnitarioDataGridViewTextBoxColumn";
+            precioUnitarioDataGridViewTextBoxColumn.ReadOnly = true;
             // 
             // TotalDetalle
             // 
@@ -391,6 +399,7 @@
             TotalDetalle.FillWeight = 20F;
             TotalDetalle.HeaderText = "Totales";
             TotalDetalle.Name = "TotalDetalle";
+            TotalDetalle.ReadOnly = true;
             // 
             // btnEliminar
             // 
@@ -399,12 +408,14 @@
             btnEliminar.HeaderText = "Quitar";
             btnEliminar.MinimumWidth = 50;
             btnEliminar.Name = "btnEliminar";
+            btnEliminar.ReadOnly = true;
             // 
             // idProductoDataGridViewTextBoxColumn
             // 
             idProductoDataGridViewTextBoxColumn.DataPropertyName = "IdProducto";
             idProductoDataGridViewTextBoxColumn.HeaderText = "IdProducto";
             idProductoDataGridViewTextBoxColumn.Name = "idProductoDataGridViewTextBoxColumn";
+            idProductoDataGridViewTextBoxColumn.ReadOnly = true;
             idProductoDataGridViewTextBoxColumn.Visible = false;
             // 
             // idServicioDataGridViewTextBoxColumn
@@ -412,6 +423,7 @@
             idServicioDataGridViewTextBoxColumn.DataPropertyName = "IdServicio";
             idServicioDataGridViewTextBoxColumn.HeaderText = "IdServicio";
             idServicioDataGridViewTextBoxColumn.Name = "idServicioDataGridViewTextBoxColumn";
+            idServicioDataGridViewTextBoxColumn.ReadOnly = true;
             idServicioDataGridViewTextBoxColumn.Visible = false;
             // 
             // idFondoMembresiaDataGridViewTextBoxColumn
@@ -419,6 +431,7 @@
             idFondoMembresiaDataGridViewTextBoxColumn.DataPropertyName = "IdFondoMembresia";
             idFondoMembresiaDataGridViewTextBoxColumn.HeaderText = "IdFondoMembresia";
             idFondoMembresiaDataGridViewTextBoxColumn.Name = "idFondoMembresiaDataGridViewTextBoxColumn";
+            idFondoMembresiaDataGridViewTextBoxColumn.ReadOnly = true;
             idFondoMembresiaDataGridViewTextBoxColumn.Visible = false;
             // 
             // productosDataGridViewTextBoxColumn
@@ -426,6 +439,7 @@
             productosDataGridViewTextBoxColumn.DataPropertyName = "Productos";
             productosDataGridViewTextBoxColumn.HeaderText = "Productos";
             productosDataGridViewTextBoxColumn.Name = "productosDataGridViewTextBoxColumn";
+            productosDataGridViewTextBoxColumn.ReadOnly = true;
             productosDataGridViewTextBoxColumn.Visible = false;
             // 
             // serviciosDataGridViewTextBoxColumn
@@ -433,6 +447,7 @@
             serviciosDataGridViewTextBoxColumn.DataPropertyName = "Servicios";
             serviciosDataGridViewTextBoxColumn.HeaderText = "Servicios";
             serviciosDataGridViewTextBoxColumn.Name = "serviciosDataGridViewTextBoxColumn";
+            serviciosDataGridViewTextBoxColumn.ReadOnly = true;
             serviciosDataGridViewTextBoxColumn.Visible = false;
             // 
             // bindingCarrito
@@ -442,18 +457,29 @@
             // groupBoxSeleccion
             // 
             groupBoxSeleccion.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            groupBoxSeleccion.Controls.Add(checkStock);
             groupBoxSeleccion.Controls.Add(numCantidad);
             groupBoxSeleccion.Controls.Add(lblCantidad);
             groupBoxSeleccion.Controls.Add(btnSeleccionar);
             groupBoxSeleccion.Controls.Add(dataGridSeleccion);
-            groupBoxSeleccion.Controls.Add(textBox1);
+            groupBoxSeleccion.Controls.Add(txtFiltro);
             groupBoxSeleccion.Controls.Add(lblFiltro);
             groupBoxSeleccion.Location = new Point(3, 6);
             groupBoxSeleccion.Name = "groupBoxSeleccion";
-            groupBoxSeleccion.Size = new Size(361, 373);
+            groupBoxSeleccion.Size = new Size(421, 373);
             groupBoxSeleccion.TabIndex = 0;
             groupBoxSeleccion.TabStop = false;
             groupBoxSeleccion.Text = "Selección de Servicios - Productos";
+            // 
+            // checkStock
+            // 
+            checkStock.AutoSize = true;
+            checkStock.Location = new Point(321, 28);
+            checkStock.Name = "checkStock";
+            checkStock.Size = new Size(74, 19);
+            checkStock.TabIndex = 16;
+            checkStock.Text = "Sin Stock";
+            checkStock.UseVisualStyleBackColor = true;
             // 
             // numCantidad
             // 
@@ -479,7 +505,7 @@
             btnSeleccionar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             btnSeleccionar.Location = new Point(162, 321);
             btnSeleccionar.Name = "btnSeleccionar";
-            btnSeleccionar.Size = new Size(193, 46);
+            btnSeleccionar.Size = new Size(253, 46);
             btnSeleccionar.TabIndex = 12;
             btnSeleccionar.Tag = "btnNormalV";
             btnSeleccionar.Text = "AÑADIR AL CARRITO";
@@ -487,26 +513,26 @@
             // 
             // dataGridSeleccion
             // 
+            dataGridSeleccion.AllowUserToAddRows = false;
+            dataGridSeleccion.AllowUserToDeleteRows = false;
+            dataGridSeleccion.AllowUserToOrderColumns = true;
             dataGridSeleccion.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridSeleccion.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridSeleccion.EditMode = DataGridViewEditMode.EditProgrammatically;
             dataGridSeleccion.Location = new Point(6, 70);
             dataGridSeleccion.Name = "dataGridSeleccion";
-            dataGridSeleccion.Size = new Size(349, 245);
+            dataGridSeleccion.ReadOnly = true;
+            dataGridSeleccion.Size = new Size(409, 245);
             dataGridSeleccion.TabIndex = 13;
             // 
-            // textBox1
+            // txtFiltro
             // 
-            textBox1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            textBox1.Location = new Point(64, 26);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(291, 23);
-            textBox1.TabIndex = 12;
-            // 
-            // errorProvider1
-            // 
-            errorProvider1.BlinkStyle = ErrorBlinkStyle.NeverBlink;
-            errorProvider1.ContainerControl = this;
+            txtFiltro.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtFiltro.Location = new Point(64, 26);
+            txtFiltro.Name = "txtFiltro";
+            txtFiltro.Size = new Size(228, 23);
+            txtFiltro.TabIndex = 12;
+            txtFiltro.TextChanged += Filtro_TextChanged;
             // 
             // FrmEditVentas
             // 
@@ -519,6 +545,7 @@
             FormBorderStyle = FormBorderStyle.None;
             MinimumSize = new Size(980, 588);
             Name = "FrmEditVentas";
+            Load += FrmEditVentas_Load;
             panelHeader.ResumeLayout(false);
             panelHeader.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)bindingEmpleados).EndInit();
@@ -534,7 +561,6 @@
             groupBoxSeleccion.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)numCantidad).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridSeleccion).EndInit();
-            ((System.ComponentModel.ISupportInitialize)errorProvider1).EndInit();
             ResumeLayout(false);
         }
 
@@ -561,7 +587,7 @@
         private GroupBox groupBoxSeleccion;
         private Button btnSeleccionar;
         private DataGridView dataGridSeleccion;
-        private TextBox textBox1;
+        private TextBox txtFiltro;
         private DataGridView dataGridCarrito;
         private NumericUpDown numCantidad;
         private Label lblCantidad;
@@ -585,6 +611,6 @@
         private DataGridViewTextBoxColumn productosDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn serviciosDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn fondosMembresiasDataGridViewTextBoxColumn;
-        private ErrorProvider errorProvider1;
+        private CheckBox checkStock;
     }
 }

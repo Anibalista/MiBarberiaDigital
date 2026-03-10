@@ -13,7 +13,34 @@ namespace Negocio_SGBM
         {
             try
             {
-                return FacturasDatos.GetMediosPago();
+                var resultado = FacturasDatos.GetMediosPago();
+                if (resultado.Data == null)
+                {
+                    resultado.Data = new List<MediosPagos>
+                    {
+                        new MediosPagos { IdMedioPago = null, Medio = "Efectivo", Observaciones = "Contado Efectivo" },
+                        new MediosPagos { IdMedioPago = null, Medio = "Mercado Pago (QR)", Observaciones = "QR Mercado Pago" },
+                        new MediosPagos { IdMedioPago = null, Medio = "Mercado Pago (Transferencia)", Observaciones = "Transferencia Mercado Pago" },
+                        new MediosPagos { IdMedioPago = null, Medio = "Tarjeta de Crédito", Observaciones = "Pago con tarjeta de crédito" }
+                    };
+                    return Resultado<List<MediosPagos>>.Ok(resultado.Data);
+                }
+                MediosPagos? efectivo = resultado.Data.FirstOrDefault(m => m.Medio.Equals("Efectivo", StringComparison.OrdinalIgnoreCase));
+                if (efectivo == null)
+                {
+                    resultado.Data.Insert(0, new MediosPagos { IdMedioPago = null, Medio = "Efectivo", Observaciones = "Contado Efectivo" });
+                }
+                MediosPagos? mercadoPagoQr = resultado.Data.FirstOrDefault(m => m.Medio.Equals("Mercado Pago (QR)", StringComparison.OrdinalIgnoreCase));
+                if (mercadoPagoQr == null)
+                {
+                    resultado.Data.Add(new MediosPagos { IdMedioPago = null, Medio = "Mercado Pago (QR)", Observaciones = "QR Mercado Pago" });
+                }
+                MediosPagos? mercadoPagoTransferencia = resultado.Data.FirstOrDefault(m => m.Medio.Equals("Mercado Pago (Transferencia)", StringComparison.OrdinalIgnoreCase));
+                if (mercadoPagoTransferencia == null)
+                {
+                    resultado.Data.Add(new MediosPagos { IdMedioPago = null, Medio = "Mercado Pago (Transferencia)", Observaciones = "Transferencia Mercado Pago" });
+                }
+                return Resultado<List<MediosPagos>>.Ok(resultado.Data);
             }
             catch (Exception ex)
             {

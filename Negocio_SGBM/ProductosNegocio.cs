@@ -95,6 +95,7 @@ namespace Negocio_SGBM
         {
             try
             {
+
                 return ProductosDatos.ListarSimple();
             }
             catch (Exception ex)
@@ -103,6 +104,20 @@ namespace Negocio_SGBM
                 Logger.LogError(msg);
                 return Resultado<List<Productos>>.Fail(msg);
             }
+        }
+
+        /// <summary>
+        /// Obtiene la lista de productos activos, con opción de filtrar solo los que tienen stock disponible.
+        /// </summary>
+        /// <param name="conStock"></param>
+        /// <returns></returns>
+        public static Resultado<List<Productos>> GetProductosActivos(bool conStock = true)
+        {
+            var productos = ListaSimple();
+            if (!productos.Success || productos.Data == null)
+                return Resultado<List<Productos>>.Fail(productos.Mensaje);
+            var filtrados = productos.Data.Where(p => p.Activo && (!conStock || p.Stock > 0)).ToList();
+            return Resultado<List<Productos>>.Ok(filtrados);
         }
 
         /// <summary>

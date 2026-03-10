@@ -9,5 +9,6 @@ namespace Negocio_SGBM
     public class VentasNegocio
     {
 
+
     }
 }

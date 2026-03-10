@@ -103,6 +103,27 @@ namespace Negocio_SGBM
         }
 
         /// <summary>
+        /// Obtiene los servicios activos
+        /// </summary>
+        public static Resultado<List<Servicios>> ListarActivos()
+        {
+            try
+            {
+                var servicios = Listar();
+                if (!servicios.Success || servicios.Data == null)
+                    return Resultado<List<Servicios>>.Fail($"No se pudieron obtener los servicios activos.\n{servicios.Mensaje}");
+                var serviciosActivos = servicios.Data.Where(s => s.Activo).ToList();
+                return Resultado<List<Servicios>>.Ok(serviciosActivos);
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error en la búsqueda de Servicios activos:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<List<Servicios>>.Fail(msg);
+            }
+        }
+
+        /// <summary>
         /// Verifica si existe un servicio por nombre.
         /// </summary>
         public static Resultado<Servicios?> NombreExiste(string nombreServicio)
