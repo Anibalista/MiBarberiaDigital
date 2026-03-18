@@ -132,12 +132,14 @@ namespace Front_SGBM
                 txtServicio.Text = _servicio.NombreServicio ?? string.Empty;
                 txtDescripcionServicio.Text = _servicio.Descripcion ?? string.Empty;
 
-                // Duración y puntaje son enteros; mostrar sin decimales
+                // Duración mostrar sin decimales
                 txtDuracion.Text = _servicio.DuracionMinutos.ToString();
-                txtPuntaje.Text = _servicio.Puntaje.ToString();
 
                 // Valores monetarios y porcentuales con dos decimales
                 txtPrecio.Text = _servicio.PrecioLista.ToString("0.00");
+                txtPrecioContado.Text = _servicio.PrecioContado != null
+                                          ? _servicio.PrecioContado?.ToString("0.00")
+                                          : _servicio.PrecioLista.ToString("0.00");
 
                 txtComision.Text = (_servicio.Comision * 100).ToString("0.00");
 
@@ -170,7 +172,7 @@ namespace Front_SGBM
                 txtDescripcionServicio.Enabled = activos;
                 txtDuracion.Enabled = activos;
                 txtPrecio.Enabled = activos;
-                txtPuntaje.Enabled = activos;
+                txtPrecioContado.Enabled = activos;
                 txtComision.Enabled = activos;
 
                 // Categoría y estado
@@ -632,11 +634,20 @@ namespace Front_SGBM
 
             try
             {
-                // 3. Validación de Precio de Venta (Obligatorio y > 0)
+                // 3. Validación de Precio de Venta y contado (Obligatorios y > 0)
+                decimal contado = ValidarCampoNumerico(txtPrecioContado, true);
+                if (contado < 0)
+                {
+                    ErrorCampo(txtPrecioContado, "El precio contado no puede ser negativo.");
+                    datosValidos = false;
+                }
+                _servicio.PrecioContado = contado == 0 ? _servicio.PrecioLista : contado;
+
+                
                 decimal precioVenta = ValidarCampoNumerico(txtPrecio, true);
                 if (precioVenta <= 0m)
                 {
-                    ErrorCampo(txtPrecio, "Ingrese un precio de venta válido.");
+                    ErrorCampo(txtPrecio, "Ingrese un precio válido.");
                     datosValidos = false;
                 }
 
@@ -668,17 +679,18 @@ namespace Front_SGBM
                 if (checkComision != null && checkComision.Checked && porcentajeComision > 0m)
                 {
                     // Convertimos el porcentaje a valor monetario
-                    montoComision = precioVenta * (porcentajeComision / 100m);
+                    montoComision = contado * (porcentajeComision / 100m);
                 }
 
                 // 8. Cálculo Final del Margen
                 // Margen = Precio Venta - Comisión (dinero) - Costos Totales
-                decimal margenFinal = precioVenta - montoComision - costos;
+                decimal margenFinal = contado - montoComision - costos;
 
                 // 9. Actualización de la UI
                 txtMargen.Text = margenFinal.ToString("N2");
 
                 // Asignamos el valor al objeto para tenerlo listo
+                _servicio.PrecioContado = contado;
                 _servicio.PrecioLista = precioVenta;
                 _servicio.Comision = porcentajeComision / 100m; // Guardamos como fracción (0.15 en vez de 15)
                 _servicio.Costos = costos;
@@ -1050,7 +1062,7 @@ namespace Front_SGBM
                     _servicio.Descripcion = txtDescripcionServicio.Text.Trim();
                 }
 
-                // 5. Duración y Puntaje (Conversión segura a int)
+                // 5. Duración (Conversión segura a int)
                 // Usamos (int) porque ValidarCampoNumerico devuelve decimal
                 int duracion = (int)ValidarCampoNumerico(txtDuracion, obligatorio: false);
                 if (duracion < 0)
@@ -1059,23 +1071,17 @@ namespace Front_SGBM
                     esValido = false;
                 }
                 _servicio.DuracionMinutos = duracion;
-
-                int puntaje = (int)ValidarCampoNumerico(txtPuntaje, obligatorio: false);
-                if (puntaje < 0)
-                {
-                    ErrorCampo(txtPuntaje, "El puntaje no puede ser negativo.");
-                    esValido = false;
-                }
-                _servicio.Puntaje = puntaje;
+                               
 
                 // 6. Integración con Cálculos Numéricos
-                // Llamamos a CalcularMargen() sin 'ref' como refactorizamos en el paso anterior
+                // Llamamos a CalcularMargen()
                 if (!CalcularMargen())
                 {
                     esValido = false;
                     mensaje = "Error en el cálculo de márgenes y precios.";
                 }
 
+                
                 // 7. Gestión de Categoría
                 // Nota: Si CategoriaSeleccionada sigue usando 'ref', pásale una variable temporal
                 Categorias? seleccionada = CategoriaSeleccionada(ref mensaje);
@@ -1624,7 +1630,7 @@ namespace Front_SGBM
                 && txtDescripcionServicio == null
                 && txtDuracion == null
                 && txtPrecio == null
-                && txtPuntaje == null
+                && txtPrecioContado == null
                 && txtComision == null
                 && txtCostosServicio == null
                 && txtMargen == null
@@ -1650,7 +1656,7 @@ namespace Front_SGBM
                 txtDescripcionServicio?.Clear();
                 txtDuracion?.Clear();
                 txtPrecio?.Clear();
-                txtPuntaje?.Clear();
+                txtPrecioContado?.Clear();
                 txtComision?.Clear();
                 txtCostosServicio?.Clear();
                 txtMargen?.Clear();
@@ -2168,7 +2174,7 @@ namespace Front_SGBM
         /// <summary>
         /// Evento Leave del textbox de precio: normaliza el valor y recalcula el margen.
         /// </summary>
-        private void TxtPrecio_Leave(object sender, EventArgs e)
+        private void TxtPrecioContado_Leave(object sender, EventArgs e)
         {
             if (cerrando || cargando)
                 return;
@@ -2177,7 +2183,7 @@ namespace Front_SGBM
             {
                 // Normalizar y validar el campo precio usando el helper existente
                 decimal valor = 0m;
-                string msg = ValidarCampoDecimal(txtPrecio, false, ref valor);
+                string msg = ValidarCampoDecimal(txtPrecioContado, true, ref valor);
 
                 if (!string.IsNullOrWhiteSpace(msg))
                 {
@@ -2187,7 +2193,7 @@ namespace Front_SGBM
                 else
                 {
                     // Si ValidarCampoDecimal devolvió un valor válido, aseguramos el formato en pantalla
-                    txtPrecio.Text = valor.ToString("0.00", CultureInfo.CurrentCulture);
+                    txtPrecioContado.Text = valor.ToString("0.00", CultureInfo.CurrentCulture);
                 }
 
                 // Recalcular margen (ObtenerMargen maneja mensajes y excepciones)

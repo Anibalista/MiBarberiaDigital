@@ -33,6 +33,7 @@
             btnSalir = new Button();
             btnGuardar = new Button();
             groupBoxCampos = new GroupBox();
+            checkActivo = new CheckBox();
             cbCategoria = new ComboBox();
             bindingSourceCategorias = new BindingSource(components);
             checkComision = new CheckBox();
@@ -45,9 +46,9 @@
             txtComision = new TextBox();
             lblComision = new Label();
             txtPrecio = new TextBox();
-            lblPrecio = new Label();
-            txtPuntaje = new TextBox();
-            lblPuntaje = new Label();
+            lblPrecioLista = new Label();
+            txtPrecioContado = new TextBox();
+            lblPrecioContado = new Label();
             txtDuracion = new TextBox();
             lblDuracion = new Label();
             txtDescripcionServicio = new TextBox();
@@ -75,7 +76,6 @@
             bindingSourceProductos = new BindingSource(components);
             lblSelectProducto = new Label();
             errorProvider1 = new ErrorProvider(components);
-            checkActivo = new CheckBox();
             groupBoxBotones.SuspendLayout();
             groupBoxCampos.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)bindingSourceCategorias).BeginInit();
@@ -132,9 +132,9 @@
             groupBoxCampos.Controls.Add(txtComision);
             groupBoxCampos.Controls.Add(lblComision);
             groupBoxCampos.Controls.Add(txtPrecio);
-            groupBoxCampos.Controls.Add(lblPrecio);
-            groupBoxCampos.Controls.Add(txtPuntaje);
-            groupBoxCampos.Controls.Add(lblPuntaje);
+            groupBoxCampos.Controls.Add(lblPrecioLista);
+            groupBoxCampos.Controls.Add(txtPrecioContado);
+            groupBoxCampos.Controls.Add(lblPrecioContado);
             groupBoxCampos.Controls.Add(txtDuracion);
             groupBoxCampos.Controls.Add(lblDuracion);
             groupBoxCampos.Controls.Add(txtDescripcionServicio);
@@ -147,6 +147,18 @@
             groupBoxCampos.Size = new Size(537, 468);
             groupBoxCampos.TabIndex = 1;
             groupBoxCampos.TabStop = false;
+            // 
+            // checkActivo
+            // 
+            checkActivo.AutoSize = true;
+            checkActivo.Checked = true;
+            checkActivo.CheckState = CheckState.Checked;
+            checkActivo.Location = new Point(354, 313);
+            checkActivo.Name = "checkActivo";
+            checkActivo.Size = new Size(104, 19);
+            checkActivo.TabIndex = 19;
+            checkActivo.Text = "Servicio Activo";
+            checkActivo.UseVisualStyleBackColor = true;
             // 
             // cbCategoria
             // 
@@ -257,47 +269,48 @@
             txtPrecio.Size = new Size(142, 23);
             txtPrecio.TabIndex = 4;
             txtPrecio.KeyPress += ValidarSoloDecimales_KeyPress;
-            txtPrecio.Leave += TxtPrecio_Leave;
             // 
-            // lblPrecio
+            // lblPrecioLista
             // 
-            lblPrecio.AutoSize = true;
-            lblPrecio.Location = new Point(20, 180);
-            lblPrecio.Name = "lblPrecio";
-            lblPrecio.Size = new Size(72, 15);
-            lblPrecio.TabIndex = 9;
-            lblPrecio.Text = "Precio Venta";
+            lblPrecioLista.AutoSize = true;
+            lblPrecioLista.Location = new Point(20, 180);
+            lblPrecioLista.Name = "lblPrecioLista";
+            lblPrecioLista.Size = new Size(67, 15);
+            lblPrecioLista.TabIndex = 9;
+            lblPrecioLista.Text = "Precio Lista";
             // 
-            // txtPuntaje
+            // txtPrecioContado
             // 
-            txtPuntaje.Location = new Point(417, 134);
-            txtPuntaje.Name = "txtPuntaje";
-            txtPuntaje.Size = new Size(87, 23);
-            txtPuntaje.TabIndex = 3;
-            txtPuntaje.KeyPress += ValidarSoloNumeros_KeyPress;
+            txtPrecioContado.Location = new Point(112, 134);
+            txtPrecioContado.Name = "txtPrecioContado";
+            txtPrecioContado.PlaceholderText = "$ efectivo en pesos";
+            txtPrecioContado.Size = new Size(142, 23);
+            txtPrecioContado.TabIndex = 3;
+            txtPrecioContado.KeyPress += ValidarSoloNumeros_KeyPress;
+            txtPrecioContado.Leave += TxtPrecioContado_Leave;
             // 
-            // lblPuntaje
+            // lblPrecioContado
             // 
-            lblPuntaje.AutoSize = true;
-            lblPuntaje.Location = new Point(330, 137);
-            lblPuntaje.Name = "lblPuntaje";
-            lblPuntaje.Size = new Size(47, 15);
-            lblPuntaje.TabIndex = 7;
-            lblPuntaje.Text = "Puntaje";
+            lblPrecioContado.AutoSize = true;
+            lblPrecioContado.Location = new Point(6, 137);
+            lblPrecioContado.Name = "lblPrecioContado";
+            lblPrecioContado.Size = new Size(89, 15);
+            lblPrecioContado.TabIndex = 7;
+            lblPrecioContado.Text = "Precio Contado";
             // 
             // txtDuracion
             // 
-            txtDuracion.Location = new Point(112, 134);
+            txtDuracion.Location = new Point(417, 134);
             txtDuracion.Name = "txtDuracion";
             txtDuracion.PlaceholderText = "(minutos)";
-            txtDuracion.Size = new Size(142, 23);
+            txtDuracion.Size = new Size(87, 23);
             txtDuracion.TabIndex = 2;
             txtDuracion.KeyPress += ValidarSoloNumeros_KeyPress;
             // 
             // lblDuracion
             // 
             lblDuracion.AutoSize = true;
-            lblDuracion.Location = new Point(37, 137);
+            lblDuracion.Location = new Point(324, 137);
             lblDuracion.Name = "lblDuracion";
             lblDuracion.Size = new Size(55, 15);
             lblDuracion.TabIndex = 5;
@@ -564,18 +577,6 @@
             errorProvider1.BlinkStyle = ErrorBlinkStyle.NeverBlink;
             errorProvider1.ContainerControl = this;
             // 
-            // checkActivo
-            // 
-            checkActivo.AutoSize = true;
-            checkActivo.Checked = true;
-            checkActivo.CheckState = CheckState.Checked;
-            checkActivo.Location = new Point(354, 313);
-            checkActivo.Name = "checkActivo";
-            checkActivo.Size = new Size(104, 19);
-            checkActivo.TabIndex = 19;
-            checkActivo.Text = "Servicio Activo";
-            checkActivo.UseVisualStyleBackColor = true;
-            // 
             // FrmEditServicios
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -618,12 +619,12 @@
         private Label label1;
         private TextBox txtServicio;
         private Label lblServicio;
-        private TextBox txtPuntaje;
-        private Label lblPuntaje;
+        private TextBox txtPrecioContado;
+        private Label lblPrecioContado;
         private TextBox txtComision;
         private Label lblComision;
         private TextBox txtPrecio;
-        private Label lblPrecio;
+        private Label lblPrecioLista;
         private TextBox txtCostosServicio;
         private Label lblCostosServicio;
         private CheckBox checkComision;

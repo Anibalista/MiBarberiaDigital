@@ -37,7 +37,7 @@ namespace Entidades_SGBM
 
         public override string ToString()
         {
-            return $"{NroVenta}_{FechaVenta.ToString("dd/MM/yy")}";
+            return NroVenta;
         }
 
     }

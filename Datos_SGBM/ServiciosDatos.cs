@@ -181,11 +181,12 @@ namespace Datos_SGBM
                     existente.NombreServicio = string.IsNullOrWhiteSpace(servicio.NombreServicio) ? existente.NombreServicio : servicio.NombreServicio.Trim();
                     existente.Descripcion = string.IsNullOrWhiteSpace(servicio.Descripcion) ? existente.Descripcion : servicio.Descripcion.Trim();
                     existente.PrecioLista = servicio.PrecioLista;
+                    existente.PrecioContado = servicio.PrecioContado;
                     existente.Costos = servicio.Costos;
                     existente.Margen = servicio.Margen;
                     existente.Comision = servicio.Comision;
                     existente.DuracionMinutos = servicio.DuracionMinutos;
-                    existente.Puntaje = servicio.Puntaje;
+                    // existente.Puntaje = servicio.Puntaje;
                     existente.IdCategoria = servicio.IdCategoria;
                     existente.Activo = servicio.Activo;
 

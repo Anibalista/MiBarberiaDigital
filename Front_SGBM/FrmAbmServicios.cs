@@ -271,7 +271,8 @@ namespace Front_SGBM
             var formatos = new Dictionary<string, string>
             {
                 { "costos", "C2" },
-                { "precioVenta", "C2" },
+                { "PrecioLista", "C2" },
+                { "PrecioContado", "C2" },
                 { "margen", "C2" },
                 { "comision", "P2" }
             };

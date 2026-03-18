@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EF_SGBM.Migrations
 {
     /// <inheritdoc />
-    public partial class InicialSeed : Migration
+    public partial class Inicial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -143,14 +143,15 @@ namespace EF_SGBM.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     NombreServicio = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     Descripcion = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    PrecioVenta = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
+                    PrecioLista = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
+                    PrecioContado = table.Column<decimal>(type: "decimal(12,2)", nullable: true),
                     Costos = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
                     Margen = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
                     Comision = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
                     DuracionMinutos = table.Column<int>(type: "int", nullable: false),
                     Puntaje = table.Column<int>(type: "int", nullable: false),
                     IdCategoria = table.Column<int>(type: "int", nullable: false),
-                    activo = table.Column<bool>(type: "bit", nullable: false)
+                    Activo = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -201,30 +202,6 @@ namespace EF_SGBM.Migrations
                         column: x => x.IdProvincia,
                         principalTable: "Provincias",
                         principalColumn: "IdProvincia",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Cajas",
-                columns: table => new
-                {
-                    IdCaja = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Abierta = table.Column<bool>(type: "bit", nullable: false),
-                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    HoraCierre = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    TotalEfectivo = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
-                    TotalMP = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
-                    IdTipo = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Cajas", x => x.IdCaja);
-                    table.ForeignKey(
-                        name: "FK_Cajas_TiposCajas_IdTipo",
-                        column: x => x.IdTipo,
-                        principalTable: "TiposCajas",
-                        principalColumn: "IdTipo",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -295,35 +272,6 @@ namespace EF_SGBM.Migrations
                         column: x => x.IdProveedor,
                         principalTable: "Proveedores",
                         principalColumn: "IdProveedor");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Transacciones",
-                columns: table => new
-                {
-                    IdTransaccion = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Hora = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    MontoIngreso = table.Column<decimal>(type: "decimal(12,2)", nullable: true),
-                    MontoEgreso = table.Column<decimal>(type: "decimal(12,2)", nullable: true),
-                    IdTipoTransaccion = table.Column<int>(type: "int", nullable: false),
-                    IdCaja = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Transacciones", x => x.IdTransaccion);
-                    table.ForeignKey(
-                        name: "FK_Transacciones_Cajas_IdCaja",
-                        column: x => x.IdCaja,
-                        principalTable: "Cajas",
-                        principalColumn: "IdCaja",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Transacciones_TiposTransacciones_IdTipoTransaccion",
-                        column: x => x.IdTipoTransaccion,
-                        principalTable: "TiposTransacciones",
-                        principalColumn: "IdTipoTransaccion",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -463,6 +411,36 @@ namespace EF_SGBM.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Cajas",
+                columns: table => new
+                {
+                    IdCaja = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Abierta = table.Column<bool>(type: "bit", nullable: false),
+                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    HoraCierre = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    TotalEfectivo = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
+                    TotalMP = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
+                    IdTipo = table.Column<int>(type: "int", nullable: false),
+                    IdEmpleado = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Cajas", x => x.IdCaja);
+                    table.ForeignKey(
+                        name: "FK_Cajas_Empleados_IdEmpleado",
+                        column: x => x.IdEmpleado,
+                        principalTable: "Empleados",
+                        principalColumn: "IdEmpleado");
+                    table.ForeignKey(
+                        name: "FK_Cajas_TiposCajas_IdTipo",
+                        column: x => x.IdTipo,
+                        principalTable: "TiposCajas",
+                        principalColumn: "IdTipo",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Usuarios",
                 columns: table => new
                 {
@@ -525,6 +503,35 @@ namespace EF_SGBM.Migrations
                         column: x => x.IdEstado,
                         principalTable: "Estados",
                         principalColumn: "IdEstado",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Transacciones",
+                columns: table => new
+                {
+                    IdTransaccion = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Hora = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    MontoIngreso = table.Column<decimal>(type: "decimal(12,2)", nullable: true),
+                    MontoEgreso = table.Column<decimal>(type: "decimal(12,2)", nullable: true),
+                    IdTipoTransaccion = table.Column<int>(type: "int", nullable: false),
+                    IdCaja = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Transacciones", x => x.IdTransaccion);
+                    table.ForeignKey(
+                        name: "FK_Transacciones_Cajas_IdCaja",
+                        column: x => x.IdCaja,
+                        principalTable: "Cajas",
+                        principalColumn: "IdCaja",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Transacciones_TiposTransacciones_IdTipoTransaccion",
+                        column: x => x.IdTipoTransaccion,
+                        principalTable: "TiposTransacciones",
+                        principalColumn: "IdTipoTransaccion",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -640,7 +647,8 @@ namespace EF_SGBM.Migrations
                     { 8, "Inactivo", "Servicios" },
                     { 9, "En Curso", "Ventas" },
                     { 10, "Finalizada", "Ventas" },
-                    { 11, "Anulada", "Ventas" }
+                    { 11, "Anulada", "Ventas" },
+                    { 12, "Facturada", "Ventas" }
                 });
 
             migrationBuilder.InsertData(
@@ -709,6 +717,11 @@ namespace EF_SGBM.Migrations
                 table: "Localidades",
                 columns: new[] { "IdLocalidad", "CodPostal", "IdProvincia", "Localidad" },
                 values: new object[] { 1, "2820", 1, "Gualeguaychú" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Cajas_IdEmpleado",
+                table: "Cajas",
+                column: "IdEmpleado");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Cajas_IdTipo",

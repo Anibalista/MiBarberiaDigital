@@ -1,5 +1,6 @@
 ﻿using Entidades_SGBM;
 using Front_SGBM.UXDesign;
+using Negocio_SGBM;
 
 namespace Front_SGBM
 {
@@ -187,10 +188,18 @@ namespace Front_SGBM
                 // OPCIÓN A: Nueva Venta -> Abre FrmEditVentas
                 new EstiloAplicacion.OpcionMenu("Nueva Venta", (s, args) =>
                 {
-                    // Uso tu método genérico. 'false' porque no queremos cerrar instancias previas forzosamente
+                    // Verificamos en la BD antes de crear la pantalla
+                    var resEmpleados = EmpleadosNegocio.GetEmpleados(false);
+
+                    if (!resEmpleados.Success || resEmpleados.Data == null || !resEmpleados.Data.Any())
+                    {
+                        Mensajes.MensajeError("No hay barberos/empleados registrados en el sistema. Debe registrar al menos uno para iniciar ventas.");
+                        return; // Cortamos el flujo aquí, nunca abrimos la ventana
+                    }
+
+                    // Si hay empleados, abrimos la ventana normalmente
                     Form frm = AbrirFrmHijo<FrmEditVentas>(false);
-                    if (frm != null)
-                        frm.Show(); // Importante: Aseguramos que se muestre
+                    frm.Show();
                 })/*,
 
                 // OPCIÓN B: Ventas del Día -> Abre FrmVentasDiarias

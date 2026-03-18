@@ -51,15 +51,6 @@
             cantidadMedidaDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             bindingSourceCostos = new BindingSource(components);
             dataGridServicios = new DataGridView();
-            nombreServicioDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            descripcionDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            precioVenta = new DataGridViewTextBoxColumn();
-            costos = new DataGridViewTextBoxColumn();
-            margen = new DataGridViewTextBoxColumn();
-            comision = new DataGridViewTextBoxColumn();
-            duracionMinutosDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            puntajeDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            categoriasDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             bindingSourceServicios = new BindingSource(components);
             groupBoxServicios = new GroupBox();
             groupBoxBotones = new GroupBox();
@@ -69,6 +60,14 @@
             btnRegistrar = new Button();
             groupBoxBtnNuevo = new GroupBox();
             errorProvider1 = new ErrorProvider(components);
+            nombreServicioDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            descripcionDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            PrecioContado = new DataGridViewTextBoxColumn();
+            PrecioLista = new DataGridViewTextBoxColumn();
+            costos = new DataGridViewTextBoxColumn();
+            margen = new DataGridViewTextBoxColumn();
+            comision = new DataGridViewTextBoxColumn();
+            categoriasDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             groupBoxFiltro.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)bindingSourceCategorias).BeginInit();
             groupBoxFooter.SuspendLayout();
@@ -305,7 +304,7 @@
             dataGridServicios.AllowUserToOrderColumns = true;
             dataGridServicios.AutoGenerateColumns = false;
             dataGridServicios.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridServicios.Columns.AddRange(new DataGridViewColumn[] { nombreServicioDataGridViewTextBoxColumn, descripcionDataGridViewTextBoxColumn, precioVenta, costos, margen, comision, duracionMinutosDataGridViewTextBoxColumn, puntajeDataGridViewTextBoxColumn, categoriasDataGridViewTextBoxColumn });
+            dataGridServicios.Columns.AddRange(new DataGridViewColumn[] { nombreServicioDataGridViewTextBoxColumn, descripcionDataGridViewTextBoxColumn, PrecioContado, PrecioLista, costos, margen, comision, categoriasDataGridViewTextBoxColumn });
             dataGridServicios.DataSource = bindingSourceServicios;
             dataGridServicios.Dock = DockStyle.Fill;
             dataGridServicios.EditMode = DataGridViewEditMode.EditProgrammatically;
@@ -318,87 +317,6 @@
             dataGridServicios.Size = new Size(752, 387);
             dataGridServicios.TabIndex = 2;
             dataGridServicios.SelectionChanged += DataGridServicios_SelectionChanged;
-            // 
-            // nombreServicioDataGridViewTextBoxColumn
-            // 
-            nombreServicioDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            nombreServicioDataGridViewTextBoxColumn.DataPropertyName = "NombreServicio";
-            nombreServicioDataGridViewTextBoxColumn.FillWeight = 15F;
-            nombreServicioDataGridViewTextBoxColumn.HeaderText = "Servicio";
-            nombreServicioDataGridViewTextBoxColumn.Name = "nombreServicioDataGridViewTextBoxColumn";
-            nombreServicioDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // descripcionDataGridViewTextBoxColumn
-            // 
-            descripcionDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            descripcionDataGridViewTextBoxColumn.DataPropertyName = "Descripcion";
-            descripcionDataGridViewTextBoxColumn.FillWeight = 25F;
-            descripcionDataGridViewTextBoxColumn.HeaderText = "Descripcion";
-            descripcionDataGridViewTextBoxColumn.Name = "descripcionDataGridViewTextBoxColumn";
-            descripcionDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // precioVenta
-            // 
-            precioVenta.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            precioVenta.DataPropertyName = "Precio";
-            precioVenta.FillWeight = 10F;
-            precioVenta.HeaderText = "PVP";
-            precioVenta.Name = "precioVenta";
-            precioVenta.ReadOnly = true;
-            // 
-            // costos
-            // 
-            costos.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            costos.DataPropertyName = "Costos";
-            costos.FillWeight = 9F;
-            costos.HeaderText = "Costos";
-            costos.Name = "costos";
-            costos.ReadOnly = true;
-            // 
-            // margen
-            // 
-            margen.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            margen.DataPropertyName = "Margen";
-            margen.FillWeight = 9F;
-            margen.HeaderText = "Margen";
-            margen.Name = "margen";
-            margen.ReadOnly = true;
-            // 
-            // comision
-            // 
-            comision.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            comision.DataPropertyName = "Comision";
-            comision.FillWeight = 8F;
-            comision.HeaderText = "Comision";
-            comision.Name = "comision";
-            comision.ReadOnly = true;
-            // 
-            // duracionMinutosDataGridViewTextBoxColumn
-            // 
-            duracionMinutosDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            duracionMinutosDataGridViewTextBoxColumn.DataPropertyName = "DuracionMinutos";
-            duracionMinutosDataGridViewTextBoxColumn.FillWeight = 8F;
-            duracionMinutosDataGridViewTextBoxColumn.HeaderText = "Duracion Min.";
-            duracionMinutosDataGridViewTextBoxColumn.Name = "duracionMinutosDataGridViewTextBoxColumn";
-            duracionMinutosDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // puntajeDataGridViewTextBoxColumn
-            // 
-            puntajeDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            puntajeDataGridViewTextBoxColumn.DataPropertyName = "Puntaje";
-            puntajeDataGridViewTextBoxColumn.FillWeight = 7F;
-            puntajeDataGridViewTextBoxColumn.HeaderText = "Puntaje";
-            puntajeDataGridViewTextBoxColumn.Name = "puntajeDataGridViewTextBoxColumn";
-            puntajeDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // categoriasDataGridViewTextBoxColumn
-            // 
-            categoriasDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            categoriasDataGridViewTextBoxColumn.DataPropertyName = "Categorias";
-            categoriasDataGridViewTextBoxColumn.FillWeight = 9F;
-            categoriasDataGridViewTextBoxColumn.HeaderText = "Categoria";
-            categoriasDataGridViewTextBoxColumn.Name = "categoriasDataGridViewTextBoxColumn";
-            categoriasDataGridViewTextBoxColumn.ReadOnly = true;
             // 
             // bindingSourceServicios
             // 
@@ -494,6 +412,78 @@
             errorProvider1.BlinkStyle = ErrorBlinkStyle.NeverBlink;
             errorProvider1.ContainerControl = this;
             // 
+            // nombreServicioDataGridViewTextBoxColumn
+            // 
+            nombreServicioDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            nombreServicioDataGridViewTextBoxColumn.DataPropertyName = "NombreServicio";
+            nombreServicioDataGridViewTextBoxColumn.FillWeight = 15F;
+            nombreServicioDataGridViewTextBoxColumn.HeaderText = "Servicio";
+            nombreServicioDataGridViewTextBoxColumn.Name = "nombreServicioDataGridViewTextBoxColumn";
+            nombreServicioDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // descripcionDataGridViewTextBoxColumn
+            // 
+            descripcionDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            descripcionDataGridViewTextBoxColumn.DataPropertyName = "Descripcion";
+            descripcionDataGridViewTextBoxColumn.FillWeight = 25F;
+            descripcionDataGridViewTextBoxColumn.HeaderText = "Descripcion";
+            descripcionDataGridViewTextBoxColumn.Name = "descripcionDataGridViewTextBoxColumn";
+            descripcionDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // PrecioContado
+            // 
+            PrecioContado.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            PrecioContado.DataPropertyName = "PrecioContado";
+            PrecioContado.FillWeight = 10F;
+            PrecioContado.HeaderText = "Efectivo";
+            PrecioContado.Name = "PrecioContado";
+            PrecioContado.ReadOnly = true;
+            // 
+            // PrecioLista
+            // 
+            PrecioLista.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            PrecioLista.DataPropertyName = "PrecioLista";
+            PrecioLista.FillWeight = 15F;
+            PrecioLista.HeaderText = "Precio Lista";
+            PrecioLista.Name = "PrecioLista";
+            PrecioLista.ReadOnly = true;
+            // 
+            // costos
+            // 
+            costos.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            costos.DataPropertyName = "Costos";
+            costos.FillWeight = 9F;
+            costos.HeaderText = "Costos";
+            costos.Name = "costos";
+            costos.ReadOnly = true;
+            // 
+            // margen
+            // 
+            margen.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            margen.DataPropertyName = "Margen";
+            margen.FillWeight = 8F;
+            margen.HeaderText = "Margen";
+            margen.Name = "margen";
+            margen.ReadOnly = true;
+            // 
+            // comision
+            // 
+            comision.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            comision.DataPropertyName = "Comision";
+            comision.FillWeight = 8F;
+            comision.HeaderText = "Comision";
+            comision.Name = "comision";
+            comision.ReadOnly = true;
+            // 
+            // categoriasDataGridViewTextBoxColumn
+            // 
+            categoriasDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            categoriasDataGridViewTextBoxColumn.DataPropertyName = "Categorias";
+            categoriasDataGridViewTextBoxColumn.FillWeight = 10F;
+            categoriasDataGridViewTextBoxColumn.HeaderText = "Categoria";
+            categoriasDataGridViewTextBoxColumn.Name = "categoriasDataGridViewTextBoxColumn";
+            categoriasDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
             // FrmAbmServicios
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -554,16 +544,16 @@
         private BindingSource bindingSourceCostos;
         private BindingSource bindingSourceCategorias;
         private GroupBox groupBoxBtnNuevo;
+        private DataGridViewTextBoxColumn precioVenta;
+        private ErrorProvider errorProvider1;
+        private CheckBox checkAnulados;
         private DataGridViewTextBoxColumn nombreServicioDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn descripcionDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn precioVenta;
+        private DataGridViewTextBoxColumn PrecioContado;
+        private DataGridViewTextBoxColumn PrecioLista;
         private DataGridViewTextBoxColumn costos;
         private DataGridViewTextBoxColumn margen;
         private DataGridViewTextBoxColumn comision;
-        private DataGridViewTextBoxColumn duracionMinutosDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn puntajeDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn categoriasDataGridViewTextBoxColumn;
-        private ErrorProvider errorProvider1;
-        private CheckBox checkAnulados;
     }
 }

@@ -40,5 +40,19 @@ namespace Entidades_SGBM
         public Servicios? Servicios { get; set; }
         public Ventas? Ventas { get; set; }
 
+        [NotMapped]
+        public decimal SubTotal
+        {
+            get
+            {
+                return PrecioUnitario * (1 - (InteresDescuento ?? 0)) * Cantidad;
+            }
+            set
+            {
+                _subtotal = value;
+            }
+        }
+        public decimal _subtotal;
+
     }
 }

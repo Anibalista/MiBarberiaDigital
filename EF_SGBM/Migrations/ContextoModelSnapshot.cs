@@ -39,6 +39,9 @@ namespace EF_SGBM.Migrations
                     b.Property<DateTime?>("HoraCierre")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("IdEmpleado")
+                        .HasColumnType("int");
+
                     b.Property<int>("IdTipo")
                         .HasColumnType("int");
 
@@ -49,6 +52,8 @@ namespace EF_SGBM.Migrations
                         .HasColumnType("decimal(12,2)");
 
                     b.HasKey("IdCaja");
+
+                    b.HasIndex("IdEmpleado");
 
                     b.HasIndex("IdTipo");
 
@@ -351,11 +356,11 @@ namespace EF_SGBM.Migrations
 
             modelBuilder.Entity("Entidades_SGBM.Estados", b =>
                 {
-                    b.Property<int?>("IdEstado")
+                    b.Property<int>("IdEstado")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("IdEstado"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdEstado"));
 
                     b.Property<string>("Estado")
                         .IsRequired()
@@ -436,6 +441,12 @@ namespace EF_SGBM.Migrations
                         {
                             IdEstado = 11,
                             Estado = "Anulada",
+                            Indole = "Ventas"
+                        },
+                        new
+                        {
+                            IdEstado = 12,
+                            Estado = "Facturada",
                             Indole = "Ventas"
                         });
                 });
@@ -659,7 +670,7 @@ namespace EF_SGBM.Migrations
                     b.Property<int?>("Medida")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("PrecioLista")
+                    b.Property<decimal>("PrecioVenta")
                         .HasColumnType("decimal(12,2)");
 
                     b.Property<int>("Stock")
@@ -844,6 +855,9 @@ namespace EF_SGBM.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("IdServicio"));
 
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
                     b.Property<decimal>("Comision")
                         .HasColumnType("decimal(12,2)");
 
@@ -868,14 +882,14 @@ namespace EF_SGBM.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<decimal?>("PrecioContado")
+                        .HasColumnType("decimal(12,2)");
+
                     b.Property<decimal>("PrecioLista")
                         .HasColumnType("decimal(12,2)");
 
                     b.Property<int>("Puntaje")
                         .HasColumnType("int");
-
-                    b.Property<bool>("Activo")
-                        .HasColumnType("bit");
 
                     b.HasKey("IdServicio");
 
@@ -965,11 +979,11 @@ namespace EF_SGBM.Migrations
 
             modelBuilder.Entity("Entidades_SGBM.UnidadesMedidas", b =>
                 {
-                    b.Property<int?>("IdUnidadMedida")
+                    b.Property<int>("IdUnidadMedida")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("IdUnidadMedida"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdUnidadMedida"));
 
                     b.Property<string>("Descripcion")
                         .HasMaxLength(50)
@@ -1092,11 +1106,17 @@ namespace EF_SGBM.Migrations
 
             modelBuilder.Entity("Entidades_SGBM.Cajas", b =>
                 {
+                    b.HasOne("Entidades_SGBM.Empleados", "Empleados")
+                        .WithMany()
+                        .HasForeignKey("IdEmpleado");
+
                     b.HasOne("Entidades_SGBM.TiposCajas", "TiposCajas")
                         .WithMany()
                         .HasForeignKey("IdTipo")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Empleados");
 
                     b.Navigation("TiposCajas");
                 });

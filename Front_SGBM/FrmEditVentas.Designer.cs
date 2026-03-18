@@ -50,22 +50,20 @@
             lblFiltro = new Label();
             pnlVenta = new Panel();
             groupBoxCarrito = new GroupBox();
-            txtSubTotal = new TextBox();
-            lblSubTotal = new Label();
+            lblPorciento = new Label();
+            txtDescuento = new TextBox();
+            lblDesc = new Label();
+            btnQuitarDetalle = new Button();
+            txtTotalEfectivo = new TextBox();
+            lblTotalEfectivo = new Label();
             txtTotalACobrar = new TextBox();
-            lblTotalAPagar = new Label();
+            lblTotalLista = new Label();
             dataGridCarrito = new DataGridView();
             descripcionDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             cantidadDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            Column1 = new DataGridViewTextBoxColumn();
             precioUnitarioDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            TotalDetalle = new DataGridViewTextBoxColumn();
-            btnEliminar = new DataGridViewButtonColumn();
-            idProductoDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            idServicioDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            idFondoMembresiaDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            productosDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            serviciosDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            InteresDescuento = new DataGridViewTextBoxColumn();
+            subTotalDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             bindingCarrito = new BindingSource(components);
             groupBoxSeleccion = new GroupBox();
             checkStock = new CheckBox();
@@ -74,6 +72,9 @@
             btnSeleccionar = new Button();
             dataGridSeleccion = new DataGridView();
             txtFiltro = new TextBox();
+            errorProvider1 = new ErrorProvider(components);
+            lblNroVtaTitulo = new Label();
+            lblNroVta = new Label();
             panelHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)bindingEmpleados).BeginInit();
             panel1.SuspendLayout();
@@ -85,10 +86,13 @@
             groupBoxSeleccion.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numCantidad).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridSeleccion).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)errorProvider1).BeginInit();
             SuspendLayout();
             // 
             // panelHeader
             // 
+            panelHeader.Controls.Add(lblNroVta);
+            panelHeader.Controls.Add(lblNroVtaTitulo);
             panelHeader.Controls.Add(cbVendedor);
             panelHeader.Controls.Add(lblVendedor);
             panelHeader.Controls.Add(txtNombreCompleto);
@@ -145,6 +149,7 @@
             btnBuscarCliente.TabIndex = 2;
             btnBuscarCliente.Text = "Buscar";
             btnBuscarCliente.UseVisualStyleBackColor = true;
+            btnBuscarCliente.Click += BtnBuscarCliente_Click;
             // 
             // txtDni
             // 
@@ -153,7 +158,7 @@
             txtDni.PlaceholderText = "DNI DEL CLIENTE";
             txtDni.Size = new Size(140, 23);
             txtDni.TabIndex = 1;
-            txtDni.KeyPress += TxtDni_KeyPress;
+            txtDni.KeyPress += TxtNumerico_KeyPress;
             // 
             // lblTitulo
             // 
@@ -214,6 +219,7 @@
             btnGuardar.Tag = "btnPrincipalV";
             btnGuardar.Text = "CONFIRMAR PAGO";
             btnGuardar.UseVisualStyleBackColor = true;
+            btnGuardar.Click += BtnGuardar_Click;
             // 
             // lblDescuento
             // 
@@ -235,6 +241,7 @@
             cbMedioPago.Size = new Size(140, 23);
             cbMedioPago.TabIndex = 8;
             cbMedioPago.ValueMember = "IdMedioPago";
+            cbMedioPago.SelectedIndexChanged += CbMedioPago_SelectedIndexChanged;
             // 
             // bindingMedios
             // 
@@ -256,7 +263,7 @@
             txtTotalAbonado.Name = "txtTotalAbonado";
             txtTotalAbonado.Size = new Size(140, 23);
             txtTotalAbonado.TabIndex = 6;
-            txtTotalAbonado.KeyPress += TxtTotalAbonado_KeyPress;
+            txtTotalAbonado.KeyPress += TxtDecimal_KeyPress;
             // 
             // lblTotal
             // 
@@ -290,54 +297,97 @@
             // groupBoxCarrito
             // 
             groupBoxCarrito.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            groupBoxCarrito.Controls.Add(txtSubTotal);
-            groupBoxCarrito.Controls.Add(lblSubTotal);
+            groupBoxCarrito.Controls.Add(lblPorciento);
+            groupBoxCarrito.Controls.Add(txtDescuento);
+            groupBoxCarrito.Controls.Add(lblDesc);
+            groupBoxCarrito.Controls.Add(btnQuitarDetalle);
+            groupBoxCarrito.Controls.Add(txtTotalEfectivo);
+            groupBoxCarrito.Controls.Add(lblTotalEfectivo);
             groupBoxCarrito.Controls.Add(txtTotalACobrar);
-            groupBoxCarrito.Controls.Add(lblTotalAPagar);
+            groupBoxCarrito.Controls.Add(lblTotalLista);
             groupBoxCarrito.Controls.Add(dataGridCarrito);
-            groupBoxCarrito.Location = new Point(430, 0);
+            groupBoxCarrito.Location = new Point(569, 0);
             groupBoxCarrito.Name = "groupBoxCarrito";
-            groupBoxCarrito.Size = new Size(610, 379);
+            groupBoxCarrito.Size = new Size(471, 379);
             groupBoxCarrito.TabIndex = 1;
             groupBoxCarrito.TabStop = false;
             groupBoxCarrito.Text = "Carrito de compras";
             // 
-            // txtSubTotal
+            // lblPorciento
             // 
-            txtSubTotal.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            txtSubTotal.Enabled = false;
-            txtSubTotal.Location = new Point(91, 340);
-            txtSubTotal.Name = "txtSubTotal";
-            txtSubTotal.Size = new Size(140, 23);
-            txtSubTotal.TabIndex = 22;
+            lblPorciento.AutoSize = true;
+            lblPorciento.Location = new Point(160, 30);
+            lblPorciento.Name = "lblPorciento";
+            lblPorciento.Size = new Size(17, 15);
+            lblPorciento.TabIndex = 26;
+            lblPorciento.Text = "%";
             // 
-            // lblSubTotal
+            // txtDescuento
             // 
-            lblSubTotal.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            lblSubTotal.AutoSize = true;
-            lblSubTotal.Location = new Point(15, 343);
-            lblSubTotal.Name = "lblSubTotal";
-            lblSubTotal.Size = new Size(55, 15);
-            lblSubTotal.TabIndex = 21;
-            lblSubTotal.Text = "SubTotal:";
+            txtDescuento.Location = new Point(101, 27);
+            txtDescuento.Name = "txtDescuento";
+            txtDescuento.Size = new Size(53, 23);
+            txtDescuento.TabIndex = 25;
+            txtDescuento.TextChanged += TxtDescuento_TextChanged;
+            txtDescuento.KeyPress += TxtNumerico_KeyPress;
+            // 
+            // lblDesc
+            // 
+            lblDesc.AutoSize = true;
+            lblDesc.Location = new Point(15, 30);
+            lblDesc.Name = "lblDesc";
+            lblDesc.Size = new Size(69, 15);
+            lblDesc.TabIndex = 24;
+            lblDesc.Text = "Descuento: ";
+            // 
+            // btnQuitarDetalle
+            // 
+            btnQuitarDetalle.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnQuitarDetalle.Location = new Point(384, 26);
+            btnQuitarDetalle.Name = "btnQuitarDetalle";
+            btnQuitarDetalle.Size = new Size(75, 23);
+            btnQuitarDetalle.TabIndex = 23;
+            btnQuitarDetalle.Tag = "btnNormalR";
+            btnQuitarDetalle.Text = "Quitar";
+            btnQuitarDetalle.UseVisualStyleBackColor = true;
+            // 
+            // txtTotalEfectivo
+            // 
+            txtTotalEfectivo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            txtTotalEfectivo.Enabled = false;
+            txtTotalEfectivo.Location = new Point(114, 340);
+            txtTotalEfectivo.Name = "txtTotalEfectivo";
+            txtTotalEfectivo.Size = new Size(117, 23);
+            txtTotalEfectivo.TabIndex = 22;
+            // 
+            // lblTotalEfectivo
+            // 
+            lblTotalEfectivo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            lblTotalEfectivo.AutoSize = true;
+            lblTotalEfectivo.Location = new Point(15, 343);
+            lblTotalEfectivo.Name = "lblTotalEfectivo";
+            lblTotalEfectivo.Size = new Size(80, 15);
+            lblTotalEfectivo.TabIndex = 21;
+            lblTotalEfectivo.Text = "Total Efectivo:";
             // 
             // txtTotalACobrar
             // 
             txtTotalACobrar.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            txtTotalACobrar.Location = new Point(451, 340);
+            txtTotalACobrar.Enabled = false;
+            txtTotalACobrar.Location = new Point(312, 340);
             txtTotalACobrar.Name = "txtTotalACobrar";
             txtTotalACobrar.Size = new Size(140, 23);
             txtTotalACobrar.TabIndex = 20;
             // 
-            // lblTotalAPagar
+            // lblTotalLista
             // 
-            lblTotalAPagar.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            lblTotalAPagar.AutoSize = true;
-            lblTotalAPagar.Location = new Point(340, 343);
-            lblTotalAPagar.Name = "lblTotalAPagar";
-            lblTotalAPagar.Size = new Size(85, 15);
-            lblTotalAPagar.TabIndex = 19;
-            lblTotalAPagar.Text = "Total A Cobrar:";
+            lblTotalLista.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            lblTotalLista.AutoSize = true;
+            lblTotalLista.Location = new Point(260, 343);
+            lblTotalLista.Name = "lblTotalLista";
+            lblTotalLista.Size = new Size(35, 15);
+            lblTotalLista.TabIndex = 19;
+            lblTotalLista.Text = "Total:";
             // 
             // dataGridCarrito
             // 
@@ -347,22 +397,22 @@
             dataGridCarrito.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridCarrito.AutoGenerateColumns = false;
             dataGridCarrito.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridCarrito.Columns.AddRange(new DataGridViewColumn[] { descripcionDataGridViewTextBoxColumn, cantidadDataGridViewTextBoxColumn, Column1, precioUnitarioDataGridViewTextBoxColumn, TotalDetalle, btnEliminar, idProductoDataGridViewTextBoxColumn, idServicioDataGridViewTextBoxColumn, idFondoMembresiaDataGridViewTextBoxColumn, productosDataGridViewTextBoxColumn, serviciosDataGridViewTextBoxColumn });
+            dataGridCarrito.Columns.AddRange(new DataGridViewColumn[] { descripcionDataGridViewTextBoxColumn, cantidadDataGridViewTextBoxColumn, precioUnitarioDataGridViewTextBoxColumn, InteresDescuento, subTotalDataGridViewTextBoxColumn });
             dataGridCarrito.DataSource = bindingCarrito;
             dataGridCarrito.EditMode = DataGridViewEditMode.EditProgrammatically;
-            dataGridCarrito.Location = new Point(6, 22);
+            dataGridCarrito.Location = new Point(6, 56);
             dataGridCarrito.Name = "dataGridCarrito";
             dataGridCarrito.ReadOnly = true;
             dataGridCarrito.RowHeadersVisible = false;
             dataGridCarrito.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridCarrito.Size = new Size(592, 299);
+            dataGridCarrito.Size = new Size(453, 265);
             dataGridCarrito.TabIndex = 0;
             // 
             // descripcionDataGridViewTextBoxColumn
             // 
             descripcionDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             descripcionDataGridViewTextBoxColumn.DataPropertyName = "Descripcion";
-            descripcionDataGridViewTextBoxColumn.FillWeight = 40F;
+            descripcionDataGridViewTextBoxColumn.FillWeight = 35F;
             descripcionDataGridViewTextBoxColumn.HeaderText = "Descripcion";
             descripcionDataGridViewTextBoxColumn.Name = "descripcionDataGridViewTextBoxColumn";
             descripcionDataGridViewTextBoxColumn.ReadOnly = true;
@@ -372,83 +422,36 @@
             cantidadDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             cantidadDataGridViewTextBoxColumn.DataPropertyName = "Cantidad";
             cantidadDataGridViewTextBoxColumn.FillWeight = 10F;
-            cantidadDataGridViewTextBoxColumn.HeaderText = "Cantidad";
+            cantidadDataGridViewTextBoxColumn.HeaderText = "Cant.";
             cantidadDataGridViewTextBoxColumn.Name = "cantidadDataGridViewTextBoxColumn";
             cantidadDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // Column1
-            // 
-            Column1.DataPropertyName = "IdDetalleVenta";
-            Column1.HeaderText = "Id";
-            Column1.Name = "Column1";
-            Column1.ReadOnly = true;
-            Column1.Visible = false;
             // 
             // precioUnitarioDataGridViewTextBoxColumn
             // 
             precioUnitarioDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             precioUnitarioDataGridViewTextBoxColumn.DataPropertyName = "PrecioUnitario";
             precioUnitarioDataGridViewTextBoxColumn.FillWeight = 20F;
-            precioUnitarioDataGridViewTextBoxColumn.HeaderText = "Precio Unitario";
+            precioUnitarioDataGridViewTextBoxColumn.HeaderText = "Precio";
             precioUnitarioDataGridViewTextBoxColumn.Name = "precioUnitarioDataGridViewTextBoxColumn";
             precioUnitarioDataGridViewTextBoxColumn.ReadOnly = true;
             // 
-            // TotalDetalle
+            // InteresDescuento
             // 
-            TotalDetalle.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            TotalDetalle.FillWeight = 20F;
-            TotalDetalle.HeaderText = "Totales";
-            TotalDetalle.Name = "TotalDetalle";
-            TotalDetalle.ReadOnly = true;
+            InteresDescuento.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            InteresDescuento.DataPropertyName = "InteresDescuento";
+            InteresDescuento.FillWeight = 15F;
+            InteresDescuento.HeaderText = "Descuento";
+            InteresDescuento.Name = "InteresDescuento";
+            InteresDescuento.ReadOnly = true;
             // 
-            // btnEliminar
+            // subTotalDataGridViewTextBoxColumn
             // 
-            btnEliminar.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            btnEliminar.FillWeight = 10F;
-            btnEliminar.HeaderText = "Quitar";
-            btnEliminar.MinimumWidth = 50;
-            btnEliminar.Name = "btnEliminar";
-            btnEliminar.ReadOnly = true;
-            // 
-            // idProductoDataGridViewTextBoxColumn
-            // 
-            idProductoDataGridViewTextBoxColumn.DataPropertyName = "IdProducto";
-            idProductoDataGridViewTextBoxColumn.HeaderText = "IdProducto";
-            idProductoDataGridViewTextBoxColumn.Name = "idProductoDataGridViewTextBoxColumn";
-            idProductoDataGridViewTextBoxColumn.ReadOnly = true;
-            idProductoDataGridViewTextBoxColumn.Visible = false;
-            // 
-            // idServicioDataGridViewTextBoxColumn
-            // 
-            idServicioDataGridViewTextBoxColumn.DataPropertyName = "IdServicio";
-            idServicioDataGridViewTextBoxColumn.HeaderText = "IdServicio";
-            idServicioDataGridViewTextBoxColumn.Name = "idServicioDataGridViewTextBoxColumn";
-            idServicioDataGridViewTextBoxColumn.ReadOnly = true;
-            idServicioDataGridViewTextBoxColumn.Visible = false;
-            // 
-            // idFondoMembresiaDataGridViewTextBoxColumn
-            // 
-            idFondoMembresiaDataGridViewTextBoxColumn.DataPropertyName = "IdFondoMembresia";
-            idFondoMembresiaDataGridViewTextBoxColumn.HeaderText = "IdFondoMembresia";
-            idFondoMembresiaDataGridViewTextBoxColumn.Name = "idFondoMembresiaDataGridViewTextBoxColumn";
-            idFondoMembresiaDataGridViewTextBoxColumn.ReadOnly = true;
-            idFondoMembresiaDataGridViewTextBoxColumn.Visible = false;
-            // 
-            // productosDataGridViewTextBoxColumn
-            // 
-            productosDataGridViewTextBoxColumn.DataPropertyName = "Productos";
-            productosDataGridViewTextBoxColumn.HeaderText = "Productos";
-            productosDataGridViewTextBoxColumn.Name = "productosDataGridViewTextBoxColumn";
-            productosDataGridViewTextBoxColumn.ReadOnly = true;
-            productosDataGridViewTextBoxColumn.Visible = false;
-            // 
-            // serviciosDataGridViewTextBoxColumn
-            // 
-            serviciosDataGridViewTextBoxColumn.DataPropertyName = "Servicios";
-            serviciosDataGridViewTextBoxColumn.HeaderText = "Servicios";
-            serviciosDataGridViewTextBoxColumn.Name = "serviciosDataGridViewTextBoxColumn";
-            serviciosDataGridViewTextBoxColumn.ReadOnly = true;
-            serviciosDataGridViewTextBoxColumn.Visible = false;
+            subTotalDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            subTotalDataGridViewTextBoxColumn.DataPropertyName = "SubTotal";
+            subTotalDataGridViewTextBoxColumn.FillWeight = 20F;
+            subTotalDataGridViewTextBoxColumn.HeaderText = "SubTotal";
+            subTotalDataGridViewTextBoxColumn.Name = "subTotalDataGridViewTextBoxColumn";
+            subTotalDataGridViewTextBoxColumn.ReadOnly = true;
             // 
             // bindingCarrito
             // 
@@ -466,7 +469,7 @@
             groupBoxSeleccion.Controls.Add(lblFiltro);
             groupBoxSeleccion.Location = new Point(3, 6);
             groupBoxSeleccion.Name = "groupBoxSeleccion";
-            groupBoxSeleccion.Size = new Size(421, 373);
+            groupBoxSeleccion.Size = new Size(566, 373);
             groupBoxSeleccion.TabIndex = 0;
             groupBoxSeleccion.TabStop = false;
             groupBoxSeleccion.Text = "Selección de Servicios - Productos";
@@ -474,12 +477,13 @@
             // checkStock
             // 
             checkStock.AutoSize = true;
-            checkStock.Location = new Point(321, 28);
+            checkStock.Location = new Point(474, 28);
             checkStock.Name = "checkStock";
             checkStock.Size = new Size(74, 19);
             checkStock.TabIndex = 16;
             checkStock.Text = "Sin Stock";
             checkStock.UseVisualStyleBackColor = true;
+            checkStock.CheckedChanged += checkStock_CheckedChanged;
             // 
             // numCantidad
             // 
@@ -503,13 +507,14 @@
             // btnSeleccionar
             // 
             btnSeleccionar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            btnSeleccionar.Location = new Point(162, 321);
+            btnSeleccionar.Location = new Point(162, 334);
             btnSeleccionar.Name = "btnSeleccionar";
-            btnSeleccionar.Size = new Size(253, 46);
+            btnSeleccionar.Size = new Size(398, 33);
             btnSeleccionar.TabIndex = 12;
             btnSeleccionar.Tag = "btnNormalV";
             btnSeleccionar.Text = "AÑADIR AL CARRITO";
             btnSeleccionar.UseVisualStyleBackColor = true;
+            btnSeleccionar.Click += BtnSeleccionar_Click;
             // 
             // dataGridSeleccion
             // 
@@ -520,9 +525,11 @@
             dataGridSeleccion.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridSeleccion.EditMode = DataGridViewEditMode.EditProgrammatically;
             dataGridSeleccion.Location = new Point(6, 70);
+            dataGridSeleccion.MultiSelect = false;
             dataGridSeleccion.Name = "dataGridSeleccion";
             dataGridSeleccion.ReadOnly = true;
-            dataGridSeleccion.Size = new Size(409, 245);
+            dataGridSeleccion.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridSeleccion.Size = new Size(554, 245);
             dataGridSeleccion.TabIndex = 13;
             // 
             // txtFiltro
@@ -530,9 +537,33 @@
             txtFiltro.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             txtFiltro.Location = new Point(64, 26);
             txtFiltro.Name = "txtFiltro";
-            txtFiltro.Size = new Size(228, 23);
+            txtFiltro.Size = new Size(373, 23);
             txtFiltro.TabIndex = 12;
             txtFiltro.TextChanged += Filtro_TextChanged;
+            // 
+            // errorProvider1
+            // 
+            errorProvider1.BlinkStyle = ErrorBlinkStyle.NeverBlink;
+            errorProvider1.ContainerControl = this;
+            // 
+            // lblNroVtaTitulo
+            // 
+            lblNroVtaTitulo.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            lblNroVtaTitulo.AutoSize = true;
+            lblNroVtaTitulo.Location = new Point(808, 20);
+            lblNroVtaTitulo.Name = "lblNroVtaTitulo";
+            lblNroVtaTitulo.Size = new Size(56, 15);
+            lblNroVtaTitulo.TabIndex = 6;
+            lblNroVtaTitulo.Text = "Venta N°:";
+            // 
+            // lblNroVta
+            // 
+            lblNroVta.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            lblNroVta.AutoSize = true;
+            lblNroVta.Location = new Point(881, 20);
+            lblNroVta.Name = "lblNroVta";
+            lblNroVta.Size = new Size(0, 15);
+            lblNroVta.TabIndex = 7;
             // 
             // FrmEditVentas
             // 
@@ -561,6 +592,7 @@
             groupBoxSeleccion.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)numCantidad).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridSeleccion).EndInit();
+            ((System.ComponentModel.ISupportInitialize)errorProvider1).EndInit();
             ResumeLayout(false);
         }
 
@@ -592,25 +624,26 @@
         private NumericUpDown numCantidad;
         private Label lblCantidad;
         private TextBox txtTotalACobrar;
-        private Label lblTotalAPagar;
+        private Label lblTotalLista;
         private Label lblMensaje;
-        private TextBox txtSubTotal;
-        private Label lblSubTotal;
+        private TextBox txtTotalEfectivo;
+        private Label lblTotalEfectivo;
         private BindingSource bindingEmpleados;
-        private BindingSource bindingCarrito;
         private BindingSource bindingMedios;
-        private DataGridViewTextBoxColumn descripcionDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn cantidadDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn Column1;
-        private DataGridViewTextBoxColumn precioUnitarioDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn TotalDetalle;
-        private DataGridViewButtonColumn btnEliminar;
-        private DataGridViewTextBoxColumn idProductoDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn idServicioDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn idFondoMembresiaDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn productosDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn serviciosDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn fondosMembresiasDataGridViewTextBoxColumn;
         private CheckBox checkStock;
+        private ErrorProvider errorProvider1;
+        private BindingSource bindingCarrito;
+        private Button btnQuitarDetalle;
+        private TextBox txtDescuento;
+        private Label lblDesc;
+        private Label lblPorciento;
+        private DataGridViewTextBoxColumn descripcionDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn cantidadDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn precioUnitarioDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn InteresDescuento;
+        private DataGridViewTextBoxColumn subTotalDataGridViewTextBoxColumn;
+        private Label lblNroVta;
+        private Label lblNroVtaTitulo;
     }
 }
