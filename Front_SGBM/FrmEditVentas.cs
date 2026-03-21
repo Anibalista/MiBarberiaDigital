@@ -28,6 +28,7 @@ namespace Front_SGBM
         // --- Variables de estado ---
         private List<ItemSeleccion> _catalogoItems = new List<ItemSeleccion>();
         private List<DetallesVentas> _carrito = new List<DetallesVentas>();
+        public Ventas? _venta = null;
         private Clientes? _clienteActual = null;
         private Empleados? _vendedorActual = null;
         private Estados? _estadoActual = null;
@@ -572,7 +573,6 @@ namespace Front_SGBM
             if (_carrito == null || !_carrito.Any())
                 return Resultado<Ventas>.Fail("Seleccione un servicio o producto a vender");
             
-
             try
             {
                 if (cbVendedor.SelectedIndex == -1)
@@ -621,10 +621,93 @@ namespace Front_SGBM
                 Logger.LogError(ex.ToString());
                 return Resultado<Ventas>.Fail("Error inesperado al construir la venta");
             }
-
-            
-
         }
+
+        /// <summary>
+        /// Valida la venta antes del registro
+        /// </summary>
+        private bool ValidarVenta(out string mensaje)
+        {
+            mensaje = string.Empty;
+            _venta ??= new Ventas();
+            try
+            {
+                var resVenta = ConstruirVenta();
+                if (!resVenta.Success || resVenta.Data == null)
+                {
+                    mensaje = resVenta.Mensaje;
+                    return false;
+                }
+                _venta = resVenta.Data;
+                return ValidarMontoCobro(out mensaje);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex.ToString());
+                mensaje = "Error inesperado al validar la venta";
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Valida y confirma el monto y medio de pago a abonar antes de registrar
+        /// </summary>
+        private bool ValidarMontoCobro(out string mensaje)
+        {
+            mensaje = string.Empty;
+            if (!CampoDecimal(txtTotalAbonado))
+            {
+                mensaje = "Ingrese el monto a abonar";
+                return false;
+            }
+            string montoCobro = txtTotalAbonado.Text.Trim();
+            if (_venta == null)
+            {
+                mensaje = "No se encuentran los datos de la venta";
+                return false;
+            }
+            try
+            {
+                decimal montoTotal = decimal.Parse(montoCobro);
+                if (montoTotal < 0)
+                {
+                    mensaje = "El monto a abonar no puede ser negativo";
+                    return false;
+                }
+                decimal totalCarrito = _carrito.Sum(c => c.SubTotal);
+                if (montoTotal != totalCarrito)
+                {
+                    DialogResult respuesta = Mensajes.Respuesta("El monto a abonar no coincide con el total del carrito\n¿Desea continuar igualmente?");
+                    if (respuesta == DialogResult.No)
+                    {
+                        mensaje = "¡Proceso detenido!";
+                        return false;
+                    }
+                }
+
+                if (montoTotal == 0)
+                {
+                    DialogResult respuesta = Mensajes.Respuesta("Ingresó $0 a cobrar por la venta \n¿Desea confirmar la gratuidad de la misma?");
+                    bool acepta = respuesta == DialogResult.Yes;
+                    if (acepta)
+                    {
+                        _carrito.ForEach(c => c.PrecioUnitario = 0);
+                        _venta.Total = 0;
+                    }
+                    mensaje = !acepta ? "¡Proceso detenido!" : string.Empty;
+                    return acepta;
+                }
+                _venta.Total = montoTotal;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex.ToString());
+                mensaje = "Error inesperado en el monto a abonar";
+                return false;
+            }
+        }
+
 
         #endregion
 
