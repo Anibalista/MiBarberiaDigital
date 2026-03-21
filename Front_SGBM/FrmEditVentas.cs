@@ -708,6 +708,46 @@ namespace Front_SGBM
             }
         }
 
+        /// <summary>
+        /// Analiza el carrito y verifica si las cajas necesarias (Productos/Servicios) faltan abrirse.
+        /// Utiliza el método de Tipos Disponibles: si el tipo aparece ahí, significa que está cerrado.
+        /// </summary>
+        private bool VerificarYAbrirCajas()
+        {
+            // 1. Obtenemos las cajas que NO están abiertas hoy
+            var resCajasFaltantes = CajasNegocios.GetTiposCajasDisponibles();
+            if (!resCajasFaltantes.Success)
+            {
+                Mensajes.MensajeError("No se pudo verificar el estado de las cajas.");
+                return false;
+            }
+
+            var cajasFaltantes = resCajasFaltantes.Data ?? new List<TiposCajas>();
+
+            bool requiereProductos = _carrito.Any(d => d.IdProducto != null);
+            bool requiereServicios = _carrito.Any(d => d.IdServicio != null);
+
+            // 2. Lógica para Productos: Si requiere productos y "Caja Productos" figura como faltante/disponible
+            if (requiereProductos && cajasFaltantes.Any(c => c.Tipo.Contains("Productos", StringComparison.OrdinalIgnoreCase)))
+            {
+                Mensajes.MensajeAdvertencia("Debe abrir la Caja de Productos para procesar esta venta.");
+                FrmAbrirCaja frmCaja = new FrmAbrirCaja();
+                if (frmCaja.ShowDialog() != DialogResult.OK) return false;
+
+                // Recargamos la lista por si ahora también falta la de servicios
+                cajasFaltantes = CajasNegocios.GetTiposCajasDisponibles().Data ?? new List<TiposCajas>();
+            }
+
+            // 3. Lógica para Servicios: Si requiere servicios y "Caja Servicios" figura como faltante
+            if (requiereServicios && cajasFaltantes.Any(c => c.Tipo.Contains("Servicios", StringComparison.OrdinalIgnoreCase)))
+            {
+                Mensajes.MensajeAdvertencia("Debe abrir la Caja de Servicios para procesar esta venta.");
+                FrmAbrirCaja frmCaja = new FrmAbrirCaja();
+                if (frmCaja.ShowDialog() != DialogResult.OK) return false;
+            }
+
+            return true; // Si llegó hasta acá, todo lo necesario está abierto
+        }
 
         #endregion
 

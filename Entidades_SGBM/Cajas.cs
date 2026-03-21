@@ -36,6 +36,8 @@ namespace Entidades_SGBM
 
         public Empleados? Empleados { get; set; }
 
+        public ICollection<Transacciones>? Transacciones { get; set; }
+
         [NotMapped]
         public string? Tipo
         {

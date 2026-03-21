@@ -1,4 +1,5 @@
 ﻿using Datos_SGBM;
+using Entidades_SGBM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,6 +59,34 @@ namespace Negocio_SGBM
             {
                 Logger.LogError($"Error al generar próximo nro de venta: {ex.ToString()}");
                 return Resultado<string>.Fail("Error al calcular el número de comprobante.");
+            }
+        }
+
+        public static Resultado<bool> ProcesarCobroVenta(Ventas venta, List<DetallesVentas> carrito, MediosPagos medioPago)
+        {
+            try
+            {
+                // 1. Validaciones previas de negocio (opcionales)
+                if (venta.Total < 0) return Resultado<bool>.Fail("El total no puede ser negativo.");
+
+                // 2. Buscar las entidades de las Cajas abiertas de HOY para pasarlas a Datos
+                // Asumiendo que tienes un método en CajasDatos que te trae las cajas abiertas:
+                var resCajasAbiertas = CajasDatos.GetCajasPorFecha(DateTime.Today);
+
+                if (!resCajasAbiertas.Success || resCajasAbiertas.Data == null || !resCajasAbiertas.Data.Any())
+                {
+                    return Resultado<bool>.Fail("Error interno: No se detectaron cajas abiertas en el sistema.");
+                }
+
+                List<Cajas> cajasAbiertas = resCajasAbiertas.Data;
+
+                // 3. Enviamos todo el "paquete" a la capa de Datos para que ejecute el guardado Graph (Transacción)
+                return VentasDatos.RegistrarVentaCompleta(venta, carrito, medioPago, cajasAbiertas);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error en ProcesarCobroVenta Negocio: {ex.ToString()}");
+                return Resultado<bool>.Fail("Ocurrió un error en las reglas de negocio al intentar cobrar.");
             }
         }
 

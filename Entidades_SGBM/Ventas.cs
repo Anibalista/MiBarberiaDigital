@@ -34,6 +34,8 @@ namespace Entidades_SGBM
         public Empleados? Empleados { get; set; }
         public Estados? Estados { get; set; }
 
+        public ICollection<DetallesVentas>? DetallesVentas { get; set; }
+        public ICollection<Facturas>? Facturas { get; set; }
 
         public override string ToString()
         {

@@ -27,6 +27,11 @@ namespace Entidades_SGBM
         [ForeignKey("Cajas")]
         public int IdCaja { get; set; }
 
+        [ForeignKey("Facturas")]
+        public int? IdFactura { get; set; }
+
+        public Facturas? Facturas { get; set; }
+
         public TiposTransacciones? TiposTransacciones { get; set; }
         public Cajas? Cajas { get; set; }
 

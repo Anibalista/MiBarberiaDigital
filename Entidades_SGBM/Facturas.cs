@@ -22,18 +22,16 @@ namespace Entidades_SGBM
         [Column(TypeName = "decimal(12,2)")]
         public decimal TotalAbonado { get; set; }
 
-        [ForeignKey("Transacciones")]
-        public int? IdTransaccion { get; set; }
-
         [ForeignKey("MediosPagos")]
         public int IdMedioPago { get; set; }
 
         [ForeignKey("Ventas")]
         public int IdVenta { get; set; }
 
-        public Transacciones? Transacciones { get; set; }
         public MediosPagos? MediosPagos { get; set; }
         public Ventas? Ventas { get; set; }
+
+        public ICollection<Transacciones>? Transacciones { get; set; }
 
     }
 }
