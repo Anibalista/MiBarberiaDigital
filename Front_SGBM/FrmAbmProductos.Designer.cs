@@ -77,9 +77,9 @@
             descripcionDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             stockDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             PrecioVenta = new DataGridViewTextBoxColumn();
-            cantidadMedidaDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            medidaDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
             costoDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            Dosificacion = new DataGridViewTextBoxColumn();
+            CantSuelta = new DataGridViewTextBoxColumn();
             Comision = new DataGridViewTextBoxColumn();
             groupBoxProductos.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridProductos).BeginInit();
@@ -207,7 +207,7 @@
             dataGridProductos.AllowUserToOrderColumns = true;
             dataGridProductos.AutoGenerateColumns = false;
             dataGridProductos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridProductos.Columns.AddRange(new DataGridViewColumn[] { codProductoDataGridViewTextBoxColumn, descripcionDataGridViewTextBoxColumn, stockDataGridViewTextBoxColumn, PrecioVenta, cantidadMedidaDataGridViewTextBoxColumn, medidaDataGridViewTextBoxColumn, costoDataGridViewTextBoxColumn, Comision });
+            dataGridProductos.Columns.AddRange(new DataGridViewColumn[] { codProductoDataGridViewTextBoxColumn, descripcionDataGridViewTextBoxColumn, stockDataGridViewTextBoxColumn, PrecioVenta, costoDataGridViewTextBoxColumn, Dosificacion, CantSuelta, Comision });
             dataGridProductos.DataSource = bindingSourceProductos;
             dataGridProductos.Dock = DockStyle.Bottom;
             dataGridProductos.EditMode = DataGridViewEditMode.EditProgrammatically;
@@ -578,7 +578,7 @@
             // 
             descripcionDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             descripcionDataGridViewTextBoxColumn.DataPropertyName = "Descripcion";
-            descripcionDataGridViewTextBoxColumn.FillWeight = 25F;
+            descripcionDataGridViewTextBoxColumn.FillWeight = 24F;
             descripcionDataGridViewTextBoxColumn.HeaderText = "Descripcion";
             descripcionDataGridViewTextBoxColumn.Name = "descripcionDataGridViewTextBoxColumn";
             descripcionDataGridViewTextBoxColumn.ReadOnly = true;
@@ -601,32 +601,32 @@
             PrecioVenta.Name = "PrecioVenta";
             PrecioVenta.ReadOnly = true;
             // 
-            // cantidadMedidaDataGridViewTextBoxColumn
-            // 
-            cantidadMedidaDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            cantidadMedidaDataGridViewTextBoxColumn.DataPropertyName = "CantidadMedida";
-            cantidadMedidaDataGridViewTextBoxColumn.FillWeight = 8F;
-            cantidadMedidaDataGridViewTextBoxColumn.HeaderText = "Dosificación";
-            cantidadMedidaDataGridViewTextBoxColumn.Name = "cantidadMedidaDataGridViewTextBoxColumn";
-            cantidadMedidaDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // medidaDataGridViewTextBoxColumn
-            // 
-            medidaDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            medidaDataGridViewTextBoxColumn.DataPropertyName = "Medida";
-            medidaDataGridViewTextBoxColumn.FillWeight = 9F;
-            medidaDataGridViewTextBoxColumn.HeaderText = "Cant. Suelta";
-            medidaDataGridViewTextBoxColumn.Name = "medidaDataGridViewTextBoxColumn";
-            medidaDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
             // costoDataGridViewTextBoxColumn
             // 
             costoDataGridViewTextBoxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             costoDataGridViewTextBoxColumn.DataPropertyName = "Costo";
-            costoDataGridViewTextBoxColumn.FillWeight = 10F;
+            costoDataGridViewTextBoxColumn.FillWeight = 12F;
             costoDataGridViewTextBoxColumn.HeaderText = "Costo";
             costoDataGridViewTextBoxColumn.Name = "costoDataGridViewTextBoxColumn";
             costoDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // Dosificacion
+            // 
+            Dosificacion.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Dosificacion.DataPropertyName = "Dosificacion";
+            Dosificacion.FillWeight = 13F;
+            Dosificacion.HeaderText = "Dosificación";
+            Dosificacion.Name = "Dosificacion";
+            Dosificacion.ReadOnly = true;
+            // 
+            // CantSuelta
+            // 
+            CantSuelta.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            CantSuelta.DataPropertyName = "CantSuelta";
+            CantSuelta.FillWeight = 12F;
+            CantSuelta.HeaderText = "Cant. Suelta";
+            CantSuelta.Name = "CantSuelta";
+            CantSuelta.ReadOnly = true;
             // 
             // Comision
             // 
@@ -713,9 +713,9 @@
         private DataGridViewTextBoxColumn descripcionDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn stockDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn PrecioVenta;
-        private DataGridViewTextBoxColumn cantidadMedidaDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn medidaDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn costoDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn Dosificacion;
+        private DataGridViewTextBoxColumn CantSuelta;
         private DataGridViewTextBoxColumn Comision;
     }
 }

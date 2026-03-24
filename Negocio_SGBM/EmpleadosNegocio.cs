@@ -72,7 +72,7 @@ namespace Negocio_SGBM
                     return Resultado<bool>.Fail("No se pudo asignar persona al barbero.");
 
                 var resultadoEmpleado = GetEmpleadoPorDni(empleado.Personas.Dni);
-                if (resultadoEmpleado.Data == null)
+                if (resultadoEmpleado.Data?.IdEmpleado == null)
                 {
                     empleado.Personas = null;
                     var resultadoRegistroEmpleado = RegistrarEmpleadoBasico(empleado);
@@ -111,9 +111,7 @@ namespace Negocio_SGBM
             try
             {
                 var resultadoEmpleado = EmpleadosDatos.GetEmpleadoPorIdPersona(persona.IdPersona.Value);
-                if (!resultadoEmpleado.Success)
-                    return Resultado<Empleados?>.Fail(resultadoEmpleado.Mensaje);
-
+                
                 var empleado = resultadoEmpleado.Data ?? new Empleados();
                 empleado.Personas = persona;
                 empleado.IdPersona = persona.IdPersona.Value;

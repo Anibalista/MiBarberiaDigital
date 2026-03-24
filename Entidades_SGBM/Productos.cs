@@ -54,5 +54,39 @@ namespace Entidades_SGBM
         {
             return Descripcion;
         }
+
+        [NotMapped]
+        public string Dosificacion
+        {
+            get
+            {
+                if (UnidadesMedidas == null) return string.Empty;
+                if (Medida == null || Medida < 1) return string.Empty;
+                return $"{Medida}{UnidadesMedidas.Unidad}";
+            }
+            set
+            {
+                _dosificacion = value;
+            }
+        }
+        public string? _dosificacion;
+
+
+        [NotMapped]
+        public string CantSuelta
+        {
+            get
+            {
+                if (CantidadMedida == null || CantidadMedida <= 0) return string.Empty;
+                if (UnidadesMedidas == null) return string.Empty;
+                if (Medida == null || Medida < 1) return string.Empty;
+                return CantidadMedida?.ToString("0.00");
+            }
+            set
+            {
+                _cantSuelta = value;
+            }
+        }
+        public string? _cantSuelta;
     }
 }
