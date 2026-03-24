@@ -16,13 +16,11 @@ namespace Entidades_SGBM
         [ForeignKey("Personas")]
         public int IdPersona { get; set; }
 
-        [ForeignKey("Estados")]
-        public int IdEstado { get; set; }
+        public bool Activo { get; set; }
 
-        public bool esMiembro { get; set; }
+        public DateTime FechaAlta { get; set; }
 
         public Personas? Personas { get; set; }
-        public Estados? Estados { get; set; }
 
         [NotMapped]
         public string? NombreCompleto

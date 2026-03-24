@@ -65,7 +65,7 @@ namespace Datos_SGBM
                         Tipo = "C",
                         NroFactura = venta.NroVenta,
                         TotalAbonado = venta.Total,
-                        IdMedioPago = medioPago.IdMedioPago.Value,
+                        IdMedioPago = medioPago.IdMedioPago,
                         Transacciones = new List<Transacciones>() // Inicializamos la lista vacía
                     };
 
@@ -124,6 +124,7 @@ namespace Datos_SGBM
                     contexto.Ventas.Add(venta);
                     contexto.SaveChanges();
                 }
+                return Resultado<bool>.Ok(true, "Operación exitosa");
             }
             catch (Exception ex)
             {

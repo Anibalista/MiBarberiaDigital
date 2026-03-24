@@ -36,7 +36,16 @@ namespace EF_SGBM
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            string connString = ConfigurationManager.ConnectionStrings["Default"].ConnectionString;
+            // 1. Intentamos leer del App.config (Esto funciona cuando el programa corre de verdad)
+            var conexionConfig = ConfigurationManager.ConnectionStrings["Default"];
+
+            // 2. Definimos la cadena. Si conexionConfig es null (como pasa en el Add-Migration),
+            // usamos la cadena hardcodeada directamente como respaldo.
+            string connString = conexionConfig != null
+                ? conexionConfig.ConnectionString
+                : "server=localhost;Integrated security=yes;Database=BarberiaMartinez;TrustServerCertificate=true;";
+
+            // 3. Conectamos
             optionsBuilder.UseSqlServer(connString);
         }
 
@@ -66,14 +75,9 @@ namespace EF_SGBM
                 new Estados { IdEstado = 2, Indole = "Empleados", Estado = "Inactivo" },
                 new Estados { IdEstado = 3, Indole = "Empleados", Estado = "Bloqueado" },
                 new Estados { IdEstado = 4, Indole = "Empleados", Estado = "Desvinculado" },
-                new Estados { IdEstado = 5, Indole = "Clientes", Estado = "Activo" },
-                new Estados { IdEstado = 6, Indole = "Clientes", Estado = "Inactivo" },
-                new Estados { IdEstado = 7, Indole = "Servicios", Estado = "Activo" },
-                new Estados { IdEstado = 8, Indole = "Servicios", Estado = "Inactivo" },
-                new Estados { IdEstado = 9, Indole = "Ventas", Estado = "En Curso" },
-                new Estados { IdEstado = 10, Indole = "Ventas", Estado = "Finalizada" },
-                new Estados { IdEstado = 11, Indole = "Ventas", Estado = "Anulada" },
-                new Estados { IdEstado = 12, Indole = "Ventas", Estado = "Facturada" }
+                new Estados { IdEstado = 5, Indole = "Ventas", Estado = "Finalizada" },
+                new Estados { IdEstado = 6, Indole = "Ventas", Estado = "Anulada" },
+                new Estados { IdEstado = 7, Indole = "Ventas", Estado = "Facturada" }
             );
 
             // --- UNIDADES DE MEDIDA ---
@@ -125,6 +129,28 @@ namespace EF_SGBM
             // Aquí ocurre la magia: Usamos IdProvincia = 1 (que sabemos que es Entre Ríos)
             modelBuilder.Entity<Localidades>().HasData(
                 new Localidades { IdLocalidad = 1, Localidad = "Gualeguaychú", IdProvincia = 1, CodPostal = "2820" }
+            );
+
+            //-- TIPOS DE TRANSACCIONES --
+            modelBuilder.Entity<TiposTransacciones>().HasData(
+                new TiposTransacciones { IdTipoTransaccion = 1, Tipo = "Venta Productos" },
+                new TiposTransacciones { IdTipoTransaccion = 2, Tipo = "Venta Servicios" },
+                new TiposTransacciones { IdTipoTransaccion = 3, Tipo = "Devolución Productos" },
+                new TiposTransacciones { IdTipoTransaccion = 4, Tipo = "Devolución Servicios" },
+                new TiposTransacciones { IdTipoTransaccion = 5, Tipo = "Compra" },
+                new TiposTransacciones { IdTipoTransaccion = 6, Tipo = "Pago Comisión" },
+                new TiposTransacciones { IdTipoTransaccion = 7, Tipo = "Pago Costos" },
+                new TiposTransacciones { IdTipoTransaccion = 8, Tipo = "Pago Otros" },
+                new TiposTransacciones { IdTipoTransaccion = 9, Tipo = "Retiro Propietario" }
+            );
+
+            //-- MEDIOS DE PAGO --
+            modelBuilder.Entity<MediosPagos>().HasData(
+                new MediosPagos { IdMedioPago = 1, Medio = "Efectivo", Observaciones = "Contado efectivo"},
+                new MediosPagos { IdMedioPago = 2, Medio = "Mercado Pago (Transferencia)", Observaciones = "Transferencia a la cuenta de mercado pago" },
+                new MediosPagos { IdMedioPago = 3, Medio = "Mercado Pago (QR)", Observaciones = "Pago con código Qr a mercado pago" }, 
+                new MediosPagos { IdMedioPago = 4, Medio = "Tarjeta de Débito", Observaciones = "Pago con Tarjeta de débito" },
+                new MediosPagos { IdMedioPago = 5, Medio = "Tarjeta de Crédito", Observaciones = "Pago con Tarjeta de crédito" }
             );
 
             base.OnModelCreating(modelBuilder);

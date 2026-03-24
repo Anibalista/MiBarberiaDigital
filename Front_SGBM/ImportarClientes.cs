@@ -13,7 +13,6 @@ namespace Front_SGBM
 
         private string? _ruta = null;
         private Localidades? _localidadGenerica = null;
-        private Estados? _estadoActivo = null;
 
         // HashSet para validación local rápida
         private static readonly HashSet<string> codigosArea = new() { "3446", "3447", "3442", "3445", "3444" };
@@ -43,18 +42,11 @@ namespace Front_SGBM
 
                 _localidadGenerica = resLoc.Data;
 
-                // 2. Preparamos el Estado Activo ANTES de leer el Excel (Un solo viaje a BD)
-                var resEstado = EstadosNegocio.GetEstadoActivo("Clientes");
-                if (!resEstado.Success || resEstado.Data == null)
-                    return Resultado<bool>.Fail("No se pudo obtener el estado 'Activo' para clientes.");
-
-                _estadoActivo = resEstado.Data;
-
-                // 3. Traemos todos los DNIs existentes (Un solo viaje a BD)
+                // 2. Traemos todos los DNIs existentes (Un solo viaje a BD)
                 var resDnis = PersonasNegocio.GetTodosLosDnis();
                 HashSet<string> dnisExistentes = resDnis.Success && resDnis.Data != null ? resDnis.Data : new HashSet<string>();
 
-                // 4. Procesamos el Excel
+                // 3. Procesamos el Excel
                 return ProcesarExcel(dnisExistentes);
             }
             catch (Exception ex)
@@ -153,7 +145,7 @@ namespace Front_SGBM
                             var cliente = new Clientes
                             {
                                 Personas = persona,
-                                IdEstado = _estadoActivo!.IdEstado,
+                                Activo = true
                             };
 
                             // Separador Mágico O(1)

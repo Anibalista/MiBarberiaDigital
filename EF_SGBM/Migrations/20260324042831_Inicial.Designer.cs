@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EF_SGBM.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20260311215158_Inicial")]
+    [Migration("20260324042831_Inicial")]
     partial class Inicial
     {
         /// <inheritdoc />
@@ -94,18 +94,16 @@ namespace EF_SGBM.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("IdCliente"));
 
-                    b.Property<int>("IdEstado")
-                        .HasColumnType("int");
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("FechaAlta")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("IdPersona")
                         .HasColumnType("int");
 
-                    b.Property<bool>("esMiembro")
-                        .HasColumnType("bit");
-
                     b.HasKey("IdCliente");
-
-                    b.HasIndex("IdEstado");
 
                     b.HasIndex("IdPersona");
 
@@ -407,48 +405,18 @@ namespace EF_SGBM.Migrations
                         new
                         {
                             IdEstado = 5,
-                            Estado = "Activo",
-                            Indole = "Clientes"
-                        },
-                        new
-                        {
-                            IdEstado = 6,
-                            Estado = "Inactivo",
-                            Indole = "Clientes"
-                        },
-                        new
-                        {
-                            IdEstado = 7,
-                            Estado = "Activo",
-                            Indole = "Servicios"
-                        },
-                        new
-                        {
-                            IdEstado = 8,
-                            Estado = "Inactivo",
-                            Indole = "Servicios"
-                        },
-                        new
-                        {
-                            IdEstado = 9,
-                            Estado = "En Curso",
-                            Indole = "Ventas"
-                        },
-                        new
-                        {
-                            IdEstado = 10,
                             Estado = "Finalizada",
                             Indole = "Ventas"
                         },
                         new
                         {
-                            IdEstado = 11,
+                            IdEstado = 6,
                             Estado = "Anulada",
                             Indole = "Ventas"
                         },
                         new
                         {
-                            IdEstado = 12,
+                            IdEstado = 7,
                             Estado = "Facturada",
                             Indole = "Ventas"
                         });
@@ -463,9 +431,6 @@ namespace EF_SGBM.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("IdFactura"));
 
                     b.Property<int>("IdMedioPago")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("IdTransaccion")
                         .HasColumnType("int");
 
                     b.Property<int>("IdVenta")
@@ -487,8 +452,6 @@ namespace EF_SGBM.Migrations
                     b.HasKey("IdFactura");
 
                     b.HasIndex("IdMedioPago");
-
-                    b.HasIndex("IdTransaccion");
 
                     b.HasIndex("IdVenta");
 
@@ -533,11 +496,11 @@ namespace EF_SGBM.Migrations
 
             modelBuilder.Entity("Entidades_SGBM.MediosPagos", b =>
                 {
-                    b.Property<int?>("IdMedioPago")
+                    b.Property<int>("IdMedioPago")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("IdMedioPago"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdMedioPago"));
 
                     b.Property<string>("Medio")
                         .IsRequired()
@@ -551,6 +514,38 @@ namespace EF_SGBM.Migrations
                     b.HasKey("IdMedioPago");
 
                     b.ToTable("MediosPagos");
+
+                    b.HasData(
+                        new
+                        {
+                            IdMedioPago = 1,
+                            Medio = "Efectivo",
+                            Observaciones = "Contado efectivo"
+                        },
+                        new
+                        {
+                            IdMedioPago = 2,
+                            Medio = "Mercado Pago (Transferencia)",
+                            Observaciones = "Transferencia a la cuenta de mercado pago"
+                        },
+                        new
+                        {
+                            IdMedioPago = 3,
+                            Medio = "Mercado Pago (QR)",
+                            Observaciones = "Pago con código Qr a mercado pago"
+                        },
+                        new
+                        {
+                            IdMedioPago = 4,
+                            Medio = "Tarjeta de Débito",
+                            Observaciones = "Pago con Tarjeta de débito"
+                        },
+                        new
+                        {
+                            IdMedioPago = 5,
+                            Medio = "Tarjeta de Crédito",
+                            Observaciones = "Pago con Tarjeta de crédito"
+                        });
                 });
 
             modelBuilder.Entity("Entidades_SGBM.Niveles", b =>
@@ -932,11 +927,11 @@ namespace EF_SGBM.Migrations
 
             modelBuilder.Entity("Entidades_SGBM.TiposTransacciones", b =>
                 {
-                    b.Property<int?>("IdTipoTransaccion")
+                    b.Property<int>("IdTipoTransaccion")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("IdTipoTransaccion"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdTipoTransaccion"));
 
                     b.Property<string>("Tipo")
                         .IsRequired()
@@ -946,6 +941,53 @@ namespace EF_SGBM.Migrations
                     b.HasKey("IdTipoTransaccion");
 
                     b.ToTable("TiposTransacciones");
+
+                    b.HasData(
+                        new
+                        {
+                            IdTipoTransaccion = 1,
+                            Tipo = "Venta Productos"
+                        },
+                        new
+                        {
+                            IdTipoTransaccion = 2,
+                            Tipo = "Venta Servicios"
+                        },
+                        new
+                        {
+                            IdTipoTransaccion = 3,
+                            Tipo = "Devolución Productos"
+                        },
+                        new
+                        {
+                            IdTipoTransaccion = 4,
+                            Tipo = "Devolución Servicios"
+                        },
+                        new
+                        {
+                            IdTipoTransaccion = 5,
+                            Tipo = "Compra"
+                        },
+                        new
+                        {
+                            IdTipoTransaccion = 6,
+                            Tipo = "Pago Comisión"
+                        },
+                        new
+                        {
+                            IdTipoTransaccion = 7,
+                            Tipo = "Pago Costos"
+                        },
+                        new
+                        {
+                            IdTipoTransaccion = 8,
+                            Tipo = "Pago Otros"
+                        },
+                        new
+                        {
+                            IdTipoTransaccion = 9,
+                            Tipo = "Retiro Propietario"
+                        });
                 });
 
             modelBuilder.Entity("Entidades_SGBM.Transacciones", b =>
@@ -962,6 +1004,9 @@ namespace EF_SGBM.Migrations
                     b.Property<int>("IdCaja")
                         .HasColumnType("int");
 
+                    b.Property<int?>("IdFactura")
+                        .HasColumnType("int");
+
                     b.Property<int>("IdTipoTransaccion")
                         .HasColumnType("int");
 
@@ -974,6 +1019,8 @@ namespace EF_SGBM.Migrations
                     b.HasKey("IdTransaccion");
 
                     b.HasIndex("IdCaja");
+
+                    b.HasIndex("IdFactura");
 
                     b.HasIndex("IdTipoTransaccion");
 
@@ -1126,19 +1173,11 @@ namespace EF_SGBM.Migrations
 
             modelBuilder.Entity("Entidades_SGBM.Clientes", b =>
                 {
-                    b.HasOne("Entidades_SGBM.Estados", "Estados")
-                        .WithMany()
-                        .HasForeignKey("IdEstado")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("Entidades_SGBM.Personas", "Personas")
                         .WithMany()
                         .HasForeignKey("IdPersona")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Estados");
 
                     b.Navigation("Personas");
                 });
@@ -1216,7 +1255,7 @@ namespace EF_SGBM.Migrations
                         .HasForeignKey("IdServicio");
 
                     b.HasOne("Entidades_SGBM.Ventas", "Ventas")
-                        .WithMany()
+                        .WithMany("DetallesVentas")
                         .HasForeignKey("IdVenta")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1272,19 +1311,13 @@ namespace EF_SGBM.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Entidades_SGBM.Transacciones", "Transacciones")
-                        .WithMany()
-                        .HasForeignKey("IdTransaccion");
-
                     b.HasOne("Entidades_SGBM.Ventas", "Ventas")
-                        .WithMany()
+                        .WithMany("Facturas")
                         .HasForeignKey("IdVenta")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("MediosPagos");
-
-                    b.Navigation("Transacciones");
 
                     b.Navigation("Ventas");
                 });
@@ -1344,10 +1377,14 @@ namespace EF_SGBM.Migrations
             modelBuilder.Entity("Entidades_SGBM.Transacciones", b =>
                 {
                     b.HasOne("Entidades_SGBM.Cajas", "Cajas")
-                        .WithMany()
+                        .WithMany("Transacciones")
                         .HasForeignKey("IdCaja")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Entidades_SGBM.Facturas", "Facturas")
+                        .WithMany("Transacciones")
+                        .HasForeignKey("IdFactura");
 
                     b.HasOne("Entidades_SGBM.TiposTransacciones", "TiposTransacciones")
                         .WithMany()
@@ -1356,6 +1393,8 @@ namespace EF_SGBM.Migrations
                         .IsRequired();
 
                     b.Navigation("Cajas");
+
+                    b.Navigation("Facturas");
 
                     b.Navigation("TiposTransacciones");
                 });
@@ -1404,6 +1443,23 @@ namespace EF_SGBM.Migrations
                     b.Navigation("Empleados");
 
                     b.Navigation("Estados");
+                });
+
+            modelBuilder.Entity("Entidades_SGBM.Cajas", b =>
+                {
+                    b.Navigation("Transacciones");
+                });
+
+            modelBuilder.Entity("Entidades_SGBM.Facturas", b =>
+                {
+                    b.Navigation("Transacciones");
+                });
+
+            modelBuilder.Entity("Entidades_SGBM.Ventas", b =>
+                {
+                    b.Navigation("DetallesVentas");
+
+                    b.Navigation("Facturas");
                 });
 #pragma warning restore 612, 618
         }

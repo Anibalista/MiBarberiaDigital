@@ -16,7 +16,6 @@ namespace Front_SGBM
         public List<Contactos>? _contactos = null;
         private List<Provincias>? _provincias = null;
         private List<Localidades>? _localidades = null;
-        private List<Estados>? _estados = null;
 
         //Objetos importantes
         public Personas? _persona = null;
@@ -24,7 +23,6 @@ namespace Front_SGBM
         private Domicilios? _domicilio = null;
         private Provincias? _provincia = null;
         private Localidades? _localidad = null;
-        private Estados? _estado = null;
         public bool cerrando = false;
         public bool editandoContactos = false;
         private bool cargando = false;
@@ -266,7 +264,6 @@ namespace Front_SGBM
                 // 2. Carga de catálogos para ComboBoxes
                 CargarProvincias();
                 CargarLocalidades(); // Carga vacía inicialmente
-                CargarEstados();
 
                 // 3. Volcado de datos si aplica
                 if (_cliente?.Personas != null)
@@ -377,52 +374,6 @@ namespace Front_SGBM
         }
 
         /// <summary>
-        /// Carga la lista de Estados aplicables a la índole "Clientes".
-        /// </summary>
-        /// <remarks>
-        /// Posee un mecanismo de "fallback": si falla la conexión, inyecta un estado "Activo" en memoria 
-        /// para evitar que el alta de clientes quede totalmente bloqueada.
-        /// </remarks>
-        private void CargarEstados()
-        {
-            try
-            {
-                _estado = null;
-
-                var resultado = EstadosNegocio.GetEstadosPorIndole("Clientes");
-
-                // Validación de éxito y de que la lista no venga vacía
-                if (!resultado.Success || resultado.Data == null || resultado.Data.Count == 0)
-                {
-                    Logger.LogError($"Fallo al obtener estados. Motivo: {resultado.Mensaje}");
-                    Mensajes.MensajeAdvertencia("No se pudieron cargar los estados del sistema. Se usará un estado por defecto.");
-
-                    // RED DE SEGURIDAD (Fallback)
-                    _estados = new List<Estados> { new Estados { Estado = "Activo", Indole = "Clientes", IdEstado = 0 } };
-                }
-                else
-                {
-                    _estados = resultado.Data;
-                }
-
-                bindingEstados.DataSource = null;
-                bindingEstados.DataSource = _estados;
-
-                Estados? activo = _estados.FirstOrDefault(e => e.Estado.Equals("Activo", StringComparison.OrdinalIgnoreCase));
-
-                if (activo != null)
-                    CbEstados.SelectedValue = activo.IdEstado;
-                else
-                    CbEstados.SelectedIndex = -1;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Error técnico al cargar estados en FrmEditClientes: {ex.ToString()}");
-                Mensajes.MensajeError("Ocurrió un error al intentar cargar la lista de estados.");
-            }
-        }
-
-        /// <summary>
         /// Orquesta la carga completa de un cliente existente, recuperando sus dependencias y volcándolas en la interfaz.
         /// </summary>
         private void CargarDatosCliente()
@@ -440,7 +391,6 @@ namespace Front_SGBM
                 _domicilio = _persona?.Domicilios;
                 _localidad = _domicilio?.Localidades;
                 _provincia = _localidad?.Provincias;
-                _estado = _cliente.Estados;
 
                 // Carga de listas anexas
                 CargarContactos();
@@ -907,11 +857,8 @@ namespace Front_SGBM
 
                 dateTimePicker1.Value = fechaNacimiento;
 
-                // 3. Estado
-                if (_estado != null)
-                {
-                    CbEstados.SelectedItem = _estado;
-                }
+                // 3. Activo
+                _cliente.Activo = checkActivo.Checked;
 
                 // 4. Domicilio y Geografía
                 if (_domicilio != null)
@@ -950,7 +897,6 @@ namespace Front_SGBM
             if (vaciarCliente)
                 _cliente = null;
             _persona = null;
-            _estado = null;
             _domicilio = null;
             _localidad = null;
 
@@ -1013,26 +959,6 @@ namespace Front_SGBM
             return true;
         }
 
-        private Estados? ObtenerEstadoSeleccionado()
-        {
-            try
-            {
-                Estados? estadoSeleccionado = CbEstados.SelectedItem as Estados;
-                if (estadoSeleccionado != null)
-                    return estadoSeleccionado;
-                estadoSeleccionado = _estados?.FirstOrDefault(e => e.Estado.Equals("Activo", StringComparison.OrdinalIgnoreCase));
-                if (estadoSeleccionado != null)
-                    return estadoSeleccionado;
-                return new Estados { IdEstado = 0, Estado = "Activo", Indole = "Clientes" };
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Error al obtener el estado seleccionado: {ex.ToString()}");
-                Mensajes.MensajeError("Ocurrió un error al intentar determinar el estado seleccionado.");
-                return null;
-            }
-        }
-
         /// <summary>
         /// Orquesta el ensamblado final del objeto Cliente, uniendo la Persona, Domicilio, Contactos y Estado.
         /// </summary>
@@ -1046,21 +972,10 @@ namespace Front_SGBM
                 return false; // ValidarPersona ya se encargó de marcar los errores en la UI
             }
 
-            // 2. Procesamos el Estado (Regla: Si no hay selección, forzamos "Activo")
-            _estado = CbEstados.SelectedItem as Estados;
-            if (_estado == null || _estado.IdEstado < 1)
-            {
-                _estado = _estados?.FirstOrDefault(e => e.Estado.Equals("Activo", StringComparison.OrdinalIgnoreCase) && e.Indole == "Clientes")
-                          ?? new Estados { Estado = "Activo", Indole = "Clientes", IdEstado = 1 }; // IdEstado=1 como supuesto valor default en BD
-            }
-
-            // 3. Empaquetamos todo en el Cliente
+            // 2. Empaquetamos todo en el Cliente
             _cliente ??= new Clientes();
             _cliente.Personas = _persona;
-
-            // Solo pasamos el ID del estado y soltamos el objeto para evitar conflictos con Entity Framework
-            _cliente.IdEstado = _estado.IdEstado;
-            _cliente.Estados = null;
+            _cliente.Activo = checkActivo.Checked;
 
             // Nota sobre la comparación de cambios:
             // El objeto _cliente ya está 100% armado con los datos de la pantalla.
@@ -1095,7 +1010,7 @@ namespace Front_SGBM
             txtNombre.Enabled = activar;
             txtApellido.Enabled = activar;
             dateTimePicker1.Enabled = activar;
-            CbEstados.Enabled = activar;
+            checkActivo.Enabled = activar;
 
             // 2. Controles de Domicilio y Geografía
             txtCalle.Enabled = activar;
@@ -1188,11 +1103,12 @@ namespace Front_SGBM
             txtDepto.Text = string.Empty;
             txtBarrio.Text = string.Empty;
 
+            checkActivo.Checked = true;
+
             dateTimePicker1.Value = DateTime.Today;
 
             CbProvincia.SelectedIndex = -1;
             CbLocalidad.SelectedIndex = -1;
-            CbEstados.SelectedIndex = -1;
 
             // Desactivamos la bandera de carga al finalizar la limpieza de campos
             cargando = false; 

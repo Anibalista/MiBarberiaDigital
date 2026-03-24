@@ -35,7 +35,6 @@
             BtnCancelar = new Button();
             BtnGuardar = new Button();
             groupBox1 = new GroupBox();
-            CbEstados = new ComboBox();
             bindingEstados = new BindingSource(components);
             LinkContactos = new LinkLabel();
             label6 = new Label();
@@ -75,6 +74,7 @@
             label21 = new Label();
             pnlContent = new Panel();
             errorProvider1 = new ErrorProvider(components);
+            checkActivo = new CheckBox();
             panelTitulo.SuspendLayout();
             panelBotones.SuspendLayout();
             groupBox1.SuspendLayout();
@@ -143,7 +143,7 @@
             // 
             // groupBox1
             // 
-            groupBox1.Controls.Add(CbEstados);
+            groupBox1.Controls.Add(checkActivo);
             groupBox1.Controls.Add(LinkContactos);
             groupBox1.Controls.Add(label6);
             groupBox1.Controls.Add(label5);
@@ -161,19 +161,6 @@
             groupBox1.TabIndex = 2;
             groupBox1.TabStop = false;
             groupBox1.Text = "Datos del Cliente";
-            // 
-            // CbEstados
-            // 
-            CbEstados.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            CbEstados.DataSource = bindingEstados;
-            CbEstados.DisplayMember = "Estado";
-            CbEstados.DropDownStyle = ComboBoxStyle.DropDownList;
-            CbEstados.FormattingEnabled = true;
-            CbEstados.Location = new Point(533, 70);
-            CbEstados.Name = "CbEstados";
-            CbEstados.Size = new Size(237, 23);
-            CbEstados.TabIndex = 5;
-            CbEstados.ValueMember = "IdEstado";
             // 
             // bindingEstados
             // 
@@ -199,7 +186,7 @@
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(409, 73);
+            label6.Location = new Point(435, 73);
             label6.Name = "label6";
             label6.Size = new Size(42, 15);
             label6.TabIndex = 9;
@@ -542,6 +529,18 @@
             // 
             errorProvider1.ContainerControl = this;
             // 
+            // checkActivo
+            // 
+            checkActivo.AutoSize = true;
+            checkActivo.Checked = true;
+            checkActivo.CheckState = CheckState.Checked;
+            checkActivo.Location = new Point(533, 74);
+            checkActivo.Name = "checkActivo";
+            checkActivo.Size = new Size(60, 19);
+            checkActivo.TabIndex = 10;
+            checkActivo.Text = "Activo";
+            checkActivo.UseVisualStyleBackColor = true;
+            // 
             // FrmEditClientes
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -612,7 +611,6 @@
         private BindingSource bindingContactos;
         private BindingSource bindingProvincias;
         private BindingSource bindingLocalidades;
-        private ComboBox CbEstados;
         private Label label6;
         private BindingSource bindingEstados;
         private Panel pnlContent;
@@ -622,5 +620,6 @@
         private DataGridViewTextBoxColumn instagramDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn facebookDataGridViewTextBoxColumn;
         private DataGridViewTextBoxColumn emailDataGridViewTextBoxColumn;
+        private CheckBox checkActivo;
     }
 }

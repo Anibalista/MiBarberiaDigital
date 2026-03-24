@@ -17,15 +17,6 @@ namespace Negocio_SGBM
             if (cliente.Personas == null)
                 return Resultado<Clientes?>.Fail("Problema al enviar datos de la persona relacionada al cliente entre capas.");
 
-            if (cliente.IdEstado > 0)
-                cliente.Estados = null;
-
-            if (cliente.Estados != null)
-                cliente.IdEstado = cliente.Estados.IdEstado > 0 ? cliente.Estados.IdEstado : 0;
-
-            if (cliente.IdEstado < 1 && !registro)
-                return Resultado<Clientes?>.Fail("Error al asignar un estado al cliente en la capa negocio.");
-
             if (!registro && cliente.IdCliente == null)
                 return Resultado<Clientes?>.Fail("Error al mover el Id del cliente a la capa negocio.");
             else if (registro)
@@ -40,7 +31,7 @@ namespace Negocio_SGBM
         private static bool HayCambios(Clientes clienteUI, Clientes clienteBD, List<Contactos>? contactos)
         {
             // 1. Cambios a nivel Cliente (ej: Cambio de estado Activo/Inactivo)
-            if (clienteUI.IdEstado != clienteBD.IdEstado) return true;
+            if (clienteUI.Activo != clienteBD.Activo) return true;
 
             var pUI = clienteUI.Personas;
             var pBD = clienteBD.Personas;
@@ -350,24 +341,6 @@ namespace Negocio_SGBM
                 if (cliente.IdPersona < 1)
                     return Resultado<int>.Fail("No se pudo asignar persona al cliente.");
 
-                // Estado
-                var resultadoEstado = EstadosNegocio.GetEstado("Clientes", "Activo");
-                var estado = resultadoEstado.Data ?? new Estados { Indole = "Clientes", Estado = "Activo" };
-
-                if (estado.IdEstado == null || estado.IdEstado < 1)
-                {
-                    var resultadoRegistroEstado = EstadosNegocio.RegistrarEstado(estado);
-                    if (!resultadoRegistroEstado.Success || resultadoRegistroEstado.Data < 1)
-                        return Resultado<int>.Fail(resultadoRegistroEstado.Mensaje);
-
-                    cliente.IdEstado = resultadoRegistroEstado.Data;
-                }
-                else
-                {
-                    cliente.IdEstado = estado.IdEstado!;
-                }
-
-                cliente.Estados = null;
                 cliente.Personas = null;
 
                 var resultadoCliente = ClientesDatos.RegistrarCliente(cliente);
@@ -400,23 +373,7 @@ namespace Negocio_SGBM
             cliente = validacion.Data!;
             try
             {
-                var resultadoEstado = EstadosNegocio.GetEstado("Clientes", "Activo");
-                var estado = resultadoEstado.Data ?? new Estados { Indole = "Clientes", Estado = "Activo" };
-
-                if (estado.IdEstado == null || estado.IdEstado < 1)
-                {
-                    var resultadoRegistroEstado = EstadosNegocio.RegistrarEstado(estado);
-                    if (!resultadoRegistroEstado.Success || resultadoRegistroEstado.Data < 1)
-                        return Resultado<int>.Fail(resultadoRegistroEstado.Mensaje);
-
-                    cliente.IdEstado = resultadoRegistroEstado.Data;
-                }
-                else
-                {
-                    cliente.IdEstado = estado.IdEstado!;
-                }
-
-                cliente.Estados = null;
+                cliente.Activo = true;
                 cliente.Personas = null;
 
                 var resultadoCliente = ClientesDatos.RegistrarCliente(cliente);
@@ -473,7 +430,6 @@ namespace Negocio_SGBM
 
                 cliente.Personas = null;
                 cliente.IdPersona = persona.IdPersona!.Value;
-                cliente.Estados = null;
 
                 var resultadoCliente = ClientesDatos.ModificarCliente(cliente);
                 if (!resultadoCliente.Success)

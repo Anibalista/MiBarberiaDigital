@@ -526,9 +526,8 @@ namespace Front_SGBM
 
                     _clienteActual = new Clientes
                     {
-                        esMiembro = true,
                         IdCliente = null,
-                        IdEstado = 0,
+                        Activo = true,
                         IdPersona = 0,
                         Personas = new Personas
                         {

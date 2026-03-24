@@ -92,8 +92,7 @@ namespace Datos_SGBM
                 }
 
                 // Incluir relaciones necesarias y buscar por IdPersona
-                var cliente = contexto.Clientes.Include(c => c.Estados)
-                                        .FirstOrDefault(c => c.IdPersona == idPersona);
+                var cliente = contexto.Clientes.FirstOrDefault(c => c.IdPersona == idPersona);
 
                 if (cliente == null)
                     return Resultado<Clientes?>.Ok(new Clientes(), $"No se encontró un cliente asociado a la persona con Id {idPersona}.");
@@ -132,7 +131,6 @@ namespace Datos_SGBM
 
                 // Incluir relaciones necesarias y ordenar por Apellidos, Nombres
                 var lista = contexto.Clientes
-                                    .Include(c => c.Estados)
                                     .Include(c => c.Personas)
                                         .ThenInclude(p => p.Domicilios)
                                             .ThenInclude(d => d.Localidades)
@@ -195,7 +193,6 @@ namespace Datos_SGBM
 
                 // Base query con includes
                 var query = contexto.Clientes
-                                    .Include(c => c.Estados)
                                     .Include(c => c.Personas)
                                         .ThenInclude(p => p.Domicilios)
                                             .ThenInclude(d => d.Localidades)
@@ -274,9 +271,6 @@ namespace Datos_SGBM
             if (cliente.IdPersona <= 0)
                 return Resultado<int>.Fail("El Id de la persona asociada no es válido.");
 
-            if (cliente.IdEstado <= 0)
-                return Resultado<int>.Fail("El Id del estado asociado no es válido.");
-
             try
             {
                 using var contexto = new Contexto();
@@ -302,20 +296,11 @@ namespace Datos_SGBM
                 if (personaExistente == null)
                     return Resultado<int>.Fail($"No se encontró la persona con Id {cliente.IdPersona}.");
 
-                // Verificar que el Estado exista (recordar que Estados puede no ser autoincremental)
-                var rcEstados = comprobacion.ComprobarEntidad(contexto.Estados, nameof(contexto.Estados));
-                if (!rcEstados.Success)
-                {
-                    Logger.LogError(rcEstados.Mensaje);
-                    return Resultado<int>.Fail(rcEstados.Mensaje);
-                }
-
-                var estadoExistente = contexto.Estados.Find(cliente.IdEstado);
-                if (estadoExistente == null)
-                    return Resultado<int>.Fail($"No se encontró el estado con Id {cliente.IdEstado}.");
-
                 // Preparar entidad para inserción (IdCliente es autoincremental)
                 cliente.IdCliente = null;
+
+                //Ponemos fecha de alta
+                cliente.FechaAlta = DateTime.Now;
 
                 // Normalizaciones mínimas
                 // (no hay campos string directos en Clientes salvo propiedades navegacionales)
@@ -385,13 +370,9 @@ namespace Datos_SGBM
                 if (cliente.IdPersona <= 0)
                     return Resultado<bool>.Fail("El Id de la persona asociada no es válido.");
 
-                if (cliente.IdEstado <= 0)
-                    return Resultado<bool>.Fail("El Id del estado asociado no es válido.");
-
                 // Actualizar solo campos escalares permitidos
                 existente.IdPersona = cliente.IdPersona;
-                existente.IdEstado = cliente.IdEstado;
-                existente.esMiembro = cliente.esMiembro;
+                existente.Activo = cliente.Activo;
 
                 // Guardar cambios
                 var exito = contexto.SaveChanges();

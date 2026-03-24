@@ -18,28 +18,30 @@ namespace Negocio_SGBM
                 {
                     resultado.Data = new List<MediosPagos>
                     {
-                        new MediosPagos { IdMedioPago = null, Medio = "Efectivo", Observaciones = "Contado Efectivo" },
-                        new MediosPagos { IdMedioPago = null, Medio = "Mercado Pago (QR)", Observaciones = "QR Mercado Pago" },
-                        new MediosPagos { IdMedioPago = null, Medio = "Mercado Pago (Transferencia)", Observaciones = "Transferencia Mercado Pago" },
-                        new MediosPagos { IdMedioPago = null, Medio = "Tarjeta de Crédito", Observaciones = "Pago con tarjeta de crédito" }
+                        new MediosPagos { IdMedioPago = 1, Medio = "Efectivo", Observaciones = "Contado efectivo"},
+                        new MediosPagos { IdMedioPago = 2, Medio = "Mercado Pago (Transferencia)", Observaciones = "Transferencia a la cuenta de mercado pago" },
+                        new MediosPagos { IdMedioPago = 3, Medio = "Mercado Pago (QR)", Observaciones = "Pago con código Qr a mercado pago" },
+                        new MediosPagos { IdMedioPago = 4, Medio = "Tarjeta de Débito", Observaciones = "Pago con Tarjeta de débito" },
+                        new MediosPagos { IdMedioPago = 5, Medio = "Tarjeta de Crédito", Observaciones = "Pago con Tarjeta de crédito" }
                     };
                     return Resultado<List<MediosPagos>>.Ok(resultado.Data);
                 }
                 MediosPagos? efectivo = resultado.Data.FirstOrDefault(m => m.Medio.Equals("Efectivo", StringComparison.OrdinalIgnoreCase));
                 if (efectivo == null)
                 {
-                    resultado.Data.Insert(0, new MediosPagos { IdMedioPago = null, Medio = "Efectivo", Observaciones = "Contado Efectivo" });
-                }
-                MediosPagos? mercadoPagoQr = resultado.Data.FirstOrDefault(m => m.Medio.Equals("Mercado Pago (QR)", StringComparison.OrdinalIgnoreCase));
-                if (mercadoPagoQr == null)
-                {
-                    resultado.Data.Add(new MediosPagos { IdMedioPago = null, Medio = "Mercado Pago (QR)", Observaciones = "QR Mercado Pago" });
+                    resultado.Data.Insert(0, new MediosPagos { IdMedioPago = 1, Medio = "Efectivo", Observaciones = "Contado Efectivo" });
                 }
                 MediosPagos? mercadoPagoTransferencia = resultado.Data.FirstOrDefault(m => m.Medio.Equals("Mercado Pago (Transferencia)", StringComparison.OrdinalIgnoreCase));
                 if (mercadoPagoTransferencia == null)
                 {
-                    resultado.Data.Add(new MediosPagos { IdMedioPago = null, Medio = "Mercado Pago (Transferencia)", Observaciones = "Transferencia Mercado Pago" });
+                    resultado.Data.Add(new MediosPagos { IdMedioPago = 2, Medio = "Mercado Pago (Transferencia)", Observaciones = "Transferencia Mercado Pago" });
                 }
+                MediosPagos? mercadoPagoQr = resultado.Data.FirstOrDefault(m => m.Medio.Equals("Mercado Pago (QR)", StringComparison.OrdinalIgnoreCase));
+                if (mercadoPagoQr == null)
+                {
+                    resultado.Data.Add(new MediosPagos { IdMedioPago = 3, Medio = "Mercado Pago (QR)", Observaciones = "QR Mercado Pago" });
+                }
+                
                 return Resultado<List<MediosPagos>>.Ok(resultado.Data);
             }
             catch (Exception ex)
