@@ -209,16 +209,16 @@ namespace Negocio_SGBM
             try
             {
                 if (string.IsNullOrWhiteSpace(campo1) && string.IsNullOrWhiteSpace(campo2) && localidad == null)
-                    return ClientesDatos.GetClientes();
+                    return ClientesDatos.GetClientes(incluirAnulados);
 
                 if (criterioBusqueda == "Dni, Nombres")
-                    return ClientesDatos.GetClientesPorDniNombres(campo1, campo2);
+                    return ClientesDatos.GetClientesPorDniNombres(campo1, campo2, incluirAnulados);
 
                 if (criterioBusqueda == "Domicilio")
                     return GetClientesPorDomicilio(campo1, campo2, localidad, incluirAnulados);
 
                 if (criterioBusqueda == "WhatsApp, Teléfono")
-                    return GetClientesPorContactos(campo1, campo2);
+                    return GetClientesPorContactos(campo1, campo2, incluirAnulados);
 
                 return Resultado<List<Clientes>>.Fail("No se pudo obtener el listado de clientes.");
             }
@@ -246,7 +246,7 @@ namespace Negocio_SGBM
 
                 var idsDomicilios = resultadoDomicilios.Data.Select(d => d.IdDomicilio ?? 0).ToList();
 
-                var resultadoClientes = ClientesDatos.GetClientes();
+                var resultadoClientes = ClientesDatos.GetClientes(incluirAnulados);
                 if (!resultadoClientes.Success || resultadoClientes.Data == null)
                     return Resultado<List<Clientes>>.Fail(resultadoClientes.Mensaje);
 
@@ -267,7 +267,7 @@ namespace Negocio_SGBM
         /// <summary>
         /// Obtiene clientes filtrados por contactos (teléfono, WhatsApp).
         /// </summary>
-        public static Resultado<List<Clientes>> GetClientesPorContactos(string? telefono, string? whatsapp)
+        public static Resultado<List<Clientes>> GetClientesPorContactos(string? telefono, string? whatsapp, bool incluirAnulados)
         {
             if (string.IsNullOrWhiteSpace(telefono) && string.IsNullOrWhiteSpace(whatsapp))
                 return Resultado<List<Clientes>>.Fail("No se han enviado datos de búsqueda.");
@@ -280,7 +280,7 @@ namespace Negocio_SGBM
 
                 var idsPersonas = resultadoContactos.Data.Where(c => c.IdPersona != null).Select(c => c.IdPersona!.Value).ToList();
 
-                var resultadoClientes = ClientesDatos.GetClientes();
+                var resultadoClientes = ClientesDatos.GetClientes(incluirAnulados);
                 if (!resultadoClientes.Success || resultadoClientes.Data == null)
                     return Resultado<List<Clientes>>.Fail(resultadoClientes.Mensaje);
 

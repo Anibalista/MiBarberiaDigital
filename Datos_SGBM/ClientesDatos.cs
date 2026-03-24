@@ -114,7 +114,7 @@ namespace Datos_SGBM
         /// <see cref="Resultado{T}"/> con la lista de <see cref="Clientes"/> incluyendo <see cref="Estados"/> y
         /// <see cref="Personas"/> (con sus domicilios y localidades), o un <see cref="Resultado{T}"/> con el mensaje de error.
         /// </returns>
-        public static Resultado<List<Clientes>> GetClientes()
+        public static Resultado<List<Clientes>> GetClientes(bool incluirAnulados = true)
         {
             try
             {
@@ -135,6 +135,7 @@ namespace Datos_SGBM
                                         .ThenInclude(p => p.Domicilios)
                                             .ThenInclude(d => d.Localidades)
                                                 .ThenInclude(l => l.Provincias) // incluir provincia si es necesario para la capa superior
+                                    .Where(c => c.Activo || c.Activo != incluirAnulados)
                                     .OrderBy(c => c.Personas.Apellidos)
                                     .ThenBy(c => c.Personas.Nombres)
                                     .ToList();
@@ -168,7 +169,7 @@ namespace Datos_SGBM
         /// - Incluye relaciones necesarias (Estados, Personas -> Domicilios -> Localidades) para evitar N+1.
         /// - Si no se encuentran resultados devuelve un <see cref="Resultado{T}"/> con mensaje informativo.
         /// </remarks>
-        public static Resultado<List<Clientes>> GetClientesPorDniNombres(string? dni, string? nombres)
+        public static Resultado<List<Clientes>> GetClientesPorDniNombres(string? dni, string? nombres, bool incluirAnulados)
         {
             // Valida que al menos un dato de búsqueda llegue
             if (string.IsNullOrWhiteSpace(dni) && string.IsNullOrWhiteSpace(nombres))
@@ -229,7 +230,7 @@ namespace Datos_SGBM
                     );
                 }
 
-                var lista = query
+                var lista = query.Where(c => c.Activo || c.Activo != incluirAnulados)
                             .OrderBy(c => c.Personas.Apellidos)
                             .ThenBy(c => c.Personas.Nombres)
                             .ToList();

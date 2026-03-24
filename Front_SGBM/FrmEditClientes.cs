@@ -392,6 +392,8 @@ namespace Front_SGBM
                 _localidad = _domicilio?.Localidades;
                 _provincia = _localidad?.Provincias;
 
+                checkActivo.Checked = _cliente.Activo;
+
                 // Carga de listas anexas
                 CargarContactos();
 
