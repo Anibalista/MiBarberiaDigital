@@ -72,12 +72,20 @@ namespace Datos_SGBM
                     venta.Facturas = new List<Facturas> { nuevaFactura };
 
                     // 3. Manejo Dinámico del Tipo de Transacción (Tu idea aplicada)
-                    var tipoTransaccion = contexto.TiposTransacciones.FirstOrDefault(t => t.Tipo.ToLower() == "venta");
-                    if (tipoTransaccion == null)
+                    var tiposTransacciones = contexto.TiposTransacciones.Where(t => t.Tipo.ToLower().Contains("venta")).ToList();
+                    TiposTransacciones? tipoTransProd = null;
+                    TiposTransacciones? tipoTransServ = null;
+
+                    if (tiposTransacciones != null)
                     {
-                        tipoTransaccion = new TiposTransacciones { Tipo = "Venta" };
-                        // No hace falta hacer contexto.TiposTransacciones.Add() explícitamente,
-                        // al asignarlo a la transacción abajo, EF lo detecta e inserta solo.
+                        tipoTransProd = tiposTransacciones.FirstOrDefault(t => t.Tipo.ToLower().Contains("productos"));
+                        tipoTransServ = tiposTransacciones.FirstOrDefault(t => t.Tipo.ToLower().Contains("servicios"));
+                    }
+
+                    if (tipoTransProd == null || tipoTransServ == null)
+                    {
+                        Logger.LogError("No se encontraron tipos de transacción adecuados para 'Productos' o 'Servicios'.");
+                        return Resultado<bool>.Fail("Configuración de tipos de transacción incompleta en la base de datos.");
                     }
 
                     // 4. Distribución a las Cajas (Múltiples Transacciones)
@@ -95,7 +103,7 @@ namespace Datos_SGBM
                             MontoIngreso = totalProductos,
                             MontoEgreso = 0, // Buena práctica explicitarlo
                             IdCaja = cajaProd.IdCaja.Value,
-                            TiposTransacciones = tipoTransaccion // Usamos el objeto directo, EF Core extrae el ID mágico
+                            IdTipoTransaccion = tipoTransProd.IdTipoTransaccion // Asignamos el ID directamente
                         };
 
                         // Agregamos a la lista de la factura
@@ -113,7 +121,7 @@ namespace Datos_SGBM
                             MontoIngreso = totalServicios,
                             MontoEgreso = 0,
                             IdCaja = cajaServ.IdCaja.Value,
-                            TiposTransacciones = tipoTransaccion // Reutilizamos el mismo tipo
+                            IdTipoTransaccion = tipoTransServ.IdTipoTransaccion
                         };
 
                         // Agregamos también a la lista de la factura

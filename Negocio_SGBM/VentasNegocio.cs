@@ -62,12 +62,47 @@ namespace Negocio_SGBM
             }
         }
 
+        private static Resultado<Ventas> ValidarVenta(Ventas? venta)
+        {
+            if (venta == null) return Resultado<Ventas>.Fail("La venta no puede ser nula.");
+            if (venta.Total < 0) return Resultado<Ventas>.Fail("El total de la venta no puede ser negativo.");
+            if (venta.IdCliente < 0)
+            {
+                var resClienteGenerico = ClientesDatos.GetClienteGenerico();
+                if (!resClienteGenerico.Success || resClienteGenerico.Data?.IdCliente == null)
+                {
+                    return Resultado<Ventas>.Fail("Error interno: No se pudo obtener el cliente genérico para ventas sin cliente.");
+                }
+                venta.IdCliente = resClienteGenerico.Data.IdCliente ?? 0;
+                if (venta.IdCliente == 0)
+                {
+                    return Resultado<Ventas>.Fail("Error interno: El cliente genérico no tiene un Id válido.");
+                }
+            }
+            if (venta.IdCliente > 0)
+                venta.Clientes = null; // Para evitar que se intente insertar un nuevo cliente si el IdCliente es válido           
+            if (venta.Clientes?.Personas != null && venta.Clientes.IdPersona > 0)
+                venta.Clientes.Personas = null; // Para evitar que se intente insertar una nueva persona si el cliente ya tiene un IdCliente válido
+            if (venta.IdEstado > 0)
+                venta.Estados = null; // Para evitar que se intente insertar un nuevo estado si el IdEstado es válido
+            if (venta.IdEmpleado > 0)
+                venta.Empleados = null; // Para evitar que se intente insertar un nuevo empleado si el IdEmpleado es válido
+
+            if (string.IsNullOrWhiteSpace(venta.NroVenta)) return Resultado<Ventas>.Fail("El número de venta es obligatorio.");
+            
+            return Resultado<Ventas>.Ok(venta);
+        }
+
         public static Resultado<bool> ProcesarCobroVenta(Ventas venta, List<DetallesVentas> carrito, MediosPagos medioPago)
         {
             try
             {
                 // 1. Validaciones previas de negocio (opcionales)
-                if (venta.Total < 0) return Resultado<bool>.Fail("El total no puede ser negativo.");
+                var resValidacion = ValidarVenta(venta);
+                if (!resValidacion.Success)
+                {
+                    return Resultado<bool>.Fail(resValidacion.Mensaje);
+                }
 
                 // 2. Buscar las entidades de las Cajas abiertas de HOY para pasarlas a Datos
                 // Asumiendo que tienes un método en CajasDatos que te trae las cajas abiertas:
@@ -89,6 +124,8 @@ namespace Negocio_SGBM
                 return Resultado<bool>.Fail("Ocurrió un error en las reglas de negocio al intentar cobrar.");
             }
         }
+
+
 
     }
 }

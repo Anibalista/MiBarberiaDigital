@@ -28,33 +28,12 @@ namespace Datos_SGBM
     /// - Registrar errores técnicos con <c>Logger</c> y devolver mensajes amigables dentro de <c>Resultado&lt;T&gt;</c>.
     /// - No usar parámetros por referencia para mensajes; devolver siempre el mensaje dentro del <see cref="Resultado{T}"/>.
     ///
-    /// Consideraciones técnicas y operativas:
-    /// - Clientes es autoincremental; dejar <c>IdCliente</c> en null al insertar para que la BD genere el valor.
-    /// - Algunos catálogos relacionados (por ejemplo <c>Estados</c>) pueden no ser autoincrementales; si la aplicación
-    ///   debe generar claves, usar un helper seguro que obtenga el siguiente Id dentro de una transacción.
-    /// - Implementar paginación en consultas que puedan devolver muchos registros (aplicar <c>Skip/Take</c>).
-    /// - Evitar aplicar funciones CLR sobre columnas en WHERE que impidan el uso de índices; preferir collations
-    ///   case‑insensitive o usar <c>EF.Functions.Like</c> cuando proceda.
-    ///
     /// Seguridad y robustez:
     /// - No exponer excepciones crudas; capturar excepciones, registrar detalles técnicos y devolver mensajes útiles
     ///   en <c>Resultado&lt;T&gt;</c>.
     /// - Validar entradas (nulls, longitudes máximas, rangos numéricos) antes de persistir.
     /// - Verificar la existencia de entidades referenciadas (Personas, Estados) antes de insertar o actualizar.
     /// - Recuperar entidades desde el contexto antes de eliminarlas o modificarlas para evitar problemas con entidades desconectadas.
-    ///
-    /// Métodos esperados y su comportamiento:
-    /// - <c>GetClientePorIdPersona(int)</c>: devuelve un cliente por IdPersona incluyendo relaciones necesarias.
-    /// - <c>GetClientes()</c>: devuelve todos los clientes ordenados por apellido y nombre.
-    /// - <c>GetClientesPorDniNombres(string dni, string nombres)</c>: búsqueda flexible por DNI y/o nombres/apellidos.
-    /// - <c>RegistrarCliente(Clientes)</c>: inserta un nuevo cliente (autoincremental) y devuelve el Id generado.
-    /// - <c>ModificarCliente(Clientes)</c>: actualizar campos permitidos tras verificar existencia.
-    /// - <c>EliminarCliente</c> (físico o lógico según política): eliminar o marcar como inactivo tras verificar existencia.
-    ///
-    /// Extensibilidad:
-    /// - Centralizar la traducción de criterios de búsqueda y validaciones en helpers reutilizables para mantener consistencia.
-    /// - Considerar el uso de DTOs o proyecciones para consultas que devuelvan grandes volúmenes de datos o para la UI.
-    /// - Añadir pruebas unitarias e integración para cada método público y para los helpers de filtrado y generación de Id.
     /// </remarks>
     public class ClientesDatos
     {
@@ -513,6 +492,59 @@ namespace Datos_SGBM
             {
                 Logger.LogError($"Error en ModificarLoteMasivo:\n{ex.ToString()}");
                 return Resultado<int>.Fail("Ocurrió un error al actualizar el lote de clientes modificados.");
+            }
+        }
+
+        public static Resultado<Clientes> GetClienteGenerico()
+        {
+            try
+            {
+                using (var contexto = new Contexto())
+                {
+                    // Validar disponibilidad del DbSet mediante la clase ComprobacionContexto
+                    var comprobacion = new ComprobacionContexto(contexto);
+                    var rc = comprobacion.ComprobarEntidad(contexto.Clientes, nameof(contexto.Clientes));
+                    if (!rc.Success)
+                    {
+                        Logger.LogError(rc.Mensaje);
+                        return Resultado<Clientes>.Fail(rc.Mensaje);
+                    }
+                    var clienteGenerico = contexto.Clientes.Include(c => c.Personas).FirstOrDefault(c => c.Personas != null && c.Personas.Dni == "00000000");
+                    if (clienteGenerico != null)
+                        return Resultado<Clientes>.Ok(clienteGenerico);
+
+                    Personas? personaGenerica = contexto.Personas.FirstOrDefault(p => p.Dni == "00000000");
+                    
+                    personaGenerica ??= new Personas
+                    {
+                        IdPersona = null,
+                        Dni = "00000000",
+                        Nombres = "Sin Cliente",
+                        Apellidos = "",
+                    };
+
+                    clienteGenerico = new Clientes
+                    {
+                        IdCliente = null,
+                        IdPersona = personaGenerica?.IdPersona ?? 0, // Se asignará el IdPersona generado al insertar la persona
+                        Activo = true,
+                        FechaAlta = DateTime.Now,
+                        Personas = personaGenerica?.IdPersona != null ? null : personaGenerica // Solo asignamos la referencia si la persona no existía
+                    };
+
+                    contexto.Add(clienteGenerico);
+                    contexto.SaveChanges();
+                    if (clienteGenerico.IdCliente == null || clienteGenerico.IdCliente < 1)
+                        return Resultado<Clientes>.Fail("No se pudo registrar el cliente genérico.");
+
+                    clienteGenerico.Personas = personaGenerica; // Asignamos la referencia a la persona genérica para devolverla completa
+                    return Resultado<Clientes>.Ok(clienteGenerico);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex.ToString());
+                return Resultado<Clientes>.Fail("Error al obtener cliente genérico");
             }
         }
     }

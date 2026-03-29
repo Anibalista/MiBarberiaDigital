@@ -68,7 +68,7 @@ namespace Front_SGBM
             CargarCatalogoSeleccion();
 
             // 4. Cargar Estado
-            CargarEstadoGenerico();
+            CargarEstado();
 
             // 5. Mostrar el catálogo en la grilla
             ActualizarGrillaSeleccion(_catalogoItems);
@@ -169,30 +169,43 @@ namespace Front_SGBM
         /// <summary>
         /// Obtiene el estado "En Curso" por defecto de una nueva venta o lo crea por defecto
         /// </summary>
-        private void CargarEstadoGenerico()
+        private void CargarEstado()
         {
             _estadoActual = null;
+            if (_venta == null)
+                return;
+            if (_venta.IdEstado > 0)
+            {
+                _venta.Estados = null;
+            }
+            if (_venta?.Estados != null)
+            {
+                _estadoActual = _venta.Estados;
+            }
             try
             {
-                var resEstados = EstadosNegocio.GetEstado("Ventas", "En Curso");
-                if (resEstados.Success && resEstados.Data != null)
+                if (_estadoActual == null)
                 {
-                    _estadoActual = resEstados.Data;
-                } else
-                {
-                    Logger.LogError(resEstados.Mensaje);
-                    _estadoActual = new Estados
+                    var resEstado = EstadosNegocio.GetEstado("Ventas", "Finalizada");
+                    if (resEstado.Success && resEstado.Data != null)
                     {
-                        IdEstado = 0,
-                        Indole = "Ventas",
-                        Estado = "En Curso"
-                    };
+                        _estadoActual = resEstado.Data;
+                    }
+                    else
+                    {
+                        _estadoActual = new Estados
+                        {
+                            IdEstado = 0,
+                            Indole = "Ventas",
+                            Estado = "Finalizada"
+                        };
+                    }
                 }
-            } 
+            }
             catch (Exception ex)
             {
-                Logger.LogError(ex.ToString());
-                Mensajes.MensajeError("Error al obtener los estados de ventas");
+                Logger.LogError($"Error al cargar estado de venta: {ex.ToString()}");
+                Mensajes.MensajeError("Error al cargar el estado de la venta. Se asignará un estado por defecto.");
             }
         }
 
@@ -591,6 +604,7 @@ namespace Front_SGBM
                 string mensaje = string.Empty;
                 if (!ValidarCliente())
                 {
+                    // Si viaja en -1, el sistema lo interpretará como "Venta sin cliente" y usará un cliente genérico con dni "00000000".
                     venta.IdCliente = -1;
                 }
                 else
@@ -602,16 +616,14 @@ namespace Front_SGBM
 
                 venta.FechaVenta = DateTime.Now;
 
-                venta.IdEstado = _estadoActual?.IdEstado ?? 0;
-
                 if (venta.IdEstado < 1)
                 {
-                    venta.Estados = new Estados
-                    {
-                        IdEstado = 0,
-                        Indole = "Ventas",
-                        Estado = "En Curso"
-                    };
+                    venta.IdEstado = _estadoActual?.IdEstado ?? 0;
+                }
+                
+                if (venta.IdEstado > 0)
+                {
+                    venta.Estados = null;
                 }
                 return Resultado<Ventas>.Ok(venta);
             }
