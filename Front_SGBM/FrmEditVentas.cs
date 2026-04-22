@@ -420,10 +420,17 @@ namespace Front_SGBM
                 DetallesVentas? detalleExistente = null;
 
                 if (itemSeleccionado.ProductoOrigen != null)
+                {
+                    itemSeleccionado.ProductoOrigen.Categorias = null; // Evitamos referencias circulares que puedan confundir a EF Core o al método de cálculo de precios
+                    itemSeleccionado.ProductoOrigen.Proveedores = null;
                     detalleExistente = _carrito.FirstOrDefault(d => d.IdProducto == itemSeleccionado.Id);
+                }
                 else if (itemSeleccionado.ServicioOrigen != null)
+                {
+                    itemSeleccionado.ServicioOrigen.Categorias = null; // Evitamos referencias circulares que puedan confundir a EF Core o al método de cálculo de precios
                     detalleExistente = _carrito.FirstOrDefault(d => d.IdServicio == itemSeleccionado.Id);
-
+                }
+                
                 // 5. Procesamos la inserción o actualización
                 if (detalleExistente != null)
                 {
@@ -479,9 +486,67 @@ namespace Front_SGBM
             }
         }
 
+        /// <summary>
+        /// Desencadena el proceso de validación, apertura de cajas y registro de la venta completa.
+        /// </summary>
         private void BtnGuardar_Click(object sender, EventArgs e)
         {
+            try
+            {
+                // 1. Validamos que la venta esté perfectamente armada (Carrito, montos, vendedor, cliente, etc.)
+                if (!ValidarVenta(out string mensajeVenta))
+                {
+                    Mensajes.MensajeAdvertencia(mensajeVenta);
+                    return;
+                }
 
+                // 2. Verificamos que las cajas correspondientes a los ítems del carrito estén abiertas
+                if (!VerificarYAbrirCajas())
+                {
+                    // Si falta una caja y el usuario cerró el formulario de apertura, detenemos el cobro.
+                    return;
+                }
+
+                // 3. Obtenemos el medio de pago
+                if (cbMedioPago.SelectedIndex == -1)
+                {
+                    Mensajes.MensajeAdvertencia("Por favor, seleccione un medio de pago.");
+                    return;
+                }
+                var medioPagoSeleccionado = (MediosPagos)cbMedioPago.SelectedItem;
+
+                // 4. Bloqueamos la interfaz para evitar el "Doble Clic" accidental
+                btnGuardar.Enabled = false; // Asegúrate de que este sea el nombre exacto de tu control
+                Cursor.Current = Cursors.WaitCursor;
+
+                // 5. ¡Mandamos todo a la capa de Negocio!
+                var resCobro = VentasNegocio.ProcesarCobroVenta(_venta!, _carrito, medioPagoSeleccionado);
+
+                // 6. Evaluamos el resultado
+                if (resCobro.Success)
+                {
+                    // resCobro.Mensaje traerá el "Operación finalizada" + posibles advertencias de stock
+                    Mensajes.MensajeExito(resCobro.Mensaje);
+
+                    this.DialogResult = DialogResult.OK;
+                    this.Close(); // Cerramos el formulario para volver a la pantalla principal
+                }
+                else
+                {
+                    Mensajes.MensajeError(resCobro.Mensaje);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error crítico en BtnGuardar_Click: {ex.ToString()}");
+                Mensajes.MensajeError("Ocurrió un error inesperado al intentar procesar la venta.");
+            }
+            finally
+            {
+                // Pase lo que pase, devolvemos el cursor a la normalidad y reactivamos el botón
+                btnGuardar.Enabled = true;
+                Cursor.Current = Cursors.Default;
+            }
         }
 
         #endregion

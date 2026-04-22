@@ -217,6 +217,39 @@ namespace Datos_SGBM
             }
         }
 
+        /// <summary>
+        /// Obtiene una lista de productos a traves de una lista de ids
+        /// </summary>
+        public static Resultado<List<Productos>> ObtenerProductosPorIds(List<int>? ids)
+        {
+            if (ids == null || ids.Count == 0)
+                return Resultado<List<Productos>>.Fail("La lista de IDs no puede ser nula o vacía.");
+            try
+            {
+                using (var contexto = new Contexto())
+                {
+                    var comprobacion = new ComprobacionContexto(contexto);
+                    var rc = comprobacion.ComprobarEntidad(contexto.Productos, nameof(contexto.Productos));
+                    if (!rc.Success)
+                    {
+                        Logger.LogError(rc.Mensaje);
+                        return Resultado<List<Productos>>.Fail(rc.Mensaje);
+                    }
+                    var productos = contexto.Productos
+                                            .Where(p => p.IdProducto != null && ids.Contains(p.IdProducto.Value)).ToList();
+                    if (productos == null || productos.Count == 0)
+                        return Resultado<List<Productos>>.Fail("No se encontraron productos para los IDs proporcionados.");
+                    return Resultado<List<Productos>>.Ok(productos);
+                }
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error al obtener productos por IDs:\n{ex.ToString()}";
+                Logger.LogError(msg);
+                return Resultado<List<Productos>>.Fail(msg);
+            }
+        }
+
         #endregion
 
         #region Interacción con BD (registros, modificación, etc)

@@ -180,8 +180,27 @@ namespace Datos_SGBM
                     // Nulificamos el Id para que EF Core lo genere automáticamente al agregarlo.
                     nuevaCaja.IdCaja = null;
 
-                    // Agregamos la nueva caja al contexto y guardamos los cambios.
-                    contexto.Cajas.Add(nuevaCaja);
+                    // Creamos la transacción de apertura de caja para registrar el evento de apertura.
+                    var tipoTransaccion = contexto.TiposTransacciones.FirstOrDefault(tt => tt.Tipo == "Apertura de Caja");
+                    if (tipoTransaccion != null)
+                    {
+                        var transaccion = new Transacciones
+                        {
+                            IdTipoTransaccion = tipoTransaccion.IdTipoTransaccion,
+                            Cajas = nuevaCaja,
+                            IdFactura = null,
+                            Hora = DateTime.Now,
+                            MontoIngreso = nuevaCaja.TotalEfectivo
+                        };
+                        contexto.Add(transaccion);
+                    } else
+                    {
+                        // Si no se encuentra el tipo de transacción, solo agregamos la caja.
+                        contexto.Cajas.Add(nuevaCaja);
+                        Logger.LogError("No se encontró el tipo de transacción 'Apertura de Caja' para registrar la apertura.");
+                    }
+
+                    // Guardamos los cambios.
                     int exitos = contexto.SaveChanges();
 
                     // Si hubo cambios en la BD Devolvemos éxito

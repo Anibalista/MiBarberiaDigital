@@ -1,10 +1,5 @@
 ﻿using Datos_SGBM;
 using Entidades_SGBM;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utilidades;
 
 namespace Negocio_SGBM
@@ -116,7 +111,18 @@ namespace Negocio_SGBM
                 List<Cajas> cajasAbiertas = resCajasAbiertas.Data;
 
                 // 3. Enviamos todo el "paquete" a la capa de Datos para que ejecute el guardado Graph (Transacción)
-                return VentasDatos.RegistrarVentaCompleta(venta, carrito, medioPago, cajasAbiertas);
+                var resVenta = VentasDatos.RegistrarVentaCompleta(venta, carrito, medioPago, cajasAbiertas);
+
+                // 3.1 Si la venta no se pudo registrar, devolvemos el error
+                if (!resVenta.Success)
+                {
+                    return Resultado<bool>.Fail(resVenta.Mensaje);
+                }
+                
+                string mensajeStock = VentasDatos.ProcesarStockVenta(carrito);
+
+                return Resultado<bool>.Ok(true, mensajeStock);
+
             }
             catch (Exception ex)
             {
@@ -125,7 +131,6 @@ namespace Negocio_SGBM
             }
         }
 
-
-
+        
     }
 }

@@ -92,9 +92,9 @@ namespace EF_SGBM
             modelBuilder.Entity<Niveles>().HasData(
                 new Niveles { IdNivel = 1, Nivel = "Admin" },
                 new Niveles { IdNivel = 2, Nivel = "Propietario" },
-                new Niveles { IdNivel = 3, Nivel = "Responsable" },
-                new Niveles { IdNivel = 4, Nivel = "Barbero" },
-                new Niveles { IdNivel = 5, Nivel = "Invitado" }
+                new Niveles { IdNivel = 3, Nivel = "Barbero Senior" },
+                new Niveles { IdNivel = 4, Nivel = "Barbero Junior" },
+                new Niveles { IdNivel = 5, Nivel = "Administrativo" }
             );
 
             // --- PROVINCIAS ---
@@ -141,7 +141,8 @@ namespace EF_SGBM
                 new TiposTransacciones { IdTipoTransaccion = 6, Tipo = "Pago Comisión" },
                 new TiposTransacciones { IdTipoTransaccion = 7, Tipo = "Pago Costos" },
                 new TiposTransacciones { IdTipoTransaccion = 8, Tipo = "Pago Otros" },
-                new TiposTransacciones { IdTipoTransaccion = 9, Tipo = "Retiro Propietario" }
+                new TiposTransacciones { IdTipoTransaccion = 9, Tipo = "Retiro Propietario" },
+                new TiposTransacciones { IdTipoTransaccion = 10, Tipo = "Apertura de Caja" }
             );
 
             //-- MEDIOS DE PAGO --

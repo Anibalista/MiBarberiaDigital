@@ -4,6 +4,7 @@ using EF_SGBM;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EF_SGBM.Migrations
 {
     [DbContext(typeof(Contexto))]
-    partial class ContextoModelSnapshot : ModelSnapshot
+    [Migration("20260405141152_ActualizacionNiveles")]
+    partial class ActualizacionNiveles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -984,11 +987,6 @@ namespace EF_SGBM.Migrations
                         {
                             IdTipoTransaccion = 9,
                             Tipo = "Retiro Propietario"
-                        },
-                        new
-                        {
-                            IdTipoTransaccion = 10,
-                            Tipo = "Apertura de Caja"
                         });
                 });
 
